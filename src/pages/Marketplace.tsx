@@ -6,7 +6,6 @@ import { Globe, Users, Database, ShieldCheck, Filter, Search } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
 
 const towers = [
   { id: "dxp", name: "Digital Experience", icon: Globe, color: "text-blue-500" },
@@ -113,7 +112,6 @@ const services = [
 ];
 
 const Marketplace = () => {
-  const navigate = useNavigate();
   const [selectedTowers, setSelectedTowers] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -323,10 +321,7 @@ const Marketplace = () => {
                       </div>
                     </div>
 
-                    <Button
-                      onClick={() => navigate(`/services/${service.id}`)}
-                      className="mt-6 w-full rounded-full bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90"
-                    >
+                    <Button className="mt-6 w-full rounded-full bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90">
                       View Details
                     </Button>
                   </motion.div>
