@@ -6,6 +6,7 @@ import { Globe, Users, Database, ShieldCheck, Filter, Search } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const towers = [
   { id: "dxp", name: "Digital Experience", icon: Globe, color: "text-blue-500" },
@@ -16,7 +17,8 @@ const towers = [
 
 const serviceTypes = [
   { id: "design", name: "Design Services", description: "Strategic architecture and blueprints" },
-  { id: "deploy", name: "Deploy Services", description: "Ready-to-execute implementations" },
+  { id: "deploy-saas", name: "Deploy Services (SaaS)", description: "Cloud-based implementations" },
+  { id: "deploy-onprem", name: "Deploy Services (On-Prem)", description: "On-premise deployments" },
 ];
 
 // Sample services data
@@ -35,7 +37,7 @@ const services = [
   {
     id: 2,
     tower: "dxp",
-    type: "deploy",
+    type: "deploy-saas",
     name: "Customer Onboarding Optimization",
     description: "Streamline and automate your customer onboarding journey with proven patterns.",
     duration: "6-8 weeks",
@@ -57,7 +59,7 @@ const services = [
   {
     id: 4,
     tower: "dws",
-    type: "deploy",
+    type: "deploy-saas",
     name: "IT Governance Framework Implementation",
     description: "Deploy comprehensive IT governance with policies, workflows, and compliance tracking.",
     duration: "8-10 weeks",
@@ -79,7 +81,7 @@ const services = [
   {
     id: 6,
     tower: "dia",
-    type: "deploy",
+    type: "deploy-saas",
     name: "Business Intelligence Platform",
     description: "Deploy modern BI platform with dashboards, reporting, and self-service analytics.",
     duration: "10-12 weeks",
@@ -101,7 +103,7 @@ const services = [
   {
     id: 8,
     tower: "sdo",
-    type: "deploy",
+    type: "deploy-onprem",
     name: "CI/CD Pipeline Implementation",
     description: "Build automated deployment pipelines with security scanning and compliance checks.",
     duration: "6-8 weeks",
@@ -113,9 +115,9 @@ const services = [
 
 const Marketplace = () => {
   const [selectedTowers, setSelectedTowers] = useState<string[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState("design");
 
   const toggleTower = (towerId: string) => {
     setSelectedTowers((prev) =>
@@ -123,15 +125,9 @@ const Marketplace = () => {
     );
   };
 
-  const toggleType = (typeId: string) => {
-    setSelectedTypes((prev) =>
-      prev.includes(typeId) ? prev.filter((id) => id !== typeId) : [...prev, typeId]
-    );
-  };
-
   const filteredServices = services.filter((service) => {
     const matchesTower = selectedTowers.length === 0 || selectedTowers.includes(service.tower);
-    const matchesType = selectedTypes.length === 0 || selectedTypes.includes(service.type);
+    const matchesType = service.type === activeTab;
     const matchesSearch =
       searchQuery === "" ||
       service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -174,6 +170,15 @@ const Marketplace = () => {
 
       {/* Main Content */}
       <div className="mx-auto max-w-7xl px-6 py-12">
+        {/* Tabs for Service Types */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3">
+            <TabsTrigger value="design">Design Services</TabsTrigger>
+            <TabsTrigger value="deploy-saas">Deploy Services (SaaS)</TabsTrigger>
+            <TabsTrigger value="deploy-onprem">Deploy Services (On-Prem)</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         <div className="flex gap-8">
           {/* Sidebar Filters */}
           <aside className={`w-64 shrink-0 ${sidebarOpen ? "block" : "hidden"} lg:block`}>
@@ -190,27 +195,6 @@ const Marketplace = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9"
                   />
-                </div>
-              </div>
-
-              {/* Service Type Filter */}
-              <div>
-                <label className="mb-3 block text-sm font-medium text-foreground">Service Type</label>
-                <div className="space-y-2">
-                  {serviceTypes.map((type) => (
-                    <label key={type.id} className="flex cursor-pointer items-start gap-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedTypes.includes(type.id)}
-                        onChange={() => toggleType(type.id)}
-                        className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
-                      />
-                      <div className="flex-1">
-                        <div className="text-sm text-foreground">{type.name}</div>
-                        <div className="text-xs text-muted-foreground">{type.description}</div>
-                      </div>
-                    </label>
-                  ))}
                 </div>
               </div>
 
@@ -234,13 +218,12 @@ const Marketplace = () => {
               </div>
 
               {/* Clear Filters */}
-              {(selectedTowers.length > 0 || selectedTypes.length > 0 || searchQuery) && (
+              {(selectedTowers.length > 0 || searchQuery) && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
                     setSelectedTowers([]);
-                    setSelectedTypes([]);
                     setSearchQuery("");
                   }}
                   className="w-full"
@@ -287,7 +270,7 @@ const Marketplace = () => {
                           <Icon size={18} />
                         </div>
                         <Badge variant="secondary" className="text-xs">
-                          {service.type === "design" ? "Design" : "Deploy"}
+                          {service.type === "design" ? "Design" : service.type === "deploy-saas" ? "Deploy (SaaS)" : "Deploy (On-Prem)"}
                         </Badge>
                       </div>
                       <span className="text-sm font-medium text-foreground">{service.price}</span>
@@ -322,7 +305,9 @@ const Marketplace = () => {
                     </div>
 
                     <Button className="mt-6 w-full rounded-full bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90">
-                      View Details
+                      <a href="/service/digital-experience-strategy" className="block w-full">
+                        View Details
+                      </a>
                     </Button>
                   </motion.div>
                 );
@@ -337,7 +322,6 @@ const Marketplace = () => {
                   size="sm"
                   onClick={() => {
                     setSelectedTowers([]);
-                    setSelectedTypes([]);
                     setSearchQuery("");
                   }}
                   className="mt-4"
