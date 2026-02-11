@@ -9,14 +9,14 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <div className="flex items-center gap-1.5">
-          <span className="font-serif text-2xl font-bold text-foreground">DQ</span>
+          <span className="text-2xl font-bold text-foreground">DQ</span>
           <span className="text-sm font-semibold tracking-wide text-muted-foreground">TMaaS</span>
         </div>
 
         <div className="hidden items-center gap-8 md:flex">
-          <a href="#framework" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Framework</a>
-          <a href="#solutions" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Solutions</a>
-          <a href="#marketplace" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Marketplace</a>
+          <a href="/#framework" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Framework</a>
+          <a href="/#explore" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Explore</a>
+          <a href="/marketplace" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Marketplace</a>
         </div>
 
         <div className="hidden items-center gap-4 md:flex">
@@ -34,9 +34,9 @@ const Navbar = () => {
       {mobileOpen && (
         <div className="border-t border-border bg-background p-6 md:hidden">
           <div className="flex flex-col gap-4">
-            <a href="#framework" className="text-sm text-muted-foreground">Framework</a>
-            <a href="#solutions" className="text-sm text-muted-foreground">Solutions</a>
-            <a href="#marketplace" className="text-sm text-muted-foreground">Marketplace</a>
+            <a href="/#framework" className="text-sm text-muted-foreground">Framework</a>
+            <a href="/#explore" className="text-sm text-muted-foreground">Explore</a>
+            <a href="/marketplace" className="text-sm text-muted-foreground">Marketplace</a>
             <Button size="sm" className="rounded-full bg-secondary text-secondary-foreground mt-2">Get Started</Button>
           </div>
         </div>

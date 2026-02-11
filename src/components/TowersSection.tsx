@@ -14,7 +14,7 @@ const towers = [
     title: "Digital Workspace",
     subtitle: "Internal tools & productivity",
     description: "Modernise how your teams work with intelligent platforms, governance, and collaboration tools.",
-    examples: ["Employee experience", "IT governance", "Productivity", "Compliance"],
+    examples: ["Intranet & collaboration", "GPRC & compliance", "Core business systems", "Backoffice support"],
   },
   {
     icon: Database,
@@ -34,7 +34,7 @@ const towers = [
 
 const TowersSection = () => {
   return (
-    <section id="solutions" className="bg-background py-24 lg:py-32">
+    <section id="solutions" className="bg-gradient-to-b from-background to-accent/30 py-24 lg:py-32">
       <div className="mx-auto max-w-6xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -45,8 +45,8 @@ const TowersSection = () => {
           <span className="mb-4 inline-block rounded-full border border-border px-4 py-1.5 text-xs font-medium text-muted-foreground">
             Transformation Coverage
           </span>
-          <h2 className="mt-4 font-serif text-3xl text-foreground md:text-5xl">
-            Four pillars of <span className="text-gradient-brand italic">change</span>
+          <h2 className="mt-4 text-3xl font-bold text-foreground md:text-5xl">
+            Four execution <span className="text-gradient-brand italic">streams</span>
           </h2>
           <p className="mt-5 text-base text-muted-foreground md:text-lg">
             Comprehensive coverage across every dimension of your organisation's digital landscape.
@@ -68,7 +68,7 @@ const TowersSection = () => {
                   <tower.icon size={20} className="text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-xl text-foreground">{tower.title}</h3>
+                  <h3 className="text-xl font-semibold text-foreground">{tower.title}</h3>
                   <p className="text-xs font-medium text-primary">{tower.subtitle}</p>
                 </div>
               </div>

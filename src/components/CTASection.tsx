@@ -16,7 +16,7 @@ const CTASection = () => {
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-serif text-3xl text-navy-foreground md:text-5xl"
+          className="text-3xl font-bold text-navy-foreground md:text-5xl"
         >
           Ready to transform{" "}
           <span className="text-gradient-brand italic">differently?</span>
