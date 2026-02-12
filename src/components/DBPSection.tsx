@@ -69,12 +69,12 @@ const DBPSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="mt-12 overflow-hidden rounded-2xl border border-border bg-card p-12 shadow-card"
+          className="mt-12 overflow-hidden rounded-2xl border border-border bg-card p-20 shadow-card"
         >
           <img
             src="/dbp-canvas.png"
             alt="Digital Business Platform Canvas"
-            className="h-full w-full object-cover rounded-xl"
+            className="h-full w-full object-cover"
           />
         </motion.div>
 
