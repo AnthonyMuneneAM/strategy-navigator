@@ -37,7 +37,7 @@ const HeroSection = () => {
           transition={{ duration: 0.6 }}
           className="text-4xl font-bold leading-[1.15] text-foreground md:text-6xl"
         >
-          Digital transformation,
+          Digital Transformation,
           <br />
           <span className="text-gradient-brand italic">simplified.</span>
         </motion.h1>

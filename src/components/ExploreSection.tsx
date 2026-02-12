@@ -9,8 +9,8 @@ const exploreCards = [
     title: "Diagnose & Learn",
     description: "Use AI to identify transformation opportunities or explore our knowledge centre for best practices and guides.",
     links: [
-      { label: "Diagnose AI", href: "/diagnose" },
-      { label: "Knowledge Centre", href: "/knowledge" },
+      { label: "Diagnose AI", href: "/explore#diagnose" },
+      { label: "Knowledge Centre", href: "/explore#knowledge" },
     ],
   },
   {
@@ -19,8 +19,8 @@ const exploreCards = [
     title: "Services Marketplace",
     description: "Browse architecture-backed transformation services across all four towers. From strategy to execution.",
     links: [
-      { label: "Design Services", href: "/marketplace?type=design" },
-      { label: "Deploy Services", href: "/marketplace?type=deploy" },
+      { label: "Design Services", href: "/explore#design" },
+      { label: "Deploy Services", href: "/explore#deploy" },
     ],
   },
   {
@@ -29,7 +29,7 @@ const exploreCards = [
     title: "Support Services",
     description: "Ensure adoption, optimize outcomes, and drive continuous improvement with expert support.",
     links: [
-      { label: "View Support Services", href: "/support" },
+      { label: "View Support Services", href: "/explore#drive" },
     ],
   },
 ];

@@ -1,10 +1,11 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import ProblemSection from "@/components/ProblemSection";
+import DBPSection from "@/components/DBPSection";
 import FrameworkSection from "@/components/FrameworkSection";
-import ValuePropsSection from "@/components/ValuePropsSection";
-import TowersSection from "@/components/TowersSection";
-import ExploreSection from "@/components/ExploreSection";
-import CTASection from "@/components/CTASection";
+import OutcomesSection from "@/components/OutcomesSection";
+import GetStartedSection from "@/components/GetStartedSection";
+import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -12,11 +13,12 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
+      <ProblemSection />
+      <DBPSection />
       <FrameworkSection />
-      <ValuePropsSection />
-      <TowersSection />
-      <ExploreSection />
-      <CTASection />
+      <OutcomesSection />
+      <GetStartedSection />
+      <FAQSection />
       <Footer />
     </div>
   );

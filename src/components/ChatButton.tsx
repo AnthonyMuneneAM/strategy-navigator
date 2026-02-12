@@ -15,6 +15,17 @@ const ChatButton = () => {
     return () => clearTimeout(timer);
   });
 
+  // Listen for custom event to open dialog
+  useState(() => {
+    const handleOpenDiagnose = () => {
+      setIsOpen(true);
+      setShowTooltip(false);
+    };
+    
+    window.addEventListener('openDiagnoseAI', handleOpenDiagnose);
+    return () => window.removeEventListener('openDiagnoseAI', handleOpenDiagnose);
+  });
+
   return (
     <>
       {/* Floating Chat Button */}
