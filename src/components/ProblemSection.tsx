@@ -10,7 +10,7 @@ const problems = [
   {
     icon: DollarSign,
     title: "High cost, unclear value",
-    description: "Six-figure retainers with limited visibility into progress, deliverables, or business impact.",
+    description: "Six-figure retainers with limited visibility into progress, deliverables, or measurable business impact.",
   },
   {
     icon: AlertCircle,
