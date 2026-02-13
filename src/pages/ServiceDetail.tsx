@@ -96,9 +96,10 @@ const ServiceDetail = () => {
       <section className="py-12">
         <div className="mx-auto max-w-7xl px-6">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="mb-8 grid w-full max-w-2xl grid-cols-4 lg:w-auto">
+            <TabsList className="mb-8 grid w-full max-w-3xl grid-cols-5 lg:w-auto">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="deliverables">Deliverables</TabsTrigger>
+              <TabsTrigger value="inputs">Required Inputs</TabsTrigger>
               <TabsTrigger value="methodology">Methodology</TabsTrigger>
               <TabsTrigger value="impact">Impact</TabsTrigger>
             </TabsList>
@@ -292,6 +293,108 @@ const ServiceDetail = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Required Inputs Tab */}
+            <TabsContent value="inputs" className="space-y-8">
+              <div>
+                <h2 className="mb-4 text-2xl font-bold text-foreground">Required Inputs</h2>
+                <p className="mb-8 leading-relaxed text-muted-foreground">
+                  To ensure the Digital Experience Strategy is contextually relevant and executable, we require access
+                  to the following organizational assets and documentation. These inputs enable us to align the
+                  architecture with your strategic objectives and operational realities.
+                </p>
+
+                <div className="space-y-6">
+                  {[
+                    {
+                      title: "Business Vision",
+                      description:
+                        "Strategic direction and business model documentation that guides transformation priorities.",
+                      items: [
+                        "Corporate strategy & strategic objectives",
+                        "Business model canvas & value propositions",
+                        "Value streams & revenue models",
+                        "Market positioning & competitive landscape",
+                      ],
+                      icon: Target,
+                      color: "text-blue-600",
+                      bgColor: "bg-blue-500/10",
+                    },
+                    {
+                      title: "Enterprise Assets",
+                      description:
+                        "Current state documentation of business capabilities, data, applications, and technology infrastructure.",
+                      items: [
+                        "Business capability models",
+                        "Data architecture & data catalog",
+                        "Application portfolio & integrations",
+                        "Technology stack & infrastructure",
+                      ],
+                      icon: Globe,
+                      color: "text-purple-600",
+                      bgColor: "bg-purple-500/10",
+                    },
+                    {
+                      title: "Experience Assets",
+                      description:
+                        "Customer and market insights that inform experience design and channel strategy.",
+                      items: [
+                        "Customer segments & personas",
+                        "Customer journeys & pain points",
+                        "Digital touchpoints & channels",
+                        "Experience metrics & feedback",
+                      ],
+                      icon: Users,
+                      color: "text-green-600",
+                      bgColor: "bg-green-500/10",
+                    },
+                    {
+                      title: "Transformation Portfolio",
+                      description:
+                        "Existing transformation initiatives and requirements that need to be integrated or aligned.",
+                      items: [
+                        "Transformation roadmaps & timelines",
+                        "Active initiatives & projects",
+                        "Business requirements & use cases",
+                        "Constraints & dependencies",
+                      ],
+                      icon: TrendingUp,
+                      color: "text-orange-600",
+                      bgColor: "bg-orange-500/10",
+                    },
+                  ].map((input) => (
+                    <div key={input.title} className="rounded-2xl border border-border bg-card p-6">
+                      <div className="mb-4 flex items-start gap-4">
+                        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${input.bgColor}`}>
+                          <input.icon size={24} className={input.color} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="mb-1 text-xl font-semibold text-foreground">{input.title}</h3>
+                          <p className="text-sm leading-relaxed text-muted-foreground">{input.description}</p>
+                        </div>
+                      </div>
+                      <div className="ml-16 space-y-2">
+                        {input.items.map((item) => (
+                          <div key={item} className="flex items-start gap-3">
+                            <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-primary" />
+                            <span className="text-sm text-foreground">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 rounded-xl border border-primary/20 bg-primary/5 p-6">
+                  <h3 className="mb-2 font-semibold text-foreground">Input Flexibility</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    We understand that not all organizations have complete documentation across all areas. Our delivery
+                    approach includes discovery workshops to capture missing information and validate existing assets.
+                    The quality and completeness of inputs directly impacts the speed and precision of delivery.
+                  </p>
                 </div>
               </div>
             </TabsContent>

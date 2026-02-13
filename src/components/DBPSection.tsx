@@ -63,28 +63,13 @@ const DBPSection = () => {
           </p>
         </motion.div>
 
-        {/* Canvas Image */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="mt-12 overflow-hidden rounded-2xl border border-border bg-card p-20 shadow-card"
-        >
-          <img
-            src="/dbp-canvas.png"
-            alt="Digital Business Platform Canvas"
-            className="h-full w-full object-cover"
-          />
-        </motion.div>
-
         {/* Four Execution Streams */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="mt-16"
+          className="mt-12"
         >
           <div className="mb-8 text-center">
             <h3 className="text-2xl font-bold text-foreground">Four execution streams</h3>
