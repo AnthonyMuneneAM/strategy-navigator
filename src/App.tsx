@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Explore from "./pages/Explore";
 import Marketplace from "./pages/Marketplace";
 import ServiceDetail from "./pages/ServiceDetail";
+import Onboarding from "./pages/auth/Onboarding";
 import NotFound from "./pages/NotFound";
 import ChatButton from "./components/ChatButton";
 import Overview from "./pages/dashboard/Overview";
@@ -21,6 +22,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/signin" element={<Onboarding />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/service/:id" element={<ServiceDetail />} />

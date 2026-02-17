@@ -20,10 +20,12 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-4 md:flex">
-          <a href="#" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Login</a>
-          <Button size="sm" className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-5">
-            Get Started
-          </Button>
+          <a href="/signin" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Login</a>
+          <a href="/signin">
+            <Button size="sm" className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/90 px-5">
+              Get Started
+            </Button>
+          </a>
         </div>
 
         <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -35,7 +37,9 @@ const Navbar = () => {
         <div className="border-t border-border bg-background p-6 md:hidden">
           <div className="flex flex-col gap-4">
             <a href="/explore" className="text-sm text-muted-foreground">Explore</a>
-            <Button size="sm" className="rounded-full bg-secondary text-secondary-foreground mt-2">Get Started</Button>
+            <a href="/signin">
+              <Button size="sm" className="rounded-full bg-secondary text-secondary-foreground mt-2">Get Started</Button>
+            </a>
           </div>
         </div>
       )}
