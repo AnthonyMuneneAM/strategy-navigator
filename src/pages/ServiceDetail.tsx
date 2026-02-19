@@ -6,8 +6,21 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ServiceRequestDialog from "@/components/ServiceRequestDialog";
 
 const ServiceDetail = () => {
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+
+  const serviceData = {
+    name: "Digital Experience Strategy",
+    category: "Digital Experience",
+    type: "Design",
+    tower: "Digital Experience",
+    price: "From $25k",
+    duration: "4-6 weeks",
+    capabilities: ["Customer Journey", "Omnichannel", "MarTech", "CRM", "Analytics"],
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -80,7 +93,9 @@ const ServiceDetail = () => {
                 </div>
               </div>
 
-              <Button className="mt-6 w-full rounded-full bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90">
+              <Button className="mt-6 w-full rounded-full bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90"
+                onClick={() => setRequestDialogOpen(true)}
+              >
                 Request Service
               </Button>
               
@@ -91,6 +106,13 @@ const ServiceDetail = () => {
           </div>
         </div>
       </section>
+
+      {/* Service Request Dialog */}
+      <ServiceRequestDialog
+        open={requestDialogOpen}
+        onOpenChange={setRequestDialogOpen}
+        service={serviceData}
+      />
 
       {/* Main Content */}
       <section className="py-12">
