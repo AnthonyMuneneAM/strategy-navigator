@@ -33,17 +33,9 @@ const Complete = () => {
           </p>
 
           <div className="my-8 rounded-xl bg-accent/50 p-6">
-            <div className="mb-4 flex items-center justify-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-green-500"></div>
-              <span className="text-sm font-medium text-foreground">Organisation Profile Created</span>
-            </div>
-            <div className="mb-4 flex items-center justify-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-green-500"></div>
-              <span className="text-sm font-medium text-foreground">Customer Admin Role Assigned</span>
-            </div>
             <div className="flex items-center justify-center gap-2">
               <div className="h-2 w-2 rounded-full bg-green-500"></div>
-              <span className="text-sm font-medium text-foreground">Dashboard Access Enabled</span>
+              <span className="text-sm font-medium text-foreground">You're all set!</span>
             </div>
           </div>
 
