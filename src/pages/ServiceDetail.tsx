@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowLeft, Globe, CheckCircle2, TrendingUp, Users, Target } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Globe, CheckCircle2, TrendingUp, Users, Target, Download, Share2, Star, Clock, Award, Zap, Shield, BarChart3, Layers } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,205 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ServiceRequestDialog from "@/components/ServiceRequestDialog";
 
+// Dashboard Metric Card Component with alternating animations
+const DashboardMetricCard = ({
+  icon: Icon,
+  title,
+  description,
+  metricLabel,
+  percentage,
+  secondaryPercentage,
+  secondaryLabel,
+  gradient,
+  textColor,
+  borderColor,
+  delay,
+  isCustomGradient = false
+}: {
+  icon: any;
+  title: string;
+  description: string;
+  metricLabel: string;
+  percentage: number;
+  secondaryPercentage: number;
+  secondaryLabel: string;
+  gradient: string;
+  textColor: string;
+  borderColor: string;
+  delay: number;
+  isCustomGradient?: boolean;
+}) => {
+  const [showMetrics, setShowMetrics] = useState(false);
+
+  useEffect(() => {
+    // Start with description visible for 4 seconds, then alternate every 5 seconds
+    const initialTimer = setTimeout(() => {
+      setShowMetrics(true);
+    }, 4000);
+
+    const interval = setInterval(() => {
+      setShowMetrics((prev) => !prev);
+    }, 5000);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.5 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      className={`flex items-center gap-4 rounded-xl border ${borderColor} bg-white p-4 shadow-sm transition-all hover:shadow-lg`}
+    >
+      <motion.div
+        initial={{ scale: 0 }}
+        whileInView={{ scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: delay + 0.1, type: "spring", stiffness: 200 }}
+        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl shadow-lg ${!isCustomGradient ? gradient : ''}`}
+        style={isCustomGradient ? { background: gradient } : {}}
+      >
+        <Icon size={24} className="text-white" />
+      </motion.div>
+      <div className="flex-1 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex-1 min-h-[32px]">
+            <AnimatePresence mode="wait">
+              {!showMetrics ? (
+                <motion.div
+                  key="description"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <span className="text-xs font-semibold text-slate-600 block mb-0.5">{title}</span>
+                  <p className="text-[10px] leading-tight text-slate-500">
+                    {description}
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="metrics"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex items-baseline gap-2"
+                >
+                  <span className={`text-2xl font-bold ${textColor}`}>
+                    {percentage}%
+                  </span>
+                  <span className="text-[10px] text-slate-500">{metricLabel}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+        <AnimatePresence mode="wait">
+          {showMetrics && (
+            <motion.div
+              key="bars"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-2"
+            >
+              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${percentage}%` }}
+                  transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
+                  className={`h-full rounded-full ${!isCustomGradient ? gradient : ''}`}
+                  style={isCustomGradient ? { background: gradient } : {}}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${secondaryPercentage}%` }}
+                    transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
+                    className={`h-full rounded-full ${textColor.replace('text-', 'bg-')}/40`}
+                  />
+                </div>
+                <span className="text-[9px] text-slate-400 whitespace-nowrap">{secondaryLabel}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
 const ServiceDetail = () => {
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [scrollOpacity, setScrollOpacity] = useState(1);
+  const [gradientIndex, setGradientIndex] = useState(0);
+  const [isTabsSticky, setIsTabsSticky] = useState(false);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const tabsPlaceholderRef = useRef<HTMLDivElement>(null);
+
+  // Subtle gradient variations using DQ brand colors
+  const gradients = [
+    'linear-gradient(135deg, hsl(11 96% 60% / 0.15), hsl(25 100% 62% / 0.12), hsl(200 80% 60% / 0.10))',
+    'linear-gradient(135deg, hsl(25 100% 62% / 0.15), hsl(200 80% 60% / 0.12), hsl(220 70% 55% / 0.10))',
+    'linear-gradient(135deg, hsl(200 80% 60% / 0.15), hsl(220 70% 55% / 0.12), hsl(11 96% 60% / 0.10))',
+    'linear-gradient(135deg, hsl(220 70% 55% / 0.15), hsl(11 96% 60% / 0.12), hsl(25 100% 62% / 0.10))',
+  ];
+
+  // Rotate gradients every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGradientIndex((prev) => (prev + 1) % gradients.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle scroll to fade gradient
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const fadeStart = 0;
+      const fadeEnd = 500;
+      
+      if (scrollPosition <= fadeStart) {
+        setScrollOpacity(1);
+      } else if (scrollPosition >= fadeEnd) {
+        setScrollOpacity(0);
+      } else {
+        const opacity = 1 - (scrollPosition - fadeStart) / (fadeEnd - fadeStart);
+        setScrollOpacity(opacity);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Handle sticky tabs
+  useEffect(() => {
+    const handleScroll = () => {
+      if (tabsPlaceholderRef.current) {
+        const rect = tabsPlaceholderRef.current.getBoundingClientRect();
+        const navbarHeight = 64; // Height of navbar
+        
+        // Tabs become sticky when they reach the navbar
+        setIsTabsSticky(rect.top <= navbarHeight);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check initial position
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const serviceData = {
     name: "Digital Experience Strategy",
@@ -22,87 +219,168 @@ const ServiceDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="relative min-h-screen bg-white">
+      {/* Animated Gradient Background */}
+      <div 
+        className="fixed inset-0 transition-all duration-[3000ms] ease-in-out pointer-events-none"
+        style={{
+          background: gradients[gradientIndex],
+          opacity: scrollOpacity,
+        }}
+      />
+      
+      {/* Gradient to White Fade Overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, transparent 40%, rgba(255, 255, 255, 0.3) 60%, rgba(255, 255, 255, 0.7) 80%, rgb(255, 255, 255) 100%)',
+          opacity: scrollOpacity > 0.3 ? 1 : 0,
+          transition: 'opacity 0.3s ease-out',
+        }}
+      />
+      
+      {/* Content */}
+      <div className="relative z-10">
+        <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-accent/60 to-accent/40 pb-12 pt-32">
-        <div className="mx-auto max-w-7xl px-6">
-          <a
-            href="/marketplace"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft size={16} />
-            Back to Marketplace
-          </a>
+      <section className="relative overflow-hidden bg-transparent pb-14 pt-32">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
+            backgroundSize: '32px 32px'
+          }} />
+        </div>
 
-          <div className="mt-6 grid gap-8 lg:grid-cols-3">
+        <div className="relative mx-auto max-w-[1400px] px-8">
+          {/* Breadcrumb */}
+          <div className="mb-6 flex items-center gap-2 text-sm">
+            <a
+              href="/marketplace"
+              className="inline-flex items-center gap-2 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft size={16} />
+              Back to Marketplace
+            </a>
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-3">
             {/* Main Info */}
             <div className="lg:col-span-2">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand shadow-brand">
-                  <Globe size={24} className="text-primary-foreground" />
+              {/* Icon and Badges */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-5 flex items-center gap-3"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-brand shadow-lg">
+                  <Globe size={28} className="text-primary-foreground" />
                 </div>
-                <div className="flex gap-2">
-                  <Badge className="bg-blue-500/10 text-blue-700">Digital Experience</Badge>
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-blue-500/10 text-blue-700 border-blue-200">Digital Experience</Badge>
                   <Badge variant="secondary">Design Service</Badge>
+                  <Badge variant="outline" className="gap-1">
+                    <Star size={12} className="fill-yellow-500 text-yellow-500" />
+                    4.8 Rating
+                  </Badge>
                 </div>
-              </div>
+              </motion.div>
 
-              <h1 className="text-4xl font-bold text-foreground md:text-5xl">
+              {/* Title */}
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-4xl font-bold text-foreground md:text-5xl"
+              >
                 Digital Experience Strategy
-              </h1>
+              </motion.h1>
               
-              <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+              {/* Description */}
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="mt-5 text-lg leading-relaxed text-muted-foreground"
+              >
                 Define the end-to-end customer experience architecture that enables organisations to deliver
                 seamless, scalable, and insight-driven digital interactions across channels, journeys, and service
                 touchpoints.
-              </p>
+              </motion.p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
-                {["Architecture-First", "Scalable", "Governance", "Execution-Ready"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-muted-foreground"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Sidebar Card */}
-            <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
-              <div className="mb-4 flex items-baseline justify-between">
-                <span className="text-sm text-muted-foreground">Investment</span>
-                <span className="text-2xl font-bold text-foreground">From $25k</span>
-              </div>
-
-              <div className="space-y-3 border-t border-border pt-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Duration</span>
-                  <span className="font-medium text-foreground">4-6 weeks</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Service Type</span>
-                  <span className="font-medium text-foreground">Design</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tower</span>
-                  <span className="font-medium text-foreground">Digital Experience</span>
-                </div>
-              </div>
-
-              <Button className="mt-6 w-full rounded-full bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90"
-                onClick={() => setRequestDialogOpen(true)}
+              {/* Key Features */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="mt-6 grid gap-4 sm:grid-cols-2"
               >
-                Request Service
-              </Button>
-              
-              <Button variant="outline" className="mt-3 w-full rounded-full">
-                Download Overview
-              </Button>
+                {[
+                  { icon: Zap, label: "Architecture-First", color: "text-blue-600" },
+                  { icon: Shield, label: "Governance", color: "text-purple-600" },
+                  { icon: BarChart3, label: "Scalable", color: "text-green-600" },
+                  { icon: Award, label: "Execution-Ready", color: "text-orange-600" },
+                ].map((feature) => (
+                  <div key={feature.label} className="flex items-center gap-3 rounded-xl border border-border bg-card/50 px-4 py-3 backdrop-blur-sm">
+                    <feature.icon size={20} className={feature.color} />
+                    <span className="text-sm font-medium text-foreground">{feature.label}</span>
+                  </div>
+                ))}
+              </motion.div>
             </div>
+
+            {/* Sticky Sidebar Card */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="lg:sticky lg:top-24 lg:self-start"
+            >
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-lg">
+                {/* Price */}
+                <div className="mb-5 text-center">
+                  <div className="mb-1 text-xs font-medium text-muted-foreground">Starting Investment</div>
+                  <div className="text-3xl font-bold text-foreground">$25k</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">Fixed pricing available</div>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="mb-5 space-y-3 rounded-xl border border-border bg-accent/30 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock size={14} />
+                      Duration
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">4-6 weeks</span>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Award size={14} />
+                      Service Type
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">Design</span>
+                  </div>
+                  <div className="h-px bg-border" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Globe size={14} />
+                      Tower
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">Digital Experience</span>
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <Button 
+                  className="w-full rounded-xl bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90 hover:shadow-lg transition-all"
+                  onClick={() => setRequestDialogOpen(true)}
+                >
+                  Request Service
+                </Button>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -115,24 +393,161 @@ const ServiceDetail = () => {
       />
 
       {/* Main Content */}
-      <section className="py-12">
-        <div className="mx-auto max-w-7xl px-6">
+      <section className="py-8">
+        <div className="mx-auto max-w-[1400px] px-8">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="mb-8 grid w-full max-w-3xl grid-cols-5 lg:w-auto">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="deliverables">Deliverables</TabsTrigger>
-              <TabsTrigger value="inputs">Required Inputs</TabsTrigger>
-              <TabsTrigger value="methodology">Methodology</TabsTrigger>
-              <TabsTrigger value="impact">Impact</TabsTrigger>
-            </TabsList>
+            {/* Placeholder for sticky tabs */}
+            <div ref={tabsPlaceholderRef} className="h-0" />
+            
+            {/* Enhanced Tab Navigation with Sticky Effect */}
+            <div 
+              ref={tabsRef}
+              className={`mb-8 border-b border-border transition-all duration-300 ${
+                isTabsSticky 
+                  ? 'fixed top-16 left-0 right-0 z-40 bg-white shadow-sm py-0' 
+                  : 'relative'
+              }`}
+            >
+              <div className={`${isTabsSticky ? 'mx-auto max-w-[1400px] px-8' : ''}`}>
+                <div className="overflow-x-auto">
+                  <TabsList className="inline-flex h-auto w-full min-w-max gap-8 bg-transparent p-0 lg:w-auto">
+                    <TabsTrigger 
+                      value="overview" 
+                      className="relative rounded-none border-b-2 border-transparent px-0 pb-4 pt-0 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary"
+                    >
+                      Overview
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="deliverables"
+                      className="relative rounded-none border-b-2 border-transparent px-0 pb-4 pt-0 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary"
+                    >
+                      Deliverables
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="inputs"
+                      className="relative rounded-none border-b-2 border-transparent px-0 pb-4 pt-0 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary"
+                    >
+                      Required Inputs
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="methodology"
+                      className="relative rounded-none border-b-2 border-transparent px-0 pb-4 pt-0 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary"
+                    >
+                      Methodology
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="impact"
+                      className="relative rounded-none border-b-2 border-transparent px-0 pb-4 pt-0 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-primary"
+                    >
+                      Impact
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+              </div>
+            </div>
 
             {/* Overview Tab */}
-            <TabsContent value="overview" className="space-y-12">
+            <TabsContent value="overview" className="space-y-16">
+              {/* Visual Feature Showcase - Inspired by Atlassian */}
+              <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-card to-accent/20 p-8 md:p-12">
+                <div className="relative z-10 grid gap-8 lg:grid-cols-2 lg:items-center">
+                  <div>
+                    <Badge className="mb-4 bg-primary/10 text-primary">Connect and Communicate</Badge>
+                    <h2 className="mb-4 text-3xl font-bold text-foreground">
+                      Seamless Digital Experience Architecture
+                    </h2>
+                    <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
+                      Link and sync customer journeys, touchpoints, and engagement strategies to keep your digital
+                      experience architecture aligned, scalable, and execution-ready.
+                    </p>
+                    <ul className="space-y-3">
+                      {[
+                        "End-to-end journey orchestration",
+                        "Unified omnichannel architecture",
+                        "Real-time personalization engine",
+                        "Integrated analytics framework"
+                      ].map((feature) => (
+                        <li key={feature} className="flex items-center gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
+                            <CheckCircle2 size={14} className="text-primary" />
+                          </div>
+                          <span className="text-sm font-medium text-foreground">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  {/* Visual Mockup Area */}
+                  <div className="relative">
+                    <div className="aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-slate-50 to-slate-100 shadow-2xl">
+                      <div className="flex h-full flex-col justify-center gap-4 p-8">
+                        {/* Dashboard Card 1 - Customer Journey */}
+                        <DashboardMetricCard
+                          icon={Users}
+                          title="Journey Completion"
+                          description="87% of customers complete their end-to-end journey without drop-offs"
+                          metricLabel="Completion Rate"
+                          percentage={87}
+                          secondaryPercentage={65}
+                          secondaryLabel="Cross-channel engagement"
+                          gradient="bg-gradient-brand"
+                          textColor="text-primary"
+                          borderColor="border-primary/20"
+                          delay={0.2}
+                        />
+
+                        {/* Dashboard Card 2 - Omnichannel */}
+                        <DashboardMetricCard
+                          icon={Globe}
+                          title="Channel Coverage"
+                          description="92% of touchpoints integrated across web, mobile, and in-store"
+                          metricLabel="Integration Score"
+                          percentage={92}
+                          secondaryPercentage={78}
+                          secondaryLabel="Real-time sync rate"
+                          gradient="bg-gradient-navy"
+                          textColor="text-[hsl(222,47%,11%)]"
+                          borderColor="border-[hsl(222,47%,11%)]/20"
+                          delay={0.4}
+                        />
+
+                        {/* Dashboard Card 3 - Analytics */}
+                        <DashboardMetricCard
+                          icon={BarChart3}
+                          title="Data Accuracy"
+                          description="95% accuracy in real-time customer insights and behavioral predictions"
+                          metricLabel="Prediction Accuracy"
+                          percentage={95}
+                          secondaryPercentage={88}
+                          secondaryLabel="Data freshness score"
+                          gradient="linear-gradient(135deg, hsl(25 100% 62%), hsl(11 96% 60%))"
+                          textColor="text-primary"
+                          borderColor="border-primary/20"
+                          delay={0.6}
+                          isCustomGradient
+                        />
+                      </div>
+                    </div>
+                    {/* Decorative Elements */}
+                    <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+                    <div className="absolute -bottom-4 -left-4 h-32 w-32 rounded-full bg-[hsl(222,47%,11%)]/10 blur-2xl" />
+                  </div>
+                </div>
+              </div>
+
               {/* Strategic Positioning */}
               <div>
-                <h2 className="mb-6 text-2xl font-bold text-foreground">Strategic Positioning</h2>
-                <div className="rounded-2xl border border-border bg-card p-8">
-                  <p className="leading-relaxed text-foreground">
+                <div className="mb-8 flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand">
+                    <Target size={24} className="text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-foreground">Strategic Positioning</h2>
+                    <p className="text-sm text-muted-foreground">Foundation for transformation success</p>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+                  <p className="text-lg leading-relaxed text-foreground">
                     This service establishes the structural foundations required to orchestrate marketing, sales, and
                     service experiences across the full growth lifecycle. Our approach emphasizes architecture-first
                     thinking, ensuring scalability and governance while creating long-term value through direct
@@ -143,7 +558,11 @@ const ServiceDetail = () => {
 
               {/* Impact Metrics */}
               <div>
-                <h2 className="mb-6 text-2xl font-bold text-foreground">Measurable Business Impact</h2>
+                <div className="mb-8 text-center">
+                  <Badge className="mb-4 bg-primary/10 text-primary">Measurable Results</Badge>
+                  <h2 className="text-3xl font-bold text-foreground">Business Impact You Can Track</h2>
+                  <p className="mt-3 text-muted-foreground">Real outcomes from architecture-driven transformation</p>
+                </div>
                 <div className="grid gap-6 md:grid-cols-3">
                   {[
                     {
@@ -151,83 +570,130 @@ const ServiceDetail = () => {
                       title: "Customer Acquisition & Conversion",
                       description:
                         "Architecture-driven design optimizes journey orchestration, reducing friction and improving conversion rates across all touchpoints.",
+                      stat: "25-40%",
+                      statLabel: "Conversion Lift"
                     },
                     {
                       icon: Users,
                       title: "Customer Lifetime Value & Retention",
                       description:
                         "Unified experience architecture enables personalized engagement strategies that increase retention and maximize CLV.",
+                      stat: "30-50%",
+                      statLabel: "CLV Increase"
                     },
                     {
                       icon: Target,
                       title: "Digital Engagement Performance",
                       description:
                         "Integrated analytics and optimization frameworks drive continuous improvement in experience quality and business outcomes.",
+                      stat: "20-35%",
+                      statLabel: "Engagement Boost"
                     },
-                  ].map((metric) => (
-                    <div
+                  ].map((metric, idx) => (
+                    <motion.div
                       key={metric.title}
-                      className="rounded-2xl border border-border bg-card p-6 transition-shadow hover:shadow-elevated"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all hover:shadow-elevated hover:border-primary/20"
                     >
-                      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand/10">
+                      <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-brand opacity-0 transition-opacity group-hover:opacity-100" />
+                      
+                      {/* Stat Badge */}
+                      <div className="mb-4 inline-flex flex-col items-start gap-1 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-3">
+                        <div className="text-2xl font-bold text-primary">{metric.stat}</div>
+                        <div className="text-xs font-medium text-muted-foreground">{metric.statLabel}</div>
+                      </div>
+
+                      {/* Icon */}
+                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm transition-transform group-hover:scale-105">
                         <metric.icon size={24} className="text-primary" />
                       </div>
-                      <h3 className="mb-2 font-semibold text-foreground">{metric.title}</h3>
+                      
+                      <h3 className="mb-3 text-lg font-bold text-foreground transition-colors group-hover:text-primary">{metric.title}</h3>
                       <p className="text-sm leading-relaxed text-muted-foreground">{metric.description}</p>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
 
               {/* Capability Areas */}
               <div>
-                <h2 className="mb-4 text-2xl font-bold text-foreground">Capability Areas Covered</h2>
-                <p className="mb-6 leading-relaxed text-muted-foreground">
+                <div className="mb-8 flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/10 to-purple-500/5">
+                    <Layers size={24} className="text-purple-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-foreground">Capability Areas Covered</h2>
+                    <p className="text-sm text-muted-foreground">End-to-end architecture definition</p>
+                  </div>
+                </div>
+                <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
                   Our Design Services provide end-to-end architecture definition across the following capability areas.
                   By covering these capability areas, we prevent siloed implementations, ensure long-term scalability,
                   and align strategy directly to execution.
                 </p>
 
-                <div className="space-y-4">
+                <div className="grid gap-6 md:grid-cols-2">
                   {[
                     {
                       title: "Customer Journey & Experience Strategy",
                       description:
                         "Define persona models, lifecycle journeys, service design principles, and governance frameworks across growth stages.",
+                      icon: Users,
+                      color: "text-blue-600",
+                      bgColor: "bg-blue-500/10"
                     },
                     {
                       title: "Omnichannel Platform Architecture",
                       description:
                         "Design the digital channel ecosystem (web, mobile, portals, branch, partner channels) with unified orchestration and delivery models.",
+                      icon: Globe,
+                      color: "text-purple-600",
+                      bgColor: "bg-purple-500/10"
                     },
                     {
                       title: "MarTech & Personalisation Architecture",
                       description:
                         "Define campaign orchestration, marketing technology stack alignment, content governance, and personalisation strategy.",
+                      icon: Zap,
+                      color: "text-green-600",
+                      bgColor: "bg-green-500/10"
                     },
                     {
                       title: "CRM & Service Architecture",
                       description:
                         "Design lead-to-revenue lifecycle models, CRM operating structures, and customer interaction frameworks.",
+                      icon: Target,
+                      color: "text-orange-600",
+                      bgColor: "bg-orange-500/10"
                     },
                     {
                       title: "CX Analytics & Optimisation",
                       description:
                         "Establish experimentation models, performance analytics frameworks, and feedback loops for continuous optimisation.",
+                      icon: BarChart3,
+                      color: "text-pink-600",
+                      bgColor: "bg-pink-500/10"
                     },
                   ].map((capability, i) => (
-                    <div
+                    <motion.div
                       key={capability.title}
-                      className="flex gap-4 rounded-xl border border-border bg-card p-6"
+                      initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="group flex gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:shadow-elevated hover:border-primary/20"
                     >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-brand text-sm font-semibold text-primary-foreground">
-                        {i + 1}
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${capability.bgColor} shadow-sm transition-transform group-hover:scale-105`}>
+                        <capability.icon size={20} className={capability.color} />
                       </div>
                       <div>
-                        <h3 className="mb-1 font-semibold text-foreground">{capability.title}</h3>
+                        <h3 className="mb-2 text-lg font-bold text-foreground transition-colors group-hover:text-primary">{capability.title}</h3>
                         <p className="text-sm leading-relaxed text-muted-foreground">{capability.description}</p>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
@@ -294,21 +760,22 @@ const ServiceDetail = () => {
                       ],
                     },
                   ].map((stage) => (
-                    <div key={stage.stage} className="rounded-2xl border border-border bg-card p-6">
+                    <div key={stage.stage} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all hover:shadow-elevated hover:border-primary/20">
+                      <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-brand opacity-0 transition-opacity group-hover:opacity-100" />
                       <div className="mb-4 flex items-start justify-between">
                         <div>
-                          <Badge variant="secondary" className="mb-2">
+                          <Badge variant="secondary" className="mb-3 font-semibold">
                             {stage.stage}
                           </Badge>
-                          <h3 className="text-xl font-semibold text-foreground">{stage.deliverable}</h3>
+                          <h3 className="text-xl font-bold text-foreground transition-colors group-hover:text-primary">{stage.deliverable}</h3>
                         </div>
-                        <CheckCircle2 size={24} className="text-primary" />
+                        <CheckCircle2 size={24} className="text-primary transition-transform group-hover:scale-110" />
                       </div>
-                      <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{stage.description}</p>
-                      <div className="grid gap-2 sm:grid-cols-2">
+                      <p className="mb-5 text-sm leading-relaxed text-muted-foreground">{stage.description}</p>
+                      <div className="grid gap-2.5 sm:grid-cols-2">
                         {stage.items.map((item) => (
-                          <div key={item} className="flex items-center gap-2 text-sm text-foreground">
-                            <div className="h-1.5 w-1.5 rounded-full bg-primary"></div>
+                          <div key={item} className="flex items-center gap-2.5 rounded-lg bg-accent/30 px-3 py-2 text-sm text-foreground">
+                            <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"></div>
                             {item}
                           </div>
                         ))}
@@ -388,19 +855,20 @@ const ServiceDetail = () => {
                       bgColor: "bg-orange-500/10",
                     },
                   ].map((input) => (
-                    <div key={input.title} className="rounded-2xl border border-border bg-card p-6">
-                      <div className="mb-4 flex items-start gap-4">
-                        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${input.bgColor}`}>
+                    <div key={input.title} className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all hover:shadow-elevated hover:border-primary/20">
+                      <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-brand opacity-0 transition-opacity group-hover:opacity-100" />
+                      <div className="mb-5 flex items-start gap-4">
+                        <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${input.bgColor} shadow-sm transition-transform group-hover:scale-105`}>
                           <input.icon size={24} className={input.color} />
                         </div>
                         <div className="flex-1">
-                          <h3 className="mb-1 text-xl font-semibold text-foreground">{input.title}</h3>
+                          <h3 className="mb-2 text-xl font-bold text-foreground transition-colors group-hover:text-primary">{input.title}</h3>
                           <p className="text-sm leading-relaxed text-muted-foreground">{input.description}</p>
                         </div>
                       </div>
-                      <div className="ml-16 space-y-2">
+                      <div className="ml-[72px] space-y-2.5">
                         {input.items.map((item) => (
-                          <div key={item} className="flex items-start gap-3">
+                          <div key={item} className="flex items-start gap-3 rounded-lg bg-accent/30 px-3 py-2">
                             <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-primary" />
                             <span className="text-sm text-foreground">{item}</span>
                           </div>
@@ -532,58 +1000,131 @@ const ServiceDetail = () => {
             </TabsContent>
 
             {/* Impact Tab */}
-            <TabsContent value="impact" className="space-y-8">
-              <div>
-                <h2 className="mb-6 text-2xl font-bold text-foreground">Business Impact & ROI</h2>
-                
-                <div className="mb-8 rounded-2xl border border-border bg-card p-8">
-                  <h3 className="mb-4 text-lg font-semibold text-foreground">Expected Outcomes</h3>
-                  <div className="space-y-4">
+            <TabsContent value="impact" className="space-y-12">
+              {/* Hero Stats Section */}
+              <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/5 via-card to-accent/20 p-8 md:p-12">
+                <div className="relative z-10">
+                  <Badge className="mb-4 bg-primary/10 text-primary">Proven Results</Badge>
+                  <h2 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">Business Impact & ROI</h2>
+                  <p className="mb-8 max-w-2xl text-lg text-muted-foreground">
+                    Our architecture-first approach delivers measurable business outcomes across key performance indicators.
+                  </p>
+
+                  {/* Stats Grid */}
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     {[
-                      {
-                        metric: "15-30%",
-                        description: "Improvement in customer acquisition and conversion rates",
-                      },
-                      {
-                        metric: "20-40%",
-                        description: "Increase in customer lifetime value through optimized engagement",
-                      },
-                      {
-                        metric: "25-50%",
-                        description: "Reduction in time-to-market for new digital experiences",
-                      },
-                      {
-                        metric: "30-60%",
-                        description: "Decrease in integration and orchestration complexity",
-                      },
-                    ].map((outcome) => (
-                      <div key={outcome.description} className="flex items-start gap-4">
-                        <div className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-gradient-brand/10">
-                          <span className="text-xl font-bold text-primary">{outcome.metric}</span>
-                        </div>
-                        <div className="flex-1 pt-2">
-                          <p className="text-sm leading-relaxed text-foreground">{outcome.description}</p>
-                        </div>
-                      </div>
+                      { value: "15-30%", label: "Conversion Rate Improvement" },
+                      { value: "20-40%", label: "Customer Lifetime Value Increase" },
+                      { value: "25-50%", label: "Faster Time-to-Market" },
+                      { value: "30-60%", label: "Reduced Complexity" }
+                    ].map((stat, idx) => (
+                      <motion.div
+                        key={stat.label}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="rounded-2xl border border-border bg-card p-6 text-center shadow-sm"
+                      >
+                        <div className="mb-2 text-3xl font-bold text-primary">{stat.value}</div>
+                        <div className="text-sm text-muted-foreground">{stat.label}</div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
+                <div className="absolute -right-8 -top-8 h-64 w-64 rounded-full bg-primary/5 blur-3xl" />
+                <div className="absolute -bottom-8 -left-8 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl" />
+              </div>
 
-                <div className="rounded-2xl border border-border bg-card p-8">
-                  <h3 className="mb-4 text-lg font-semibold text-foreground">Who This Service Is For</h3>
-                  <p className="mb-6 leading-relaxed text-muted-foreground">
-                    This service is designed for senior executives and transformation leaders who need to establish or
-                    modernize their digital experience capabilities:
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    {["CIOs", "CDOs", "Heads of Digital", "Marketing Directors", "Transformation Leads"].map(
-                      (role) => (
-                        <Badge key={role} variant="secondary" className="px-4 py-2">
-                          {role}
-                        </Badge>
-                      )
-                    )}
-                  </div>
+              {/* Expected Outcomes */}
+              <div>
+                <h3 className="mb-6 text-2xl font-bold text-foreground">Expected Outcomes</h3>
+                <div className="grid gap-6 md:grid-cols-2">
+                  {[
+                    {
+                      metric: "15-30%",
+                      description: "Improvement in customer acquisition and conversion rates",
+                      icon: TrendingUp,
+                      color: "text-blue-600",
+                      bgColor: "bg-blue-500/10"
+                    },
+                    {
+                      metric: "20-40%",
+                      description: "Increase in customer lifetime value through optimized engagement",
+                      icon: Users,
+                      color: "text-purple-600",
+                      bgColor: "bg-purple-500/10"
+                    },
+                    {
+                      metric: "25-50%",
+                      description: "Reduction in time-to-market for new digital experiences",
+                      icon: Zap,
+                      color: "text-green-600",
+                      bgColor: "bg-green-500/10"
+                    },
+                    {
+                      metric: "30-60%",
+                      description: "Decrease in integration and orchestration complexity",
+                      icon: Shield,
+                      color: "text-orange-600",
+                      bgColor: "bg-orange-500/10"
+                    },
+                  ].map((outcome, idx) => (
+                    <motion.div 
+                      key={outcome.description}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.1 }}
+                      className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-6 transition-all hover:shadow-elevated hover:border-primary/20"
+                    >
+                      <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-xl ${outcome.bgColor} transition-transform group-hover:scale-105`}>
+                        <outcome.icon size={24} className={outcome.color} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="mb-2 text-2xl font-bold text-primary">{outcome.metric}</div>
+                        <p className="text-sm leading-relaxed text-foreground">{outcome.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Who This Service Is For */}
+              <div className="rounded-2xl border border-border bg-card p-8">
+                <h3 className="mb-4 text-2xl font-bold text-foreground">Who This Service Is For</h3>
+                <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
+                  This service is designed for senior executives and transformation leaders who need to establish or
+                  modernize their digital experience capabilities:
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {["CIOs", "CDOs", "Heads of Digital", "Marketing Directors", "Transformation Leads"].map(
+                    (role) => (
+                      <Badge key={role} variant="secondary" className="px-4 py-2 text-sm">
+                        {role}
+                      </Badge>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* CTA Section */}
+              <div className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-8 text-center md:p-12">
+                <h3 className="mb-4 text-2xl font-bold text-foreground">Ready to Transform Your Digital Experience?</h3>
+                <p className="mb-6 text-muted-foreground">
+                  Let's discuss how our architecture-first approach can deliver measurable results for your organization.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Button 
+                    size="lg"
+                    className="rounded-xl bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90"
+                    onClick={() => setRequestDialogOpen(true)}
+                  >
+                    Request Service
+                  </Button>
+                  <Button size="lg" variant="outline" className="rounded-xl">
+                    Schedule Consultation
+                  </Button>
                 </div>
               </div>
             </TabsContent>
@@ -592,6 +1133,7 @@ const ServiceDetail = () => {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 };

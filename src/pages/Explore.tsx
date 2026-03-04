@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, PenTool, Rocket, TrendingUp, Brain, BookOpen, HelpCircle, Layers, Cloud, Server, Cog, Briefcase, Sparkles, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -119,6 +120,46 @@ const marketplaces = [
 ];
 
 const Explore = () => {
+  const [scrollOpacity, setScrollOpacity] = useState(1);
+  const [gradientIndex, setGradientIndex] = useState(0);
+
+  // Subtle gradient variations using DQ brand colors
+  const gradients = [
+    'linear-gradient(135deg, hsl(11 96% 60% / 0.15), hsl(25 100% 62% / 0.12), hsl(200 80% 60% / 0.10))',
+    'linear-gradient(135deg, hsl(25 100% 62% / 0.15), hsl(200 80% 60% / 0.12), hsl(220 70% 55% / 0.10))',
+    'linear-gradient(135deg, hsl(200 80% 60% / 0.15), hsl(220 70% 55% / 0.12), hsl(11 96% 60% / 0.10))',
+    'linear-gradient(135deg, hsl(220 70% 55% / 0.15), hsl(11 96% 60% / 0.12), hsl(25 100% 62% / 0.10))',
+  ];
+
+  // Rotate gradients every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGradientIndex((prev) => (prev + 1) % gradients.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle scroll to fade gradient
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const fadeStart = 0;
+      const fadeEnd = 500;
+      
+      if (scrollPosition <= fadeStart) {
+        setScrollOpacity(1);
+      } else if (scrollPosition >= fadeEnd) {
+        setScrollOpacity(0);
+      } else {
+        const opacity = 1 - (scrollPosition - fadeStart) / (fadeEnd - fadeStart);
+        setScrollOpacity(opacity);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const handleDiagnoseClick = () => {
     // Trigger the chat button
     const event = new CustomEvent('openDiagnoseAI');
@@ -126,12 +167,33 @@ const Explore = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="relative min-h-screen bg-white">
+      {/* Animated Gradient Background */}
+      <div 
+        className="fixed inset-0 transition-all duration-[3000ms] ease-in-out pointer-events-none"
+        style={{
+          background: gradients[gradientIndex],
+          opacity: scrollOpacity,
+        }}
+      />
+      
+      {/* Gradient to White Fade Overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, transparent 40%, rgba(255, 255, 255, 0.3) 60%, rgba(255, 255, 255, 0.7) 80%, rgb(255, 255, 255) 100%)',
+          opacity: scrollOpacity > 0.3 ? 1 : 0,
+          transition: 'opacity 0.3s ease-out',
+        }}
+      />
+      
+      {/* Content */}
+      <div className="relative z-10">
+        <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-accent/60 to-accent/40 pb-16 pt-32">
-        <div className="mx-auto max-w-7xl px-6">
+      <section className="bg-transparent pb-16 pt-32">
+        <div className="mx-auto max-w-[1400px] px-8">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -150,7 +212,7 @@ const Explore = () => {
 
       {/* Marketplaces Grid */}
       <section className="py-16">
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-[1400px] px-8">
           <div className="space-y-16">
             {marketplaces.map((phase, phaseIndex) => (
               <motion.div
@@ -184,35 +246,38 @@ const Explore = () => {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: phaseIndex * 0.1 + itemIndex * 0.05 }}
-                      className={`group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-card ${
-                        item.comingSoon ? "opacity-75" : "transition-all hover:shadow-elevated"
+                      className={`group relative overflow-hidden rounded-2xl border border-border bg-card shadow-card ${
+                        item.comingSoon ? "opacity-75" : "transition-all hover:shadow-elevated hover:border-primary/20"
                       }`}
                     >
                       {item.comingSoon ? (
-                        <>
+                        <div className="p-6">
+                          {/* Gradient accent bar */}
+                          <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-muted to-muted/50" />
+                          
                           {/* Badge */}
-                          <div className="mb-4 flex items-center justify-between">
-                            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${phase.color}`}>
+                          <div className="mb-5 flex items-center justify-between">
+                            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${phase.color} shadow-sm`}>
                               <item.icon size={20} className={phase.iconColor} />
                             </div>
-                            <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-muted-foreground">
+                            <span className="rounded-full border border-border bg-accent px-3 py-1.5 text-xs font-medium text-muted-foreground">
                               {item.badge}
                             </span>
                           </div>
 
                           {/* Content */}
-                          <h3 className="mb-2 text-lg font-semibold text-foreground">
+                          <h3 className="mb-3 text-lg font-bold text-foreground">
                             {item.name}
                           </h3>
-                          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                          <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
                             {item.description}
                           </p>
 
                           {/* Coming Soon Badge */}
-                          <div className="inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-xs font-medium text-muted-foreground">
+                          <div className="inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground">
                             Coming Soon
                           </div>
-                        </>
+                        </div>
                       ) : (
                         <a
                           href={item.href}
@@ -222,28 +287,31 @@ const Explore = () => {
                               handleDiagnoseClick();
                             }
                           }}
-                          className="block"
+                          className="block p-6"
                         >
+                          {/* Gradient accent on hover */}
+                          <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-brand opacity-0 transition-opacity group-hover:opacity-100" />
+                          
                           {/* Badge */}
-                          <div className="mb-4 flex items-center justify-between">
-                            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${phase.color}`}>
+                          <div className="mb-5 flex items-center justify-between">
+                            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${phase.color} shadow-sm transition-transform group-hover:scale-105`}>
                               <item.icon size={20} className={phase.iconColor} />
                             </div>
-                            <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-muted-foreground">
+                            <span className="rounded-full border border-border bg-accent px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors group-hover:border-primary/40 group-hover:text-primary">
                               {item.badge}
                             </span>
                           </div>
 
                           {/* Content */}
-                          <h3 className="mb-2 text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                          <h3 className="mb-3 text-lg font-bold text-foreground transition-colors group-hover:text-primary">
                             {item.name}
                           </h3>
-                          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                          <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
                             {item.description}
                           </p>
 
                           {/* Arrow */}
-                          <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                             <span>Explore</span>
                             <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
                           </div>
@@ -262,7 +330,7 @@ const Explore = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-br from-accent/60 to-accent/40 py-16">
+      <section className="bg-transparent py-16">
         <div className="mx-auto max-w-4xl px-6 text-center">
           <h2 className="text-2xl font-bold text-foreground md:text-3xl">
             Not sure where to start?
@@ -281,6 +349,7 @@ const Explore = () => {
       </section>
 
       <Footer />
+      </div>
     </div>
   );
 };

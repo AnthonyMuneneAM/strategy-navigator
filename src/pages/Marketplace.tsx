@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -341,6 +341,45 @@ const Marketplace = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("design");
   const [sortBy, setSortBy] = useState("default");
+  const [scrollOpacity, setScrollOpacity] = useState(1);
+  const [gradientIndex, setGradientIndex] = useState(0);
+
+  // Subtle gradient variations using DQ brand colors
+  const gradients = [
+    'linear-gradient(135deg, hsl(11 96% 60% / 0.15), hsl(25 100% 62% / 0.12), hsl(200 80% 60% / 0.10))',
+    'linear-gradient(135deg, hsl(25 100% 62% / 0.15), hsl(200 80% 60% / 0.12), hsl(220 70% 55% / 0.10))',
+    'linear-gradient(135deg, hsl(200 80% 60% / 0.15), hsl(220 70% 55% / 0.12), hsl(11 96% 60% / 0.10))',
+    'linear-gradient(135deg, hsl(220 70% 55% / 0.15), hsl(11 96% 60% / 0.12), hsl(25 100% 62% / 0.10))',
+  ];
+
+  // Rotate gradients every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGradientIndex((prev) => (prev + 1) % gradients.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle scroll to fade gradient
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const fadeStart = 0;
+      const fadeEnd = 500;
+      
+      if (scrollPosition <= fadeStart) {
+        setScrollOpacity(1);
+      } else if (scrollPosition >= fadeEnd) {
+        setScrollOpacity(0);
+      } else {
+        const opacity = 1 - (scrollPosition - fadeStart) / (fadeEnd - fadeStart);
+        setScrollOpacity(opacity);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const toggleTower = (towerId: string) => {
     setSelectedTowers((prev) =>
@@ -446,12 +485,33 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="relative min-h-screen bg-white">
+      {/* Animated Gradient Background */}
+      <div 
+        className="fixed inset-0 transition-all duration-[3000ms] ease-in-out pointer-events-none"
+        style={{
+          background: gradients[gradientIndex],
+          opacity: scrollOpacity,
+        }}
+      />
       
-      {/* Hero Header */}
-      <section className="bg-gradient-to-br from-accent/60 to-accent/40 pb-12 pt-32">
-        <div className="mx-auto max-w-7xl px-6">
+      {/* Gradient to White Fade Overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, transparent 40%, rgba(255, 255, 255, 0.3) 60%, rgba(255, 255, 255, 0.7) 80%, rgb(255, 255, 255) 100%)',
+          opacity: scrollOpacity > 0.3 ? 1 : 0,
+          transition: 'opacity 0.3s ease-out',
+        }}
+      />
+      
+      {/* Content */}
+      <div className="relative z-10">
+        <Navbar />
+      
+        {/* Hero Header */}
+        <section className="bg-transparent pb-12 pt-32">
+        <div className="mx-auto max-w-[1400px] px-8">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -469,7 +529,7 @@ const Marketplace = () => {
       </section>
 
       {/* Main Content */}
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="mx-auto max-w-[1400px] px-8 py-12">
         {/* Tabs for Service Types */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="grid w-full max-w-2xl grid-cols-3">
@@ -659,53 +719,87 @@ const Marketplace = () => {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: i * 0.05 }}
-                    className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-card transition-all hover:shadow-elevated"
+                    className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition-all hover:shadow-elevated hover:border-primary/20"
                   >
-                    <div className="mb-4 flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`rounded-lg border border-border bg-accent p-2 ${colorClass}`}>
-                          <Icon size={18} />
+                    {/* Gradient accent bar at top */}
+                    <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-brand opacity-0 transition-opacity group-hover:opacity-100" />
+                    
+                    <div className="flex flex-col p-6">
+                      {/* Header with icon and badge */}
+                      <div className="mb-4 flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent/50 shadow-sm ${colorClass} transition-transform group-hover:scale-105`}>
+                            <Icon size={20} />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <Badge variant="secondary" className="w-fit text-xs font-medium">
+                              {service.type === "design" ? "Design" : service.type === "deploy-saas" ? "Deploy (SaaS)" : "Deploy (On-Prem)"}
+                            </Badge>
+                          </div>
                         </div>
-                        <Badge variant="secondary" className="text-xs">
-                          {service.type === "design" ? "Design" : service.type === "deploy-saas" ? "Deploy (SaaS)" : "Deploy (On-Prem)"}
-                        </Badge>
+                        <div className="flex flex-col items-end">
+                          <span className="text-xs text-muted-foreground">Starting at</span>
+                          <span className="text-lg font-bold text-foreground">{service.price.replace('From ', '')}</span>
+                        </div>
                       </div>
-                      <span className="text-sm font-medium text-foreground">{service.price}</span>
-                    </div>
 
-                    <h3 className="text-lg font-semibold text-foreground">{service.name}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {service.description}
-                    </p>
+                      {/* Title and description */}
+                      <h3 className="mb-3 text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+                        {service.name}
+                      </h3>
+                      <p className="mb-4 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+                        {service.description}
+                      </p>
 
-                    {/* Tags */}
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {service.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-accent px-2.5 py-1 text-xs text-muted-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="mt-auto space-y-2 border-t border-border pt-4">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Duration</span>
-                        <span className="text-foreground">{service.duration}</span>
+                      {/* Tags */}
+                      <div className="mb-5 flex flex-wrap gap-2">
+                        {service.tags.slice(0, 3).map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center rounded-full border border-border bg-accent/50 px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {service.tags.length > 3 && (
+                          <span className="inline-flex items-center rounded-full border border-border bg-accent/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+                            +{service.tags.length - 3} more
+                          </span>
+                        )}
                       </div>
-                      <div className="text-xs">
-                        <span className="text-muted-foreground">Deliverables: </span>
-                        <span className="text-foreground">{service.deliverables.join(", ")}</span>
-                      </div>
-                    </div>
 
-                    <Button className="mt-6 w-full rounded-full bg-gradient-brand text-primary-foreground shadow-brand hover:opacity-90">
-                      <a href="/service/digital-experience-strategy" className="block w-full">
-                        View Details
-                      </a>
-                    </Button>
+                      {/* Metadata section */}
+                      <div className="mb-5 space-y-3 rounded-xl border border-border bg-accent/30 p-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-muted-foreground">Duration</span>
+                          <span className="text-sm font-semibold text-foreground">{service.duration}</span>
+                        </div>
+                        <div className="h-px bg-border" />
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs font-medium text-muted-foreground">Key Deliverables</span>
+                          <div className="flex flex-wrap gap-1">
+                            {service.deliverables.slice(0, 2).map((deliverable, idx) => (
+                              <span key={idx} className="text-xs text-foreground">
+                                {deliverable}{idx < Math.min(service.deliverables.length, 2) - 1 ? ',' : ''}
+                              </span>
+                            ))}
+                            {service.deliverables.length > 2 && (
+                              <span className="text-xs text-muted-foreground">
+                                +{service.deliverables.length - 2} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* CTA Button */}
+                      <Button className="mt-auto w-full rounded-xl bg-gradient-brand text-primary-foreground shadow-brand transition-all hover:opacity-90 hover:shadow-lg">
+                        <a href="/service/digital-experience-strategy" className="flex w-full items-center justify-center gap-2">
+                          View Details
+                          <ChevronDown size={16} className="rotate-[-90deg]" />
+                        </a>
+                      </Button>
+                    </div>
                   </motion.div>
                 );
               })}
@@ -737,6 +831,7 @@ const Marketplace = () => {
       </div>
 
       <Footer />
+      </div>
     </div>
   );
 };

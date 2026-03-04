@@ -64,27 +64,37 @@ const ExploreSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group rounded-2xl border border-border bg-card p-8 shadow-card transition-all hover:shadow-elevated"
+              className="group relative overflow-hidden rounded-2xl border border-border bg-card p-8 shadow-card transition-all hover:shadow-elevated hover:border-primary/20"
             >
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-accent px-3 py-1 text-xs font-medium text-primary">
-                <card.icon size={14} />
-                {card.category}
+              {/* Gradient accent on hover */}
+              <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-brand opacity-0 transition-opacity group-hover:opacity-100" />
+              
+              {/* Icon badge */}
+              <div className="mb-5 flex items-center justify-between">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 shadow-sm transition-transform group-hover:scale-105">
+                  <card.icon size={24} className="text-primary" />
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary">
+                  {card.category}
+                </div>
               </div>
               
-              <h3 className="mt-4 text-xl font-semibold text-foreground">{card.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              <h3 className="mb-3 text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+                {card.title}
+              </h3>
+              <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
                 {card.description}
               </p>
 
-              <div className="mt-6 flex flex-col gap-2">
+              <div className="flex flex-col gap-2.5">
                 {card.links.map((link) => (
                   <a
                     key={link.label}
                     href={link.href}
-                    className="group/link flex items-center justify-between rounded-lg border border-border bg-accent/50 px-4 py-2.5 text-sm text-foreground transition-colors hover:border-primary/40 hover:bg-accent"
+                    className="group/link flex items-center justify-between rounded-xl border border-border bg-accent/30 px-4 py-3 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:bg-accent hover:shadow-sm"
                   >
-                    <span>{link.label}</span>
-                    <ArrowRight size={14} className="text-muted-foreground transition-transform group-hover/link:translate-x-0.5" />
+                    <span className="transition-colors group-hover/link:text-primary">{link.label}</span>
+                    <ArrowRight size={16} className="text-muted-foreground transition-all group-hover/link:translate-x-1 group-hover/link:text-primary" />
                   </a>
                 ))}
               </div>
