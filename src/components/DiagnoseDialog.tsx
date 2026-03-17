@@ -1,8 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, Sparkles, Send } from "lucide-react";
+import { X, ArrowRight, Sparkles, Send, ExternalLink, Brain, BookOpen, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useLocation } from "react-router-dom";
+import { 
+  knowledgeBase, 
+  serviceRecommendations, 
+  intentPatterns, 
+  conversationTemplates,
+  type ServiceRecommendation 
+} from "@/data/butlerAI";
 
 interface DiagnoseDialogProps {
   isOpen: boolean;
@@ -15,19 +23,116 @@ interface Message {
   type: "user" | "ai";
   content: string;
   options?: string[];
+  links?: Array<{
+    text: string;
+    url: string;
+    icon?: React.ComponentType<{ size?: number }>;
+  }>;
   metadata?: {
     tower?: string;
     domain?: string;
     service?: string;
+    stage?: "concierge" | "advisory";
+    intent?: string;
   };
+}
+
+interface UserProfile {
+  organizationType?: "enterprise" | "smb" | "startup";
+  transformationStage?: "starting" | "underway" | "optimizing";
+  industry?: string;
+  challenges?: string[];
 }
 
 const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialogProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStage, setCurrentStage] = useState<"concierge" | "advisory">("concierge");
+  const [conversationStep, setConversationStep] = useState(0);
+  const [userProfile, setUserProfile] = useState<UserProfile>({});
+  const [unresolved, setUnresolved] = useState(0);
+  const [conversationStartTime] = useState(Date.now());
+  const [responseCount, setResponseCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+  // Simulate conversation analytics
+  const logConversationMetrics = (intent: string, responseTime: number) => {
+    setResponseCount(prev => prev + 1);
+    
+    // Simulate analytics (in real implementation, this would send to analytics service)
+    console.log("Butler.AI Analytics:", {
+      stage: currentStage,
+      intent,
+      responseTime,
+      conversationLength: responseCount,
+      sessionDuration: Date.now() - conversationStartTime,
+      userProfile,
+      timestamp: new Date().toISOString()
+    });
+  };
+
+  // Enhanced Intent Classification using knowledge base
+  const classifyIntent = (message: string): string => {
+    const lowerMessage = message.toLowerCase();
+    
+    // Check FAQ patterns
+    for (const category of intentPatterns.faq) {
+      if (category.pattern.test(lowerMessage)) {
+        return category.intent;
+      }
+    }
+    
+    // Check routing patterns
+    for (const category of intentPatterns.routing) {
+      if (category.pattern.test(lowerMessage)) {
+        return category.intent;
+      }
+    }
+    
+    // Check advisory patterns
+    for (const category of intentPatterns.advisory) {
+      if (category.pattern.test(lowerMessage)) {
+        return category.intent;
+      }
+    }
+    
+    // Problem description (longer messages)
+    if (lowerMessage.length > 20) return "problem_description";
+    
+    return "general_inquiry";
+  };
+
+  // Enhanced Service Recommendations
+  const getServiceRecommendations = (profile: UserProfile): {
+    primary: ServiceRecommendation;
+    secondary: ServiceRecommendation[];
+  } => {
+    const { organizationType, transformationStage } = profile;
+    
+    // Filter recommendations based on profile
+    let filteredRecommendations = serviceRecommendations.filter(service => {
+      if (transformationStage === "starting") {
+        return service.type === "design" || service.id === "diagnose-ai";
+      }
+      if (organizationType === "enterprise") {
+        return service.confidence >= 85;
+      }
+      if (organizationType === "startup") {
+        return parseInt(service.price.replace(/[^\d]/g, '')) <= 50000 || service.price === "Free";
+      }
+      return true;
+    });
+
+    // Sort by confidence
+    filteredRecommendations.sort((a, b) => b.confidence - a.confidence);
+    
+    const primary = filteredRecommendations[0] || serviceRecommendations[0];
+    const secondary = filteredRecommendations.slice(1, 4);
+    
+    return { primary, secondary };
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,16 +142,38 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     scrollToBottom();
   }, [messages, isTyping]);
 
+  // Determine stage based on current route
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === "/" || path === "/index") {
+      setCurrentStage("concierge");
+    } else if (path.includes("/marketplace") || path.includes("/explore")) {
+      setCurrentStage("advisory");
+    }
+  }, [location]);
+
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Initial greeting
+      // Initial greeting based on stage
       setTimeout(() => {
-        addAIMessage(
-          "Hi! I'm your TMaaS AI assistant. I'll help identify the right transformation services for your needs. Could you describe the challenge you're facing?"
-        );
+        if (currentStage === "concierge") {
+          addAIMessage(
+            conversationTemplates.greeting.concierge,
+            ["What is TMaaS?", "How does it work?", "Explore Services", "Talk to Team"],
+            undefined,
+            { stage: "concierge", intent: "greeting" }
+          );
+        } else {
+          addAIMessage(
+            conversationTemplates.greeting.advisory,
+            ["Get Recommendations", "Browse by Category", "I have a specific problem"],
+            undefined,
+            { stage: "advisory", intent: "greeting" }
+          );
+        }
       }, 500);
     }
-  }, [isOpen]);
+  }, [isOpen, currentStage]);
 
   useEffect(() => {
     if (isOpen && initialProblem && messages.length === 1) {
@@ -57,8 +184,18 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     }
   }, [isOpen, initialProblem, messages.length]);
 
-  const addAIMessage = (content: string, options?: string[], metadata?: Message["metadata"]) => {
+  const addAIMessage = (
+    content: string, 
+    options?: string[], 
+    links?: Message["links"], 
+    metadata?: Message["metadata"]
+  ) => {
+    const startTime = Date.now();
     setIsTyping(true);
+    
+    // Simulate realistic response time (500ms - 2000ms based on complexity)
+    const responseTime = Math.random() * 1500 + 500;
+    
     setTimeout(() => {
       setIsTyping(false);
       setMessages((prev) => [
@@ -68,10 +205,16 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
           type: "ai",
           content,
           options,
+          links,
           metadata,
         },
       ]);
-    }, 1000);
+      
+      // Log analytics
+      if (metadata?.intent) {
+        logConversationMetrics(metadata.intent, Date.now() - startTime);
+      }
+    }, responseTime);
   };
 
   const addUserMessage = (content: string) => {
@@ -85,64 +228,259 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     ]);
   };
 
+  const handleFAQResponse = (intent: string) => {
+    const faqId = intent.replace("faq_", "").replace("_", "-");
+    const response = knowledgeBase.find(entry => entry.id === faqId);
+    
+    if (response) {
+      const links = response.links?.map(link => ({
+        text: link.text,
+        url: link.url,
+        icon: ExternalLink
+      }));
+      
+      addAIMessage(
+        response.answer,
+        ["Ask another question", "Explore Services", "Talk to Expert"],
+        links,
+        { stage: currentStage, intent }
+      );
+    } else {
+      // Fallback for unmatched FAQ
+      addAIMessage(
+        "I'd be happy to help you with that! Let me connect you with the right information.",
+        ["Browse Services", "Contact Support", "Ask something else"],
+        [
+          { text: "Explore TMaaS", url: "/explore", icon: ExternalLink },
+          { text: "Contact Team", url: "/contact", icon: MessageCircle }
+        ],
+        { stage: currentStage, intent }
+      );
+    }
+  };
+
+  const handleRoutingIntent = (intent: string) => {
+    switch (intent) {
+      case "route_explore":
+        addAIMessage(
+          "🚀 Perfect! Our Services Marketplace has everything you need:\n\nDesign Services - Strategic blueprints and architectures\nDeploy Services - Ready-to-implement solutions\nKnowledge Centre - Best practices and guides\nDiagnose AI - Personalized recommendations\n\nWhere would you like to start?",
+          ["Browse All Services", "Get AI Recommendations", "View by Category"],
+          [
+            { text: "Explore Marketplace", url: "/marketplace", icon: ExternalLink },
+            { text: "Start with Diagnose AI", url: "#diagnose", icon: Brain }
+          ],
+          { stage: "concierge", intent }
+        );
+        break;
+      case "route_learn":
+        addAIMessage(
+          "📚 Great! Here's what you should know about TMaaS:\n\n4D Framework - Our proven transformation methodology\nService Catalog - 20+ ready-to-deploy services\nExpert Network - Certified transformation specialists\nSuccess Stories - Real client transformations\n\nWhat interests you most?",
+          ["4D Framework Details", "View Success Stories", "Meet the Team"],
+          [
+            { text: "Learn About 4D Framework", url: "/framework", icon: BookOpen },
+            { text: "View Case Studies", url: "/case-studies", icon: ExternalLink }
+          ],
+          { stage: "concierge", intent }
+        );
+        break;
+      case "route_contact":
+        addAIMessage(
+          "🤝 I'd love to connect you with our team!\n\nImmediate Help - Chat with me for instant answers\nExpert Consultation - Schedule a call with our specialists\nSupport Team - Get technical assistance\n\nHow would you prefer to connect?",
+          ["Schedule Consultation", "Continue Chatting", "Email Support"],
+          [
+            { text: "Book a Call", url: "/contact", icon: MessageCircle },
+            { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
+          ],
+          { stage: "concierge", intent }
+        );
+        break;
+    }
+  };
+
+  const handleAdvisoryFlow = (message: string, intent: string) => {
+    if (conversationStep === 0) {
+      // First qualification question
+      setConversationStep(1);
+      addAIMessage(
+        "To give you the best recommendations, I'd like to understand your context better.\n\nWhat type of organization are you?",
+        ["Enterprise (1000+ employees)", "SMB (50-1000 employees)", "Startup (< 50 employees)", "Government/Non-profit"],
+        undefined,
+        { stage: "advisory", intent: "qualification_org_type" }
+      );
+    } else if (conversationStep === 1) {
+      // Store org type and ask second question
+      const orgType = message.toLowerCase().includes("enterprise") ? "enterprise" : 
+                     message.toLowerCase().includes("smb") ? "smb" : "startup";
+      setUserProfile(prev => ({ ...prev, organizationType: orgType }));
+      setConversationStep(2);
+      
+      addAIMessage(
+        "Thanks! Now, where are you in your transformation journey?",
+        ["Just starting - need strategy", "Underway - have some initiatives", "Optimizing - improving existing systems"],
+        undefined,
+        { stage: "advisory", intent: "qualification_transformation_stage" }
+      );
+    } else if (conversationStep === 2) {
+      // Store transformation stage and provide recommendations
+      const stage = message.toLowerCase().includes("starting") ? "starting" : 
+                   message.toLowerCase().includes("underway") ? "underway" : "optimizing";
+      const updatedProfile = { ...userProfile, transformationStage: stage };
+      setUserProfile(updatedProfile);
+      setConversationStep(3);
+      
+      const recommendations = getServiceRecommendations(updatedProfile);
+      
+      addAIMessage(
+        `Perfect! Based on your profile as a ${updatedProfile.organizationType} organization that's ${updatedProfile.transformationStage}, here's what I recommend:\n\n🎯 Primary Recommendation: ${recommendations.primary.name}\n${recommendations.primary.description}\n\nWhy this fits: ${recommendations.primary.reason}\n\nOther services to consider:\n${recommendations.secondary.map(s => `• ${s.name} - ${s.description}`).join('\n')}\n\nConfidence Score: ${recommendations.primary.confidence}% match`,
+        ["View Service Details", "Get Different Recommendations", "Talk to Expert", "Start Over"],
+        [
+          { text: recommendations.primary.name, url: recommendations.primary.url, icon: ArrowRight },
+          ...recommendations.secondary.slice(0, 2).map(s => ({ text: s.name, url: s.url, icon: ExternalLink }))
+        ],
+        { 
+          stage: "advisory", 
+          intent: "service_recommendation",
+          service: recommendations.primary.name,
+          tower: recommendations.primary.tower
+        }
+      );
+    }
+  };
+
   const handleUserMessage = (message: string) => {
     addUserMessage(message);
     setInput("");
     
-    // Conversation flow
-    if (currentStep === 0) {
-      // After initial problem description
-      setCurrentStep(1);
+    const intent = classifyIntent(message);
+    
+    // Handle FAQ responses (Stage 0)
+    if (intent.startsWith("faq_")) {
+      handleFAQResponse(intent);
+      return;
+    }
+    
+    // Handle routing intents (Stage 0)
+    if (intent.startsWith("route_")) {
+      handleRoutingIntent(intent);
+      return;
+    }
+    
+    // Handle advisory flow (Stage 1)
+    if (currentStage === "advisory" || intent.startsWith("advisory_")) {
+      handleAdvisoryFlow(message, intent);
+      return;
+    }
+    
+    // Handle problem descriptions
+    if (intent === "problem_description") {
+      setCurrentStage("advisory");
+      setConversationStep(0);
       addAIMessage(
-        "Thanks for sharing that. To better understand your situation, is this affecting a specific department or the entire organization?",
-        ["Specific department", "Multiple departments", "Entire organization"]
+        "I understand you're facing some challenges. Let me help you find the right transformation services to address them.\n\nTo provide the most relevant recommendations, I'll ask you a couple of quick questions.",
+        ["Let's get started", "I want to browse services instead"],
+        undefined,
+        { stage: "advisory", intent: "problem_intake" }
       );
-    } else if (currentStep === 1) {
-      setCurrentStep(2);
+      return;
+    }
+    
+    // Handle unresolved queries
+    setUnresolved(prev => prev + 1);
+    
+    if (unresolved >= 2) {
+      // Escalation after 3 unresolved queries
       addAIMessage(
-        "Got it. How urgent is this issue for your organization?",
-        ["Critical - needs immediate attention", "Important - within 3 months", "Planning - 6+ months"]
+        conversationTemplates.escalation,
+        ["Yes, connect me with an expert", "No, I'll keep exploring", "Start over with different questions"],
+        [
+          { text: "Schedule Expert Call", url: "/contact", icon: MessageCircle },
+          { text: "Browse Services", url: "/marketplace", icon: ExternalLink },
+          { text: "View Knowledge Base", url: "/knowledge", icon: BookOpen }
+        ],
+        { stage: currentStage, intent: "escalation" }
       );
-    } else if (currentStep === 2) {
-      setCurrentStep(3);
-      addAIMessage(
-        "And what's the primary impact you're experiencing?",
-        ["Compliance/Risk", "Productivity/Efficiency", "Cost/Budget", "Customer Experience"]
-      );
-    } else if (currentStep === 3) {
-      // Final analysis
-      setCurrentStep(4);
-      addAIMessage("Let me analyze this using our DQ Canvas framework...");
+      setUnresolved(0);
+    } else {
+      // Enhanced fallback response with more options
+      const fallbackOptions = currentStage === "concierge" 
+        ? ["Explain TMaaS platform", "Show me the 4D Framework", "What services do you offer?", "Get pricing information"]
+        : ["Get service recommendations", "Browse by transformation tower", "I need help with a specific problem", "Talk to an expert"];
+        
+      const fallbackLinks = currentStage === "concierge"
+        ? [
+            { text: "Explore Platform", url: "/explore", icon: ExternalLink },
+            { text: "View Case Studies", url: "/case-studies", icon: BookOpen },
+            { text: "Contact Support", url: "/contact", icon: MessageCircle }
+          ]
+        : [
+            { text: "Browse All Services", url: "/marketplace", icon: ExternalLink },
+            { text: "Start Diagnosis", url: "#diagnose", icon: Brain },
+            { text: "Contact Expert", url: "/contact", icon: MessageCircle }
+          ];
       
-      setTimeout(() => {
-        addAIMessage(
-          "Based on your responses, I've identified the following:\n\n**Transformation Tower:** Digital Workspace Solutions\n**Domain:** Digital GPRC (Governance, Privacy, Risk & Compliance)\n\nThis problem sits within **Digital Workspace Solutions**. I recommend starting with our **Digital Workspace Solutions Strategy** service, specifically focused on **IT Governance & Compliance**.\n\nThis service includes:\n• Architecture blueprint\n• Governance model & policies\n• Compliance roadmap\n• Duration: 4-6 weeks\n• Investment: From $25k",
-          ["View Service Details", "Start Over", "Talk to Expert"],
-          {
-            tower: "Digital Workspace Solutions",
-            domain: "Digital GPRC",
-            service: "Digital Workspace Solutions Strategy",
-          }
-        );
-      }, 2000);
+      addAIMessage(
+        `I'd be happy to help you with that! Here are some ways I can assist you:\n\n${currentStage === "concierge" ? "🏠 Platform Information" : "🎯 Service Discovery"}\n• Get detailed explanations\n• Find the right solutions\n• Connect with experts\n\nWhat interests you most?`,
+        fallbackOptions,
+        fallbackLinks,
+        { stage: currentStage, intent: "fallback" }
+      );
     }
   };
 
   const handleOptionClick = (option: string) => {
-    if (option === "View Service Details") {
-      window.location.href = "/marketplace?tower=dws&type=design";
-    } else if (option === "Start Over") {
+    // Handle navigation options
+    if (option === "View Service Details" || option === "Browse All Services") {
+      window.location.href = "/marketplace";
+    } else if (option === "Explore Services") {
+      window.location.href = "/explore";
+    } else if (option === "Talk to Team" || option === "Talk to Expert" || option === "Schedule Consultation") {
+      window.location.href = "/contact";
+    } else if (option === "Start with Diagnose AI" || option === "Get AI Recommendations") {
+      // Restart conversation in advisory mode
+      setCurrentStage("advisory");
+      setConversationStep(0);
       setMessages([]);
-      setCurrentStep(0);
-      setInput("");
       setTimeout(() => {
         addAIMessage(
-          "Hi! I'm your TMaaS AI assistant. I'll help identify the right transformation services for your needs. Could you describe the challenge you're facing?"
+          "🎯 Great choice! I'll help you find the perfect services for your transformation needs.\n\nLet's start with understanding your organization better.",
+          ["Let's begin", "I want to describe my problem first"],
+          undefined,
+          { stage: "advisory", intent: "diagnose_start" }
         );
       }, 500);
-    } else if (option === "Talk to Expert") {
-      addAIMessage("Great! I'll connect you with one of our transformation experts. They'll reach out within 24 hours to discuss your specific needs.");
+    } else if (option === "Start Over") {
+      setMessages([]);
+      setConversationStep(0);
+      setUserProfile({});
+      setUnresolved(0);
+      setTimeout(() => {
+        if (currentStage === "concierge") {
+          addAIMessage(
+            "👋 Welcome back! I'm here to help you understand TMaaS and find the right services. What would you like to know?",
+            ["What is TMaaS?", "How does it work?", "Explore Services", "Talk to Team"],
+            undefined,
+            { stage: "concierge", intent: "greeting" }
+          );
+        } else {
+          addAIMessage(
+            "🎯 Let's start fresh! I can help you find the perfect transformation services. What brings you here today?",
+            ["Get Recommendations", "Browse by Category", "I have a specific problem"],
+            undefined,
+            { stage: "advisory", intent: "greeting" }
+          );
+        }
+      }, 500);
+    } else if (option === "Continue Chatting" || option === "Ask another question") {
+      addAIMessage(
+        "Perfect! I'm here to help. What else would you like to know?",
+        currentStage === "concierge" 
+          ? ["What is TMaaS?", "How does it work?", "What does it cost?", "Explore Services"]
+          : ["Get service recommendations", "Browse by category", "Pricing information", "Talk to expert"],
+        undefined,
+        { stage: currentStage, intent: "continue_conversation" }
+      );
     } else {
+      // Handle as regular user message
       handleUserMessage(option);
     }
   };
@@ -151,6 +489,20 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     e.preventDefault();
     if (input.trim()) {
       handleUserMessage(input);
+    }
+  };
+
+  const handleLinkClick = (url: string) => {
+    if (url.startsWith("#")) {
+      // Handle internal actions
+      if (url === "#diagnose") {
+        setCurrentStage("advisory");
+        setConversationStep(0);
+        handleUserMessage("I want to get AI recommendations");
+      }
+    } else {
+      // External navigation
+      window.open(url, '_blank');
     }
   };
 
@@ -171,16 +523,28 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
               <Sparkles size={16} className="text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-foreground">Diagnose AI</h2>
-              <p className="text-xs text-muted-foreground">Powered by DQ Canvas</p>
+              <h2 className="text-sm font-semibold text-foreground">
+                TMaaS AI {currentStage === "concierge" ? "Concierge" : "Advisor"}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {currentStage === "concierge" ? "Platform Guide" : "Service Recommendation Engine"}
+              </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              Stage {currentStage === "concierge" ? "0" : "1"}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              {responseCount} responses
+            </Badge>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
@@ -203,6 +567,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                 >
                   <p className="whitespace-pre-line text-sm leading-relaxed">{message.content}</p>
                   
+                  {/* Quick Reply Options */}
                   {message.options && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {message.options.map((option) => (
@@ -221,18 +586,40 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                     </div>
                   )}
 
-                  {message.metadata && (
+                  {/* Dynamic Links */}
+                  {message.links && (
+                    <div className="mt-3 space-y-2">
+                      {message.links.map((link, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleLinkClick(link.url)}
+                          className="flex w-full items-center gap-2 rounded-lg border border-border bg-background/50 p-2 text-left text-xs transition-colors hover:border-primary/40 hover:bg-accent"
+                        >
+                          {link.icon && <link.icon size={14} className="text-primary" />}
+                          <span className="text-foreground">{link.text}</span>
+                          <ExternalLink size={12} className="ml-auto text-muted-foreground" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Metadata Display */}
+                  {message.metadata && (message.metadata.tower || message.metadata.service) && (
                     <div className="mt-3 space-y-2 rounded-lg border border-border/50 bg-background/50 p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">Tower:</span>
-                        <Badge className="bg-purple-500/10 text-purple-700 text-xs">
-                          {message.metadata.tower}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">Domain:</span>
-                        <Badge variant="secondary" className="text-xs">{message.metadata.domain}</Badge>
-                      </div>
+                      {message.metadata.tower && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Tower:</span>
+                          <Badge className="bg-purple-500/10 text-purple-700 text-xs">
+                            {message.metadata.tower}
+                          </Badge>
+                        </div>
+                      )}
+                      {message.metadata.service && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">Recommended:</span>
+                          <Badge variant="secondary" className="text-xs">{message.metadata.service}</Badge>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -247,10 +634,15 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
               className="flex justify-start"
             >
               <div className="rounded-2xl border border-border bg-accent/50 px-4 py-3">
-                <div className="flex gap-1">
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]"></div>
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]"></div>
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
+                    <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    TMaaS AI is thinking... (&lt;3s)
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -266,13 +658,17 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              placeholder={
+                currentStage === "concierge" 
+                  ? "Ask about TMaaS, services, or pricing..." 
+                  : "Describe your transformation challenge..."
+              }
               className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary"
-              disabled={isTyping || currentStep >= 4}
+              disabled={isTyping}
             />
             <Button
               type="submit"
-              disabled={!input.trim() || isTyping || currentStep >= 4}
+              disabled={!input.trim() || isTyping}
               size="sm"
               className="h-10 w-10 shrink-0 rounded-full bg-gradient-brand p-0 text-primary-foreground shadow-brand hover:opacity-90 disabled:opacity-50"
             >
