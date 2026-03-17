@@ -8,6 +8,7 @@ import Explore from "./pages/Explore";
 import Marketplace from "./pages/Marketplace";
 import ServiceDetail from "./pages/ServiceDetail";
 import NotFound from "./pages/NotFound";
+import ButlerDemo from "./pages/ButlerDemo";
 import ChatButton from "./components/ChatButton";
 import Overview from "./pages/dashboard/Overview";
 import ActiveServices from "./pages/dashboard/ActiveServices";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/explore" element={<Explore />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/service/:id" element={<ServiceDetail />} />
+          <Route path="/butler-demo" element={<ButlerDemo />} />
           
           {/* Auth Routes */}
           <Route path="/sign-in" element={<SignIn />} />

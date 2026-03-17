@@ -17,6 +17,9 @@ const Navbar = () => {
           <a href="/explore" className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:block">
             Explore
           </a>
+          <a href="/butler-demo" className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:block">
+            TMaaS AI Demo
+          </a>
         </div>
 
         <div className="hidden items-center gap-4 md:flex">
@@ -37,6 +40,7 @@ const Navbar = () => {
         <div className="border-t border-border bg-background p-6 md:hidden">
           <div className="flex flex-col gap-4">
             <a href="/explore" className="text-sm text-muted-foreground">Explore</a>
+            <a href="/butler-demo" className="text-sm text-muted-foreground">TMaaS AI Demo</a>
             <a href="/sign-in">
               <Button size="sm" className="w-full rounded-full bg-secondary text-secondary-foreground mt-2">Get Started</Button>
             </a>
