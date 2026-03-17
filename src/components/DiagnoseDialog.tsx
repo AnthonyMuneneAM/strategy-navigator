@@ -277,8 +277,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
           "📚 Great! Here's what you should know about TMaaS:\n\n4D Framework - Our proven transformation methodology\nService Catalog - 20+ ready-to-deploy services\nExpert Network - Certified transformation specialists\nSuccess Stories - Real client transformations\n\nWhat interests you most?",
           ["4D Framework Details", "View Success Stories", "Meet the Team"],
           [
-            { text: "Learn About 4D Framework", url: "/framework", icon: BookOpen },
-            { text: "View Case Studies", url: "/case-studies", icon: ExternalLink }
+            { text: "Learn About 4D Framework", url: "/explore", icon: BookOpen },
+            { text: "View Case Studies", url: "/marketplace", icon: ExternalLink }
           ],
           { stage: "concierge", intent }
         );
@@ -288,7 +288,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
           "🤝 I'd love to connect you with our team!\n\nImmediate Help - Chat with me for instant answers\nExpert Consultation - Schedule a call with our specialists\nSupport Team - Get technical assistance\n\nHow would you prefer to connect?",
           ["Schedule Consultation", "Continue Chatting", "Email Support"],
           [
-            { text: "Book a Call", url: "/contact", icon: MessageCircle },
+            { text: "Get Started", url: "/sign-in", icon: MessageCircle },
             { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
           ],
           { stage: "concierge", intent }
@@ -393,9 +393,9 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         conversationTemplates.escalation,
         ["Yes, connect me with an expert", "No, I'll keep exploring", "Start over with different questions"],
         [
-          { text: "Schedule Expert Call", url: "/contact", icon: MessageCircle },
+          { text: "Schedule Expert Call", url: "/sign-in", icon: MessageCircle },
           { text: "Browse Services", url: "/marketplace", icon: ExternalLink },
-          { text: "View Knowledge Base", url: "/knowledge", icon: BookOpen }
+          { text: "View Knowledge Base", url: "/explore", icon: BookOpen }
         ],
         { stage: currentStage, intent: "escalation" }
       );
@@ -409,13 +409,13 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       const fallbackLinks = currentStage === "concierge"
         ? [
             { text: "Explore Platform", url: "/explore", icon: ExternalLink },
-            { text: "View Case Studies", url: "/case-studies", icon: BookOpen },
-            { text: "Contact Support", url: "/contact", icon: MessageCircle }
+            { text: "View Case Studies", url: "/marketplace", icon: BookOpen },
+            { text: "Contact Support", url: "/sign-in", icon: MessageCircle }
           ]
         : [
             { text: "Browse All Services", url: "/marketplace", icon: ExternalLink },
             { text: "Start Diagnosis", url: "#diagnose", icon: Brain },
-            { text: "Contact Expert", url: "/contact", icon: MessageCircle }
+            { text: "Contact Expert", url: "/sign-in", icon: MessageCircle }
           ];
       
       addAIMessage(
@@ -434,7 +434,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     } else if (option === "Explore Services") {
       window.location.href = "/explore";
     } else if (option === "Talk to Team" || option === "Talk to Expert" || option === "Schedule Consultation") {
-      window.location.href = "/contact";
+      window.location.href = "/sign-in";
     } else if (option === "Start with Diagnose AI" || option === "Get AI Recommendations") {
       // Restart conversation in advisory mode
       setCurrentStage("advisory");
@@ -500,8 +500,15 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         setConversationStep(0);
         handleUserMessage("I want to get AI recommendations");
       }
+    } else if (url.startsWith("/")) {
+      // Internal navigation - close dialog and navigate
+      onClose();
+      window.location.href = url;
+    } else if (url.startsWith("mailto:")) {
+      // Email links
+      window.location.href = url;
     } else {
-      // External navigation
+      // External links
       window.open(url, '_blank');
     }
   };
