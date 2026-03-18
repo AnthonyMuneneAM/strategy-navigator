@@ -65,7 +65,7 @@ const Complete = () => {
                 Describe your transformation challenge and get personalized service recommendations
               </p>
               <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                Launch Diagnose AI
+                Launch TMaaS AI
                 <ArrowRight size={16} />
               </div>
             </motion.div>

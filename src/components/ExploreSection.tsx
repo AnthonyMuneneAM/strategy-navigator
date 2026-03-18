@@ -9,7 +9,7 @@ const exploreCards = [
     title: "Diagnose & Learn",
     description: "Use AI to identify transformation opportunities or explore our knowledge centre for best practices and guides.",
     links: [
-      { label: "Diagnose AI", href: "/explore#diagnose" },
+      { label: "TMaaS AI", href: "/explore#diagnose" },
       { label: "Knowledge Centre", href: "/explore#knowledge" },
     ],
   },

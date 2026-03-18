@@ -7,7 +7,7 @@ const paths = [
     icon: Brain,
     title: "Not sure where to start?",
     description: "Use our AI-powered Diagnose tool to identify the right services for your transformation needs.",
-    cta: "Start with Diagnose AI",
+    cta: "Start with TMaaS AI",
     href: "#diagnose",
     primary: true,
   },

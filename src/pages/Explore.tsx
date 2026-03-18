@@ -14,7 +14,7 @@ const marketplaces = [
     items: [
       {
         icon: Brain,
-        name: "Diagnose AI",
+        name: "TMaaS AI",
         description: "AI-powered problem resolution and service recommendations",
         href: "#diagnose",
         badge: "AI-Powered",
@@ -217,7 +217,7 @@ const Explore = () => {
                         <a
                           href={item.href}
                           onClick={(e) => {
-                            if (item.name === "Diagnose AI") {
+                            if (item.name === "TMaaS AI") {
                               e.preventDefault();
                               handleDiagnoseClick();
                             }
@@ -275,7 +275,7 @@ const Explore = () => {
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-brand px-8 py-3 text-base font-medium text-primary-foreground shadow-brand transition-opacity hover:opacity-90"
           >
             <Brain size={20} />
-            Start with Diagnose AI
+            Start with TMaaS AI
           </button>
         </div>
       </section>

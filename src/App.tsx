@@ -12,20 +12,24 @@ import ButlerDemo from "./pages/ButlerDemo";
 import ChatButton from "./components/ChatButton";
 import Overview from "./pages/dashboard/Overview";
 import ActiveServices from "./pages/dashboard/ActiveServices";
+import OrganisationProfile from "./pages/dashboard/OrganisationProfile";
 import SignIn from "./pages/auth/SignIn";
 import ProfileSetup from "./pages/onboarding/ProfileSetup";
 import OrganisationAccess from "./pages/onboarding/OrganisationAccess";
 import OrganisationSetup from "./pages/onboarding/OrganisationSetup";
 import Complete from "./pages/onboarding/Complete";
 
+import { AuthProvider } from "@/contexts/AuthContext";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/explore" element={<Explore />} />
@@ -45,13 +49,15 @@ const App = () => (
           {/* Dashboard Routes */}
           <Route path="/dashboard/overview" element={<Overview />} />
           <Route path="/dashboard/services" element={<ActiveServices />} />
+          <Route path="/dashboard/profile" element={<OrganisationProfile />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ChatButton />
       </BrowserRouter>
-    </TooltipProvider>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
