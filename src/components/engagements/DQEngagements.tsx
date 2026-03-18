@@ -140,7 +140,7 @@ const DQEngagements = () => {
   const [countryFilter, setCountryFilter] = useState("All");
 
   const handleRowClick = (id: string) => {
-    navigate(`/dashboard/services/${id}`);
+    navigate(`/dashboard/engagement/${id}`);
   };
 
   const filteredMarketplace = mockMarketplaceOrders.filter(order => {

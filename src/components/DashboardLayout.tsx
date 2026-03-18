@@ -158,32 +158,34 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </Button>
           </div>
 
-          {/* Organization Selector */}
-          <div className="border-b border-border p-4">
-            {sidebarCollapsed ? (
-              <div className="flex justify-center">
-                <Building2 size={20} className="text-muted-foreground" />
-              </div>
-            ) : (
-              <div>
-                <label className="mb-2 block text-xs font-medium text-muted-foreground">
-                  Organization
-                </label>
-                <Select value={selectedOrg} onValueChange={setSelectedOrg}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockOrganizations.map((org) => (
-                      <SelectItem key={org.id} value={org.id}>
-                        {org.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
+          {/* Organization Selector - Only for Client Role */}
+          {user.role === 'client' && (
+            <div className="border-b border-border p-4">
+              {sidebarCollapsed ? (
+                <div className="flex justify-center">
+                  <Building2 size={20} className="text-muted-foreground" />
+                </div>
+              ) : (
+                <div>
+                  <label className="mb-2 block text-xs font-medium text-muted-foreground">
+                    Organization
+                  </label>
+                  <Select value={selectedOrg} onValueChange={setSelectedOrg}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockOrganizations.map((org) => (
+                        <SelectItem key={org.id} value={org.id}>
+                          {org.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">

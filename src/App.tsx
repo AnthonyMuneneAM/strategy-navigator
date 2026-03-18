@@ -13,6 +13,7 @@ import ChatButton from "./components/ChatButton";
 import Overview from "./pages/dashboard/Overview";
 import ActiveServices from "./pages/dashboard/ActiveServices";
 import OrganisationProfile from "./pages/dashboard/OrganisationProfile";
+import EngagementDetail from "./pages/dashboard/EngagementDetail";
 import SignIn from "./pages/auth/SignIn";
 import ProfileSetup from "./pages/onboarding/ProfileSetup";
 import OrganisationAccess from "./pages/onboarding/OrganisationAccess";
@@ -49,6 +50,7 @@ const App = () => (
           {/* Dashboard Routes */}
           <Route path="/dashboard/overview" element={<Overview />} />
           <Route path="/dashboard/services" element={<ActiveServices />} />
+          <Route path="/dashboard/engagement/:id" element={<EngagementDetail />} />
           <Route path="/dashboard/profile" element={<OrganisationProfile />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
