@@ -78,7 +78,7 @@ const mockLegacyProjects = [
     projectName: "IT.GPRC",
     organization: "STC Bank",
     country: "Saudi Arabia",
-    status: "Active",
+    status: "Paused",
     assignedLead: "Rayyan Basha",
     startDate: "Oct 1, 2025",
     endDate: "Jun 30, 2026",
@@ -89,7 +89,7 @@ const mockLegacyProjects = [
     projectName: "EJP Enterprise Hub Deploy",
     organization: "Khalifa Fund",
     country: "UAE",
-    status: "Completed",
+    status: "Paused",
     assignedLead: "Kenzie Sharon",
     startDate: "Aug 15, 2025",
     endDate: "Feb 28, 2026",
@@ -192,7 +192,7 @@ const DQEngagements = () => {
           </div>
           <Button className="shrink-0 gap-2">
             <Plus size={16} />
-            Create Legacy Project
+            Add Legacy Project
           </Button>
         </div>
 
@@ -348,7 +348,7 @@ const DQEngagements = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={getStatusVariant(order.status) as any}>{order.status}</Badge>
+                          <Badge variant={getStatusVariant(order.status) as any} className="whitespace-nowrap">{order.status}</Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">{order.assignedLead}</TableCell>
                         <TableCell className="hidden md:table-cell text-muted-foreground">{order.createdDate}</TableCell>
@@ -441,7 +441,7 @@ const DQEngagements = () => {
                         </TableCell>
                         <TableCell>{project.organization}</TableCell>
                         <TableCell>
-                          <Badge variant={getStatusVariant(project.status) as any}>{project.status}</Badge>
+                          <Badge variant={getStatusVariant(project.status) as any} className="whitespace-nowrap">{project.status}</Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">{project.assignedLead}</TableCell>
                         <TableCell className="hidden md:table-cell text-muted-foreground">{project.startDate}</TableCell>
