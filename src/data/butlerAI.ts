@@ -128,7 +128,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "secdevops-strategy",
     name: "SecDevOps Strategy",
     description: "Security posture definition, DevOps maturity assessment, and platform engineering roadmap.",
-    url: "/services/secdevops",
+    url: "/marketplace",
     reason: "Essential for enterprises requiring robust security and scalable development practices",
     tower: "sdo",
     type: "design",
