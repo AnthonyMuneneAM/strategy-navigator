@@ -393,9 +393,9 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         conversationTemplates.escalation,
         ["Yes, connect me with an expert", "No, I'll keep exploring", "Start over with different questions"],
         [
-          { text: "Schedule Expert Call", url: "/contact", icon: MessageCircle },
+          { text: "Schedule Expert Call", url: "/explore", icon: MessageCircle },
           { text: "Browse Services", url: "/marketplace", icon: ExternalLink },
-          { text: "View Knowledge Base", url: "/knowledge", icon: BookOpen }
+          { text: "View Knowledge Base", url: "/explore", icon: BookOpen }
         ],
         { stage: currentStage, intent: "escalation" }
       );
