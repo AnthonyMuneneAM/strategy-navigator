@@ -44,7 +44,7 @@ export const knowledgeBase: KnowledgeBaseEntry[] = [
     category: "platform",
     keywords: ["4d", "framework", "methodology", "discern", "design", "deploy", "drive"],
     links: [
-      { text: "See Framework in Action", url: "/case-studies" },
+      { text: "See Framework in Action", url: "/explore" },
       { text: "Browse Services by Phase", url: "/explore" }
     ]
   },
