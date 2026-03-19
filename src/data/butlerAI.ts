@@ -34,7 +34,7 @@ export const knowledgeBase: KnowledgeBaseEntry[] = [
     keywords: ["tmaas", "transformation", "platform", "4d framework", "what is"],
     links: [
       { text: "Explore Services", url: "/explore" },
-      { text: "View Framework", url: "/framework" }
+      { text: "View Framework", url: "/explore" }
     ]
   },
   {
