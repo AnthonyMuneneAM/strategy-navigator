@@ -647,9 +647,6 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                     <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
                     <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    TMaaS AI is thinking... (&lt;3s)
-                  </span>
                 </div>
               </div>
             </motion.div>
