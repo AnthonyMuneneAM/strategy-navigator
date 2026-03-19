@@ -288,8 +288,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
           "🤝 I'd love to connect you with our team!\n\nImmediate Help - Chat with me for instant answers\nExpert Consultation - Schedule a call with our specialists\nSupport Team - Get technical assistance\n\nHow would you prefer to connect?",
           ["Schedule Consultation", "Continue Chatting", "Email Support"],
           [
-            { text: "Book a Call", url: "/contact", icon: MessageCircle },
-            { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
+             { text: "Book a Call", url: "/explore", icon: MessageCircle },
+             { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
           ],
           { stage: "concierge", intent }
         );
