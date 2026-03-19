@@ -66,8 +66,8 @@ export const knowledgeBase: KnowledgeBaseEntry[] = [
     category: "pricing",
     keywords: ["cost", "price", "pricing", "investment", "budget"],
     links: [
-      { text: "View Detailed Pricing", url: "/pricing" },
-      { text: "Get Custom Quote", url: "/contact" }
+      { text: "View Detailed Pricing", url: "/marketplace" },
+      { text: "Get Custom Quote", url: "/explore" }
     ]
   },
   {
