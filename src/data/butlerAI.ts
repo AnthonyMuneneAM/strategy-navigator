@@ -154,7 +154,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "digital-workspace-strategy",
     name: "Digital Workspace Solutions Strategy",
     description: "Modernize internal collaboration, productivity tools, and governance frameworks.",
-    url: "/services/digital-workspace",
+    url: "/marketplace",
     reason: "Ideal for improving team productivity and operational efficiency",
     tower: "dws",
     type: "design",
