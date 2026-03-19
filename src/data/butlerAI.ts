@@ -102,7 +102,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "digital-org-strategy",
     name: "Digital Organisation Strategy",
     description: "Comprehensive transformation strategy covering all four execution streams with enterprise-grade governance.",
-    url: "/services/digital-org-strategy",
+    url: "/marketplace",
     reason: "Best fit for organizations needing holistic transformation across all business areas",
     tower: "dxp",
     type: "design",
