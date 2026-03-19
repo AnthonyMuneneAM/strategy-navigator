@@ -26,7 +26,7 @@ interface Message {
   links?: Array<{
     text: string;
     url: string;
-    icon?: React.ComponentType<{ size?: number }>;
+    icon?: React.ComponentType<any>;
   }>;
   metadata?: {
     tower?: string;
