@@ -26,7 +26,7 @@ interface Message {
   links?: Array<{
     text: string;
     url: string;
-    icon?: React.ComponentType<{ size?: number }>;
+    icon?: React.ComponentType<any>;
   }>;
   metadata?: {
     tower?: string;
@@ -252,7 +252,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         ["Browse Services", "Contact Support", "Ask something else"],
         [
           { text: "Explore TMaaS", url: "/explore", icon: ExternalLink },
-          { text: "Contact Team", url: "/contact", icon: MessageCircle }
+          { text: "Contact Team", url: "/explore", icon: MessageCircle }
         ],
         { stage: currentStage, intent }
       );
@@ -277,8 +277,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
           "📚 Great! Here's what you should know about TMaaS:\n\n4D Framework - Our proven transformation methodology\nService Catalog - 20+ ready-to-deploy services\nExpert Network - Certified transformation specialists\nSuccess Stories - Real client transformations\n\nWhat interests you most?",
           ["4D Framework Details", "View Success Stories", "Meet the Team"],
           [
-            { text: "Learn About 4D Framework", url: "/framework", icon: BookOpen },
-            { text: "View Case Studies", url: "/case-studies", icon: ExternalLink }
+             { text: "Learn About 4D Framework", url: "/explore", icon: BookOpen },
+             { text: "View Case Studies", url: "/explore", icon: ExternalLink }
           ],
           { stage: "concierge", intent }
         );
@@ -288,8 +288,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
           "🤝 I'd love to connect you with our team!\n\nImmediate Help - Chat with me for instant answers\nExpert Consultation - Schedule a call with our specialists\nSupport Team - Get technical assistance\n\nHow would you prefer to connect?",
           ["Schedule Consultation", "Continue Chatting", "Email Support"],
           [
-            { text: "Book a Call", url: "/contact", icon: MessageCircle },
-            { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
+             { text: "Book a Call", url: "/explore", icon: MessageCircle },
+             { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
           ],
           { stage: "concierge", intent }
         );
@@ -322,7 +322,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       );
     } else if (conversationStep === 2) {
       // Store transformation stage and provide recommendations
-      const stage = message.toLowerCase().includes("starting") ? "starting" : 
+      const stage: "starting" | "underway" | "optimizing" = message.toLowerCase().includes("starting") ? "starting" : 
                    message.toLowerCase().includes("underway") ? "underway" : "optimizing";
       const updatedProfile = { ...userProfile, transformationStage: stage };
       setUserProfile(updatedProfile);
@@ -393,9 +393,9 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         conversationTemplates.escalation,
         ["Yes, connect me with an expert", "No, I'll keep exploring", "Start over with different questions"],
         [
-          { text: "Schedule Expert Call", url: "/contact", icon: MessageCircle },
+          { text: "Schedule Expert Call", url: "/explore", icon: MessageCircle },
           { text: "Browse Services", url: "/marketplace", icon: ExternalLink },
-          { text: "View Knowledge Base", url: "/knowledge", icon: BookOpen }
+          { text: "View Knowledge Base", url: "/explore", icon: BookOpen }
         ],
         { stage: currentStage, intent: "escalation" }
       );

@@ -34,7 +34,7 @@ export const knowledgeBase: KnowledgeBaseEntry[] = [
     keywords: ["tmaas", "transformation", "platform", "4d framework", "what is"],
     links: [
       { text: "Explore Services", url: "/explore" },
-      { text: "View Framework", url: "/framework" }
+      { text: "View Framework", url: "/explore" }
     ]
   },
   {
@@ -44,7 +44,7 @@ export const knowledgeBase: KnowledgeBaseEntry[] = [
     category: "platform",
     keywords: ["4d", "framework", "methodology", "discern", "design", "deploy", "drive"],
     links: [
-      { text: "See Framework in Action", url: "/case-studies" },
+      { text: "See Framework in Action", url: "/explore" },
       { text: "Browse Services by Phase", url: "/explore" }
     ]
   },
@@ -66,8 +66,8 @@ export const knowledgeBase: KnowledgeBaseEntry[] = [
     category: "pricing",
     keywords: ["cost", "price", "pricing", "investment", "budget"],
     links: [
-      { text: "View Detailed Pricing", url: "/pricing" },
-      { text: "Get Custom Quote", url: "/contact" }
+      { text: "View Detailed Pricing", url: "/marketplace" },
+      { text: "Get Custom Quote", url: "/explore" }
     ]
   },
   {
@@ -102,7 +102,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "digital-org-strategy",
     name: "Digital Organisation Strategy",
     description: "Comprehensive transformation strategy covering all four execution streams with enterprise-grade governance.",
-    url: "/services/digital-org-strategy",
+    url: "/marketplace",
     reason: "Best fit for organizations needing holistic transformation across all business areas",
     tower: "dxp",
     type: "design",
@@ -116,7 +116,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "data-intelligence-strategy",
     name: "Data & Intelligence Strategy",
     description: "Enterprise data platform architecture, analytics capabilities, and AI implementation roadmap.",
-    url: "/services/data-intelligence",
+    url: "/marketplace",
     reason: "Critical for enterprises looking to leverage data as a strategic asset",
     tower: "dia",
     type: "design",
@@ -128,7 +128,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "secdevops-strategy",
     name: "SecDevOps Strategy",
     description: "Security posture definition, DevOps maturity assessment, and platform engineering roadmap.",
-    url: "/services/secdevops",
+    url: "/marketplace",
     reason: "Essential for enterprises requiring robust security and scalable development practices",
     tower: "sdo",
     type: "design",
@@ -142,7 +142,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "digital-experience-strategy",
     name: "Digital Experience Platform Strategy",
     description: "Customer experience transformation with modern digital touchpoints and journey optimization.",
-    url: "/services/digital-experience",
+    url: "/marketplace",
     reason: "Perfect for SMBs looking to improve customer interactions and drive growth",
     tower: "dxp",
     type: "design",
@@ -154,7 +154,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "digital-workspace-strategy",
     name: "Digital Workspace Solutions Strategy",
     description: "Modernize internal collaboration, productivity tools, and governance frameworks.",
-    url: "/services/digital-workspace",
+    url: "/marketplace",
     reason: "Ideal for improving team productivity and operational efficiency",
     tower: "dws",
     type: "design",
@@ -168,7 +168,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "crm-platform-deploy",
     name: "CRM & Service Platform",
     description: "Complete CRM implementation with lead-to-revenue lifecycle and customer service management.",
-    url: "/services/crm-deploy",
+    url: "/marketplace",
     reason: "Ready-to-deploy solution for organizations with defined CRM requirements",
     tower: "dxp",
     type: "deploy-saas",
@@ -180,7 +180,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "data-platform-deploy",
     name: "Modern Data Platform",
     description: "Cloud data platform with data lake, warehouse, and integration pipelines.",
-    url: "/services/data-platform-deploy",
+    url: "/marketplace",
     reason: "Perfect for organizations ready to implement a modern data architecture",
     tower: "dia",
     type: "deploy-saas",
