@@ -180,7 +180,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "data-platform-deploy",
     name: "Modern Data Platform",
     description: "Cloud data platform with data lake, warehouse, and integration pipelines.",
-    url: "/services/data-platform-deploy",
+    url: "/marketplace",
     reason: "Perfect for organizations ready to implement a modern data architecture",
     tower: "dia",
     type: "deploy-saas",
