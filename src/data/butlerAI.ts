@@ -168,7 +168,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "crm-platform-deploy",
     name: "CRM & Service Platform",
     description: "Complete CRM implementation with lead-to-revenue lifecycle and customer service management.",
-    url: "/services/crm-deploy",
+    url: "/marketplace",
     reason: "Ready-to-deploy solution for organizations with defined CRM requirements",
     tower: "dxp",
     type: "deploy-saas",
