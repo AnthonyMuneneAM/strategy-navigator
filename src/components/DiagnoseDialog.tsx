@@ -252,7 +252,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         ["Browse Services", "Contact Support", "Ask something else"],
         [
           { text: "Explore TMaaS", url: "/explore", icon: ExternalLink },
-          { text: "Contact Team", url: "/contact", icon: MessageCircle }
+          { text: "Contact Team", url: "/explore", icon: MessageCircle }
         ],
         { stage: currentStage, intent }
       );
