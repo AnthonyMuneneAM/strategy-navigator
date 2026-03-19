@@ -277,8 +277,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
           "📚 Great! Here's what you should know about TMaaS:\n\n4D Framework - Our proven transformation methodology\nService Catalog - 20+ ready-to-deploy services\nExpert Network - Certified transformation specialists\nSuccess Stories - Real client transformations\n\nWhat interests you most?",
           ["4D Framework Details", "View Success Stories", "Meet the Team"],
           [
-            { text: "Learn About 4D Framework", url: "/framework", icon: BookOpen },
-            { text: "View Case Studies", url: "/case-studies", icon: ExternalLink }
+             { text: "Learn About 4D Framework", url: "/explore", icon: BookOpen },
+             { text: "View Case Studies", url: "/explore", icon: ExternalLink }
           ],
           { stage: "concierge", intent }
         );
