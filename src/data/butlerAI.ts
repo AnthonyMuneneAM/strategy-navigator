@@ -142,7 +142,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "digital-experience-strategy",
     name: "Digital Experience Platform Strategy",
     description: "Customer experience transformation with modern digital touchpoints and journey optimization.",
-    url: "/services/digital-experience",
+    url: "/marketplace",
     reason: "Perfect for SMBs looking to improve customer interactions and drive growth",
     tower: "dxp",
     type: "design",
