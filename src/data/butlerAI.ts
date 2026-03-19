@@ -83,7 +83,7 @@ export const knowledgeBase: KnowledgeBaseEntry[] = [
   }
 ];
 
-// Service Recommendation Engine
+// Service Recommendation Engine - Aligned with actual Marketplace services
 export const serviceRecommendations: ServiceRecommendation[] = [
   // Starting Journey Recommendations
   {
@@ -99,9 +99,9 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     confidence: 95
   },
   {
-    id: "digital-org-strategy",
+    id: "0",
     name: "Digital Organisation Strategy",
-    description: "Comprehensive transformation strategy covering all four execution streams with enterprise-grade governance.",
+    description: "Comprehensive digital transformation strategy covering all four execution streams: Digital Experience, Digital Workspace, Data & Intelligence, and SecDevOps.",
     url: "/marketplace",
     reason: "Best fit for organizations needing holistic transformation across all business areas",
     tower: "dxp",
@@ -111,12 +111,12 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     confidence: 90
   },
   
-  // Enterprise Recommendations
+  // Enterprise Recommendations - Design Services
   {
-    id: "data-intelligence-strategy",
+    id: "3",
     name: "Data & Intelligence Strategy",
-    description: "Enterprise data platform architecture, analytics capabilities, and AI implementation roadmap.",
-    url: "/marketplace",
+    description: "Build your data platform architecture, analytics capabilities, and AI roadmap.",
+    url: "/marketplace?tower=dia&type=design",
     reason: "Critical for enterprises looking to leverage data as a strategic asset",
     tower: "dia",
     type: "design",
@@ -125,10 +125,10 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     confidence: 88
   },
   {
-    id: "secdevops-strategy",
+    id: "4",
     name: "SecDevOps Strategy",
-    description: "Security posture definition, DevOps maturity assessment, and platform engineering roadmap.",
-    url: "/marketplace",
+    description: "Define security posture, DevOps maturity, and platform engineering roadmap.",
+    url: "/marketplace?tower=sdo&type=design",
     reason: "Essential for enterprises requiring robust security and scalable development practices",
     tower: "sdo",
     type: "design",
@@ -137,12 +137,12 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     confidence: 85
   },
 
-  // SMB Recommendations
+  // SMB Recommendations - Design Services
   {
-    id: "digital-experience-strategy",
+    id: "1",
     name: "Digital Experience Platform Strategy",
-    description: "Customer experience transformation with modern digital touchpoints and journey optimization.",
-    url: "/marketplace",
+    description: "Define your end-to-end customer experience architecture and transformation roadmap.",
+    url: "/marketplace?tower=dxp&type=design",
     reason: "Perfect for SMBs looking to improve customer interactions and drive growth",
     tower: "dxp",
     type: "design",
@@ -151,10 +151,10 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     confidence: 92
   },
   {
-    id: "digital-workspace-strategy",
+    id: "2",
     name: "Digital Workspace Solutions Strategy",
-    description: "Modernize internal collaboration, productivity tools, and governance frameworks.",
-    url: "/marketplace",
+    description: "Modernize internal collaboration, productivity, and governance platforms.",
+    url: "/marketplace?tower=dws&type=design",
     reason: "Ideal for improving team productivity and operational efficiency",
     tower: "dws",
     type: "design",
@@ -163,12 +163,12 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     confidence: 87
   },
 
-  // Deploy Services
+  // Deploy Services - SaaS
   {
-    id: "crm-platform-deploy",
+    id: "104",
     name: "CRM & Service Platform",
-    description: "Complete CRM implementation with lead-to-revenue lifecycle and customer service management.",
-    url: "/marketplace",
+    description: "Implement CRM with lead-to-revenue lifecycle, service management, and customer interaction tracking.",
+    url: "/marketplace?tower=dxp&type=deploy-saas",
     reason: "Ready-to-deploy solution for organizations with defined CRM requirements",
     tower: "dxp",
     type: "deploy-saas",
@@ -177,16 +177,66 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     confidence: 90
   },
   {
-    id: "data-platform-deploy",
+    id: "302",
     name: "Modern Data Platform",
-    description: "Cloud data platform with data lake, warehouse, and integration pipelines.",
-    url: "/marketplace",
+    description: "Implement cloud data platform with data lake, warehouse, and integration pipelines.",
+    url: "/marketplace?tower=dia&type=deploy-saas",
     reason: "Perfect for organizations ready to implement a modern data architecture",
     tower: "dia",
     type: "deploy-saas",
     price: "From $70k",
     duration: "12-14 weeks",
     confidence: 88
+  },
+  
+  // Additional Deploy Services for better coverage
+  {
+    id: "101",
+    name: "Customer Journey & Experience Platform",
+    description: "Deploy end-to-end journey orchestration with persona-based experiences and lifecycle management.",
+    url: "/marketplace?tower=dxp&type=deploy-saas",
+    reason: "Ideal for organizations focused on customer experience optimization",
+    tower: "dxp",
+    type: "deploy-saas",
+    price: "From $45k",
+    duration: "8-10 weeks",
+    confidence: 86
+  },
+  {
+    id: "201",
+    name: "Modern Collaboration & Hybrid Work Platform",
+    description: "Deploy integrated collaboration tools, intranet, and hybrid work enablement.",
+    url: "/marketplace?tower=dws&type=deploy-saas",
+    reason: "Perfect for organizations modernizing workplace collaboration",
+    tower: "dws",
+    type: "deploy-saas",
+    price: "From $45k",
+    duration: "8-10 weeks",
+    confidence: 84
+  },
+  {
+    id: "303",
+    name: "Analytics & BI Platform",
+    description: "Deploy enterprise BI with dashboards, self-service analytics, and reporting.",
+    url: "/marketplace?tower=dia&type=deploy-saas",
+    reason: "Essential for data-driven decision making and business intelligence",
+    tower: "dia",
+    type: "deploy-saas",
+    price: "From $55k",
+    duration: "10-12 weeks",
+    confidence: 87
+  },
+  {
+    id: "402",
+    name: "DevSecOps & CI/CD Platform",
+    description: "Implement automated CI/CD pipelines with integrated security scanning and compliance.",
+    url: "/marketplace?tower=sdo&type=deploy-saas",
+    reason: "Critical for organizations adopting DevOps practices with security integration",
+    tower: "sdo",
+    type: "deploy-saas",
+    price: "From $50k",
+    duration: "8-10 weeks",
+    confidence: 85
   }
 ];
 
