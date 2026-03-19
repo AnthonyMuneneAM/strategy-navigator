@@ -116,7 +116,7 @@ export const serviceRecommendations: ServiceRecommendation[] = [
     id: "data-intelligence-strategy",
     name: "Data & Intelligence Strategy",
     description: "Enterprise data platform architecture, analytics capabilities, and AI implementation roadmap.",
-    url: "/services/data-intelligence",
+    url: "/marketplace",
     reason: "Critical for enterprises looking to leverage data as a strategic asset",
     tower: "dia",
     type: "design",
