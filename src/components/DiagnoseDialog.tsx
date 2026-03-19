@@ -322,7 +322,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       );
     } else if (conversationStep === 2) {
       // Store transformation stage and provide recommendations
-      const stage = message.toLowerCase().includes("starting") ? "starting" : 
+      const stage: "starting" | "underway" | "optimizing" = message.toLowerCase().includes("starting") ? "starting" : 
                    message.toLowerCase().includes("underway") ? "underway" : "optimizing";
       const updatedProfile = { ...userProfile, transformationStage: stage };
       setUserProfile(updatedProfile);
