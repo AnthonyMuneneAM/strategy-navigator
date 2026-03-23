@@ -29,7 +29,7 @@ export const knowledgeBase: KnowledgeBaseEntry[] = [
   {
     id: "what-is-tmaas",
     question: "What is TMaaS?",
-    answer: "TMaaS (Transformation as a Service) is a comprehensive digital transformation platform that simplifies complex business changes using our proven 4D Framework:\n\n🔍 Discern - Identify challenges and assess capabilities\n🎨 Design - Create strategic blueprints and architectures\n🚀 Deploy - Execute with ready-to-launch solutions\n📈 Drive - Optimize outcomes and enable continuous improvement\n\nWe turn your business problems into architecture-backed transformation blueprints.",
+    answer: "TMaaS (Transformation Management as a Service) is a low-cost, architecture-led digital transformation marketplace and execution platform. It enables organisations to identify, design, deploy, and continuously drive digital transformation initiatives using AI-powered, ready-to-launch blueprints grounded in enterprise architecture.\n\nOur 4D Framework guides you through:\n🔍 Discern - Identify challenges and assess capabilities\n🎨 Design - Create strategic blueprints and architectures\n🚀 Deploy - Execute with ready-to-launch solutions\n📈 Drive - Optimize outcomes and enable continuous improvement",
     category: "platform",
     keywords: ["tmaas", "transformation", "platform", "4d framework", "what is"],
     links: [
