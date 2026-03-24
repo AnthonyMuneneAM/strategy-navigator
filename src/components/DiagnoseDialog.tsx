@@ -229,7 +229,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
   };
 
   const handleFAQResponse = (intent: string) => {
-    const faqId = intent.replace("faq_", "").replace("_", "-");
+    const faqId = intent.replace("faq_", "").replace(/_/g, "-");
     const response = knowledgeBase.find(entry => entry.id === faqId);
     
     if (response) {
