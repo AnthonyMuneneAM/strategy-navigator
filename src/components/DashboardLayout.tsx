@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -16,6 +17,11 @@ import {
   User,
   LogOut,
   Menu,
+  Calendar,
+  FileText,
+  Headphones,
+  Users,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -36,39 +42,75 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
-const navigationItems = [
+const clientNavigationItems = [
   {
-    group: "Main",
+    group: "",
     items: [
       { name: "Overview", icon: LayoutDashboard, path: "/dashboard/overview", badge: null },
-      { name: "Active Services", icon: Package, path: "/dashboard/services", badge: 3 },
-      { name: "Messages", icon: MessageSquare, path: "/dashboard/messages", badge: 5 },
     ],
   },
   {
-    group: "Insights",
+    group: "WORKSPACE",
     items: [
-      { name: "Analytics", icon: BarChart3, path: "/dashboard/analytics", badge: null },
+      { name: "Active Engagements", icon: Package, path: "/dashboard/services", badge: 3 },
+      { name: "Calendar", icon: Calendar, path: "/dashboard/calendar", badge: null },
+      { name: "Inbox", icon: MessageSquare, path: "/dashboard/inbox", badge: 5 },
     ],
   },
   {
-    group: "Account",
+    group: "ORGANISATION",
     items: [
-      { name: "Billing", icon: CreditCard, path: "/dashboard/billing", badge: null },
+      { name: "Organisation Profile", icon: Building2, path: "/dashboard/profile", badge: null },
+      { name: "Documents", icon: FileText, path: "/dashboard/documents", badge: null },
+    ],
+  },
+  {
+    group: "SETTINGS & SUPPORT",
+    items: [
       { name: "Settings", icon: Settings, path: "/dashboard/settings", badge: null },
+      { name: "Support", icon: Headphones, path: "/dashboard/support", badge: null },
       { name: "Help Centre", icon: HelpCircle, path: "/dashboard/help", badge: null },
     ],
   },
 ];
 
-// Mock user data
-const mockUser = {
-  name: "Sarah Mitchell",
-  email: "sarah.mitchell@stcbank.com",
-  role: "Chief Digital Officer",
-  organization: "STC Bank",
-  avatar: "SM",
-};
+const dqNavigationItems = [
+  {
+    group: "",
+    items: [
+      { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard/overview", badge: null },
+    ],
+  },
+  {
+    group: "DELIVERY",
+    items: [
+      { name: "Engagements", icon: Package, path: "/dashboard/services", badge: 3 },
+      { name: "Calendar", icon: Calendar, path: "/dashboard/calendar", badge: null },
+      { name: "Inbox", icon: MessageSquare, path: "/dashboard/inbox", badge: 2 },
+    ],
+  },
+  {
+    group: "CLIENTS",
+    items: [
+      { name: "Organisations", icon: Building2, path: "/dashboard/organisations", badge: null },
+      { name: "Customer Users", icon: Users, path: "/dashboard/users", badge: null },
+    ],
+  },
+  {
+    group: "PLATFORM",
+    items: [
+      { name: "Service Catalogue", icon: BookOpen, path: "/dashboard/catalogue", badge: null },
+      { name: "Help Centre Content", icon: FileText, path: "/dashboard/help-content", badge: null },
+      { name: "Settings", icon: Settings, path: "/dashboard/settings", badge: null },
+    ],
+  },
+  {
+    group: "SUPPORT",
+    items: [
+      { name: "Support", icon: Headphones, path: "/dashboard/support", badge: null },
+    ],
+  },
+];
 
 const mockOrganizations = [
   { id: "stc-bank", name: "STC Bank" },
@@ -80,9 +122,12 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const { user, setUserRole } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState("stc-bank");
+
+  const navigationItems = user.role === 'dq_delivery_lead' ? dqNavigationItems : clientNavigationItems;
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
@@ -113,39 +158,41 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </Button>
           </div>
 
-          {/* Organization Selector */}
-          <div className="border-b border-border p-4">
-            {sidebarCollapsed ? (
-              <div className="flex justify-center">
-                <Building2 size={20} className="text-muted-foreground" />
-              </div>
-            ) : (
-              <div>
-                <label className="mb-2 block text-xs font-medium text-muted-foreground">
-                  Organization
-                </label>
-                <Select value={selectedOrg} onValueChange={setSelectedOrg}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mockOrganizations.map((org) => (
-                      <SelectItem key={org.id} value={org.id}>
-                        {org.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
+          {/* Organization Selector - Only for Client Role */}
+          {user.role === 'client' && (
+            <div className="border-b border-border p-4">
+              {sidebarCollapsed ? (
+                <div className="flex justify-center">
+                  <Building2 size={20} className="text-muted-foreground" />
+                </div>
+              ) : (
+                <div>
+                  <label className="mb-2 block text-xs font-medium text-muted-foreground">
+                    Organization
+                  </label>
+                  <Select value={selectedOrg} onValueChange={setSelectedOrg}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {mockOrganizations.map((org) => (
+                        <SelectItem key={org.id} value={org.id}>
+                          {org.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-6">
-              {navigationItems.map((group) => (
-                <div key={group.group}>
-                  {!sidebarCollapsed && (
+              {navigationItems.map((group, index) => (
+                <div key={group.group || index}>
+                  {!sidebarCollapsed && group.group && (
                     <h3 className="mb-2 px-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       {group.group}
                     </h3>
@@ -194,7 +241,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Button variant="ghost" size="icon" className="w-full">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                        {mockUser.avatar}
+                        {user.avatar}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -202,11 +249,15 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">{mockUser.name}</span>
-                      <span className="text-xs text-muted-foreground">{mockUser.email}</span>
+                      <span className="text-sm font-medium">{user.name}</span>
+                      <span className="text-xs text-muted-foreground">{user.email}</span>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setUserRole(user.role === 'client' ? 'dq_delivery_lead' : 'client')}>
+                    <User size={16} className="mr-2" />
+                    Switch to {user.role === 'client' ? 'DQ Lead' : 'Client'}
+                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <User size={16} className="mr-2" />
                     Profile
@@ -228,23 +279,27 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Button variant="ghost" className="w-full justify-start gap-3 px-3">
                     <Avatar className="h-8 w-8">
                       <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                        {mockUser.avatar}
+                        {user.avatar}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-1 flex-col items-start text-left">
-                      <span className="text-sm font-medium">{mockUser.name}</span>
-                      <span className="text-xs text-muted-foreground">{mockUser.role}</span>
+                      <span className="text-sm font-medium">{user.name}</span>
+                      <span className="text-xs text-muted-foreground">{user.roleTitle}</span>
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium">{mockUser.name}</span>
-                      <span className="text-xs text-muted-foreground">{mockUser.email}</span>
+                      <span className="text-sm font-medium">{user.name}</span>
+                      <span className="text-xs text-muted-foreground">{user.email}</span>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setUserRole(user.role === 'client' ? 'dq_delivery_lead' : 'client')}>
+                    <User size={16} className="mr-2" />
+                    Switch to {user.role === 'client' ? 'DQ Lead' : 'Client'}
+                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <User size={16} className="mr-2" />
                     Profile

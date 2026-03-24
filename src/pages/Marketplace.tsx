@@ -381,7 +381,7 @@ const Marketplace = () => {
   }, [selectedTowers]);
 
   const filteredAndSortedServices = useMemo(() => {
-    let filtered = services.filter((service) => {
+    const filtered = services.filter((service) => {
       const matchesTower = selectedTowers.length === 0 || selectedTowers.includes(service.tower) || service.id === 0;
       const matchesType = service.type === activeTab;
       const matchesSearch =
