@@ -229,7 +229,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
   };
 
   const handleFAQResponse = (intent: string) => {
-    const faqId = intent.replace("faq_", "").replace("_", "-");
+    const faqId = intent.replace("faq_", "").replace(/_/g, "-");
     const response = knowledgeBase.find(entry => entry.id === faqId);
     
     if (response) {
@@ -252,7 +252,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         ["Browse Services", "Contact Support", "Ask something else"],
         [
           { text: "Explore TMaaS", url: "/explore", icon: ExternalLink },
-          { text: "Contact Team", url: "/explore", icon: MessageCircle }
+          { text: "Contact Team", url: "/contact", icon: MessageCircle }
         ],
         { stage: currentStage, intent }
       );
@@ -263,7 +263,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     switch (intent) {
       case "route_explore":
         addAIMessage(
-          "🚀 Perfect! Our Services Marketplace has everything you need:\n\nDesign Services - Strategic blueprints and architectures\nDeploy Services - Ready-to-implement solutions\nKnowledge Centre - Best practices and guides\nDiagnose AI - Personalized recommendations\n\nWhere would you like to start?",
+          "Our Services Marketplace includes:\n\n• Design Services - Strategic blueprints and architectures\n• Deploy Services - Ready-to-implement solutions\n• Knowledge Centre - Best practices and guides\n• Diagnose AI - Personalized recommendations\n\nWhere would you like to start?",
           ["Browse All Services", "Get AI Recommendations", "View by Category"],
           [
             { text: "Explore Marketplace", url: "/marketplace", icon: ExternalLink },
@@ -274,22 +274,22 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         break;
       case "route_learn":
         addAIMessage(
-          "📚 Great! Here's what you should know about TMaaS:\n\n4D Framework - Our proven transformation methodology\nService Catalog - 20+ ready-to-deploy services\nExpert Network - Certified transformation specialists\nSuccess Stories - Real client transformations\n\nWhat interests you most?",
+          "Here's what you should know about TMaaS:\n\n• 4D Framework - Our proven transformation methodology\n• Service Catalog - 20+ ready-to-deploy services\n• Expert Network - Certified transformation specialists\n• Success Stories - Real client transformations\n\nWhat interests you most?",
           ["4D Framework Details", "View Success Stories", "Meet the Team"],
           [
-             { text: "Learn About 4D Framework", url: "/explore", icon: BookOpen },
-             { text: "View Case Studies", url: "/explore", icon: ExternalLink }
+            { text: "Learn About 4D Framework", url: "/explore", icon: BookOpen },
+            { text: "View Case Studies", url: "/marketplace", icon: ExternalLink }
           ],
           { stage: "concierge", intent }
         );
         break;
       case "route_contact":
         addAIMessage(
-          "🤝 I'd love to connect you with our team!\n\nImmediate Help - Chat with me for instant answers\nExpert Consultation - Schedule a call with our specialists\nSupport Team - Get technical assistance\n\nHow would you prefer to connect?",
+          "I can help you connect with our team:\n\n• Continue chatting with me for instant answers\n• Schedule a consultation with our specialists\n• Contact our support team for technical assistance\n\nHow would you prefer to connect?",
           ["Schedule Consultation", "Continue Chatting", "Email Support"],
           [
-             { text: "Book a Call", url: "/explore", icon: MessageCircle },
-             { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
+            { text: "Get Started", url: "/sign-in", icon: MessageCircle },
+            { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
           ],
           { stage: "concierge", intent }
         );
@@ -302,7 +302,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       // First qualification question
       setConversationStep(1);
       addAIMessage(
-        "To give you the best recommendations, I'd like to understand your context better.\n\nWhat type of organization are you?",
+        "To recommend the most relevant services, I'd like to understand your context.\n\nWhat type of organization are you?",
         ["Enterprise (1000+ employees)", "SMB (50-1000 employees)", "Startup (< 50 employees)", "Government/Non-profit"],
         undefined,
         { stage: "advisory", intent: "qualification_org_type" }
@@ -315,7 +315,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       setConversationStep(2);
       
       addAIMessage(
-        "Thanks! Now, where are you in your transformation journey?",
+        "Thanks. Where are you in your transformation journey?",
         ["Just starting - need strategy", "Underway - have some initiatives", "Optimizing - improving existing systems"],
         undefined,
         { stage: "advisory", intent: "qualification_transformation_stage" }
@@ -324,14 +324,14 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       // Store transformation stage and provide recommendations
       const stage: "starting" | "underway" | "optimizing" = message.toLowerCase().includes("starting") ? "starting" : 
                    message.toLowerCase().includes("underway") ? "underway" : "optimizing";
-      const updatedProfile = { ...userProfile, transformationStage: stage };
+      const updatedProfile: UserProfile = { ...userProfile, transformationStage: stage };
       setUserProfile(updatedProfile);
       setConversationStep(3);
       
       const recommendations = getServiceRecommendations(updatedProfile);
       
       addAIMessage(
-        `Perfect! Based on your profile as a ${updatedProfile.organizationType} organization that's ${updatedProfile.transformationStage}, here's what I recommend:\n\n🎯 Primary Recommendation: ${recommendations.primary.name}\n${recommendations.primary.description}\n\nWhy this fits: ${recommendations.primary.reason}\n\nOther services to consider:\n${recommendations.secondary.map(s => `• ${s.name} - ${s.description}`).join('\n')}\n\nConfidence Score: ${recommendations.primary.confidence}% match`,
+        `Based on your profile as a ${updatedProfile.organizationType} organization that's ${updatedProfile.transformationStage}, here's what I recommend:\n\nPrimary Recommendation: ${recommendations.primary.name}\n${recommendations.primary.description}\n\nWhy this fits: ${recommendations.primary.reason}\n\nOther services to consider:\n${recommendations.secondary.map(s => `• ${s.name}`).join('\n')}\n\nConfidence: ${recommendations.primary.confidence}% match`,
         ["View Service Details", "Get Different Recommendations", "Talk to Expert", "Start Over"],
         [
           { text: recommendations.primary.name, url: recommendations.primary.url, icon: ArrowRight },
@@ -376,7 +376,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       setCurrentStage("advisory");
       setConversationStep(0);
       addAIMessage(
-        "I understand you're facing some challenges. Let me help you find the right transformation services to address them.\n\nTo provide the most relevant recommendations, I'll ask you a couple of quick questions.",
+        "I can help you find the right transformation services to address your challenges.\n\nTo provide relevant recommendations, I'll ask you a couple of quick questions.",
         ["Let's get started", "I want to browse services instead"],
         undefined,
         { stage: "advisory", intent: "problem_intake" }
@@ -393,7 +393,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         conversationTemplates.escalation,
         ["Yes, connect me with an expert", "No, I'll keep exploring", "Start over with different questions"],
         [
-          { text: "Schedule Expert Call", url: "/explore", icon: MessageCircle },
+          { text: "Schedule Expert Call", url: "/sign-in", icon: MessageCircle },
           { text: "Browse Services", url: "/marketplace", icon: ExternalLink },
           { text: "View Knowledge Base", url: "/explore", icon: BookOpen }
         ],
@@ -409,17 +409,17 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       const fallbackLinks = currentStage === "concierge"
         ? [
             { text: "Explore Platform", url: "/explore", icon: ExternalLink },
-            { text: "View Case Studies", url: "/case-studies", icon: BookOpen },
-            { text: "Contact Support", url: "/contact", icon: MessageCircle }
+            { text: "View Case Studies", url: "/marketplace", icon: BookOpen },
+            { text: "Contact Support", url: "/sign-in", icon: MessageCircle }
           ]
         : [
             { text: "Browse All Services", url: "/marketplace", icon: ExternalLink },
             { text: "Start Diagnosis", url: "#diagnose", icon: Brain },
-            { text: "Contact Expert", url: "/contact", icon: MessageCircle }
+            { text: "Contact Expert", url: "/sign-in", icon: MessageCircle }
           ];
       
       addAIMessage(
-        `I'd be happy to help you with that! Here are some ways I can assist you:\n\n${currentStage === "concierge" ? "🏠 Platform Information" : "🎯 Service Discovery"}\n• Get detailed explanations\n• Find the right solutions\n• Connect with experts\n\nWhat interests you most?`,
+        `Here are some ways I can assist you:\n\n${currentStage === "concierge" ? "Platform Information" : "Service Discovery"}\n• Get detailed explanations\n• Find the right solutions\n• Connect with experts\n\nWhat interests you most?`,
         fallbackOptions,
         fallbackLinks,
         { stage: currentStage, intent: "fallback" }
@@ -434,7 +434,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     } else if (option === "Explore Services") {
       window.location.href = "/explore";
     } else if (option === "Talk to Team" || option === "Talk to Expert" || option === "Schedule Consultation") {
-      window.location.href = "/contact";
+      window.location.href = "/sign-in";
     } else if (option === "Start with Diagnose AI" || option === "Get AI Recommendations") {
       // Restart conversation in advisory mode
       setCurrentStage("advisory");
@@ -442,7 +442,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       setMessages([]);
       setTimeout(() => {
         addAIMessage(
-          "🎯 Great choice! I'll help you find the perfect services for your transformation needs.\n\nLet's start with understanding your organization better.",
+          "I can help you find the right services for your transformation needs.\n\nLet's start with understanding your organization better.",
           ["Let's begin", "I want to describe my problem first"],
           undefined,
           { stage: "advisory", intent: "diagnose_start" }
@@ -456,14 +456,14 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       setTimeout(() => {
         if (currentStage === "concierge") {
           addAIMessage(
-            "👋 Welcome back! I'm here to help you understand TMaaS and find the right services. What would you like to know?",
+            "Welcome back. I'm here to help you understand TMaaS and find the right services.\n\nWhat would you like to know?",
             ["What is TMaaS?", "How does it work?", "Explore Services", "Talk to Team"],
             undefined,
             { stage: "concierge", intent: "greeting" }
           );
         } else {
           addAIMessage(
-            "🎯 Let's start fresh! I can help you find the perfect transformation services. What brings you here today?",
+            "Let's start fresh. I can help you find the right transformation services.\n\nWhat brings you here today?",
             ["Get Recommendations", "Browse by Category", "I have a specific problem"],
             undefined,
             { stage: "advisory", intent: "greeting" }
@@ -500,8 +500,15 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         setConversationStep(0);
         handleUserMessage("I want to get AI recommendations");
       }
+    } else if (url.startsWith("/")) {
+      // Internal navigation - close dialog and navigate
+      onClose();
+      window.location.href = url;
+    } else if (url.startsWith("mailto:")) {
+      // Email links
+      window.location.href = url;
     } else {
-      // External navigation
+      // External links
       window.open(url, '_blank');
     }
   };
@@ -595,7 +602,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                           onClick={() => handleLinkClick(link.url)}
                           className="flex w-full items-center gap-2 rounded-lg border border-border bg-background/50 p-2 text-left text-xs transition-colors hover:border-primary/40 hover:bg-accent"
                         >
-                          {link.icon && <link.icon size={14} className="text-primary" />}
+                          {link.icon && <link.icon size={14} />}
                           <span className="text-foreground">{link.text}</span>
                           <ExternalLink size={12} className="ml-auto text-muted-foreground" />
                         </button>
@@ -640,9 +647,6 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                     <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
                     <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    TMaaS AI is thinking... (&lt;3s)
-                  </span>
                 </div>
               </div>
             </motion.div>
