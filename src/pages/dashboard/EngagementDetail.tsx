@@ -2116,7 +2116,7 @@ const EngagementDetail = () => {
               <div>
                 <h2 className="text-xl font-semibold text-foreground">Delivery Team</h2>
                 <p className="text-sm text-muted-foreground">
-                  Manage team members and their assignments
+                  Manage team members and their project assignments
                 </p>
               </div>
               <Button onClick={() => setShowAddTeamMember(true)} className="gap-2">
@@ -2132,11 +2132,9 @@ const EngagementDetail = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Team Member</TableHead>
-                      <TableHead>Role</TableHead>
+                      <TableHead>Project Role</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Deliverables</TableHead>
-                      <TableHead>RAID Items</TableHead>
-                      <TableHead>Joined</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -2154,7 +2152,12 @@ const EngagementDetail = () => {
                                 {member.avatar}
                               </AvatarFallback>
                             </Avatar>
-                            <span className="font-medium text-foreground">{member.name}</span>
+                            <div>
+                              <p className="font-medium text-foreground">{member.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {deliverables.filter(d => d.owner === member.name).length} deliverable{deliverables.filter(d => d.owner === member.name).length !== 1 ? 's' : ''} • {activities.filter(a => member.deliverables.includes(a.deliverableId)).length} activit{activities.filter(a => member.deliverables.includes(a.deliverableId)).length !== 1 ? 'ies' : 'y'}
+                              </p>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -2162,43 +2165,12 @@ const EngagementDetail = () => {
                         </TableCell>
                         <TableCell className="text-muted-foreground">{member.email}</TableCell>
                         <TableCell>
-                          {member.deliverables.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {member.deliverables.slice(0, 2).map((delId) => (
-                                <Badge key={delId} variant="secondary" className="text-xs">
-                                  {delId}
-                                </Badge>
-                              ))}
-                              {member.deliverables.length > 2 && (
-                                <Badge variant="secondary" className="text-xs">
-                                  +{member.deliverables.length - 2}
-                                </Badge>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">None</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {member.raidItems.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {member.raidItems.slice(0, 2).map((raidId) => (
-                                <Badge key={raidId} variant="secondary" className="text-xs">
-                                  {raidId}
-                                </Badge>
-                              ))}
-                              {member.raidItems.length > 2 && (
-                                <Badge variant="secondary" className="text-xs">
-                                  +{member.raidItems.length - 2}
-                                </Badge>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">None</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {formatDate(member.joinedDate)}
+                          <Badge 
+                            variant={member.status === "Active" ? "default" : "secondary"}
+                            className="text-xs"
+                          >
+                            {member.status}
+                          </Badge>
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-1">
@@ -3423,80 +3395,224 @@ const EngagementDetail = () => {
             });
           }
         }}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {editingTeamMember ? "Edit Team Member" : "Add Team Member"}
+                {editingTeamMember ? "Team Member Details" : "Add Team Member"}
               </DialogTitle>
               <DialogDescription>
                 {editingTeamMember
-                  ? "Update team member details and assignments"
+                  ? "View and update team member information and assignments"
                   : "Add a new member to the delivery team"}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="member-name">Full Name</Label>
-                <Input
-                  id="member-name"
-                  value={teamMemberForm.name}
-                  onChange={(e) => setTeamMemberForm({ ...teamMemberForm, name: e.target.value })}
-                  placeholder="e.g., John Smith"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="member-email">Email Address</Label>
-                <Input
-                  id="member-email"
-                  type="email"
-                  value={teamMemberForm.email}
-                  onChange={(e) => setTeamMemberForm({ ...teamMemberForm, email: e.target.value })}
-                  placeholder="e.g., john.smith@dq.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="member-role">Role</Label>
-                <Select
-                  value={teamMemberForm.role}
-                  onValueChange={(value) => setTeamMemberForm({ ...teamMemberForm, role: value })}
-                >
-                  <SelectTrigger id="member-role">
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Delivery Lead">Delivery Lead</SelectItem>
-                    <SelectItem value="Solution Architect">Solution Architect</SelectItem>
-                    <SelectItem value="Technical Lead">Technical Lead</SelectItem>
-                    <SelectItem value="Developer">Developer</SelectItem>
-                    <SelectItem value="Business Analyst">Business Analyst</SelectItem>
-                    <SelectItem value="QA Engineer">QA Engineer</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {editingTeamMember && (
-                <div className="pt-4 border-t border-border space-y-4">
-                  <h4 className="text-sm font-semibold text-foreground">Assignments</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs">Deliverables</Label>
-                      <div className="rounded-lg border border-border bg-accent/30 p-3 min-h-[80px]">
-                        <p className="text-xs text-muted-foreground">
-                          Manage deliverable assignments from the Plan tab
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs">RAID Items</Label>
-                      <div className="rounded-lg border border-border bg-accent/30 p-3 min-h-[80px]">
-                        <p className="text-xs text-muted-foreground">
-                          Manage RAID item ownership from the RAID tab
-                        </p>
-                      </div>
-                    </div>
+            <div className="space-y-6 py-4">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-foreground">Basic Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="member-name">Full Name</Label>
+                    <Input
+                      id="member-name"
+                      value={teamMemberForm.name}
+                      onChange={(e) => setTeamMemberForm({ ...teamMemberForm, name: e.target.value })}
+                      placeholder="e.g., John Smith"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="member-email">Email Address</Label>
+                    <Input
+                      id="member-email"
+                      type="email"
+                      value={teamMemberForm.email}
+                      onChange={(e) => setTeamMemberForm({ ...teamMemberForm, email: e.target.value })}
+                      placeholder="e.g., john.smith@dq.com"
+                    />
                   </div>
                 </div>
-              )}
+                <div className="space-y-2">
+                  <Label htmlFor="member-role">Project Role</Label>
+                  <Input
+                    id="member-role"
+                    value={teamMemberForm.role}
+                    onChange={(e) => setTeamMemberForm({ ...teamMemberForm, role: e.target.value })}
+                    placeholder="e.g., Solution Architect, Developer, Business Analyst"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This is the role for this specific project, not the platform role
+                  </p>
+                </div>
+              </div>
+
+              {/* Assignments - Only show when editing */}
+              {editingTeamMember && (() => {
+                const member = mockTeamMembers.find(m => m.id === editingTeamMember);
+                if (!member) return null;
+                
+                // Get activities assigned to this member (through deliverables)
+                const memberActivities = activities.filter(a => 
+                  member.deliverables.includes(a.deliverableId)
+                );
+                
+                // Get only Risks and Issues (not Dependencies or Assumptions)
+                const memberRisks = mockRisks.filter(r => member.raidItems.includes(r.id));
+                const memberIssues = mockIssues.filter(i => member.raidItems.includes(i.id));
+                
+                return (
+                  <div className="pt-4 border-t border-border space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-semibold text-foreground">Assignments</h4>
+                      <Badge 
+                        variant={member.status === "Active" ? "default" : "secondary"}
+                        className="text-xs"
+                      >
+                        {member.status}
+                      </Badge>
+                    </div>
+                    
+                    {/* Deliverables Ownership */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">Deliverable Ownership ({deliverables.filter(d => d.owner === member.name).length})</Label>
+                      </div>
+                      {deliverables.filter(d => d.owner === member.name).length > 0 ? (
+                        <div className="space-y-2">
+                          {deliverables.filter(d => d.owner === member.name).map((deliverable) => (
+                            <div
+                              key={deliverable.id}
+                              className="flex items-center justify-between p-3 rounded-lg border border-border bg-primary/5"
+                            >
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Badge variant="outline" className="text-xs bg-primary/10">Owner</Badge>
+                                  <p className="text-sm font-medium text-foreground">{deliverable.name}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">{deliverable.milestoneName}</p>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge variant={getDeliverableStatusVariant(deliverable.status) as any} className="text-xs">
+                                  {deliverable.status}
+                                </Badge>
+                                <div className="text-right">
+                                  <p className="text-xs text-muted-foreground">Due {formatDate(deliverable.dueDate)}</p>
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <Progress value={deliverable.completionProgress} className="h-1 w-16" />
+                                    <span className="text-xs text-muted-foreground">{deliverable.completionProgress}%</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-border bg-accent/30 p-4 text-center">
+                          <p className="text-xs text-muted-foreground">
+                            Not an owner of any deliverables. Assign ownership from the Deliverables tab.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Activities */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">Activity Assignments ({memberActivities.length})</Label>
+                      </div>
+                      {memberActivities.length > 0 ? (
+                        <div className="space-y-2">
+                          {memberActivities.map((activity) => (
+                            <div
+                              key={activity.id}
+                              className="flex items-center justify-between p-3 rounded-lg border border-border bg-accent/30"
+                            >
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-foreground">{activity.name}</p>
+                                <p className="text-xs text-muted-foreground">{activity.deliverableName}</p>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge variant="outline" className="text-xs">
+                                  {activity.status}
+                                </Badge>
+                                <div className="text-right">
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatDate(activity.startDate)} - {formatDate(activity.endDate)}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-border bg-accent/30 p-4 text-center">
+                          <p className="text-xs text-muted-foreground">
+                            No activities assigned. Activities are assigned through the Plan tab.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Risks & Issues */}
+                    <div className="space-y-2">
+                      <Label className="text-sm">Risks & Issues ({memberRisks.length + memberIssues.length})</Label>
+                      {(memberRisks.length + memberIssues.length) > 0 ? (
+                        <div className="space-y-2">
+                          {memberRisks.map((risk) => (
+                            <div
+                              key={risk.id}
+                              className="flex items-center justify-between p-3 rounded-lg border border-border bg-accent/30"
+                            >
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Badge variant="outline" className="text-xs">Risk</Badge>
+                                  <p className="text-sm font-medium text-foreground">{risk.title}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">{risk.id}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant={risk.severity === "Critical" ? "destructive" : "secondary"} className="text-xs">
+                                  {risk.severity}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {risk.status}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                          {memberIssues.map((issue) => (
+                            <div
+                              key={issue.id}
+                              className="flex items-center justify-between p-3 rounded-lg border border-border bg-accent/30"
+                            >
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Badge variant="outline" className="text-xs">Issue</Badge>
+                                  <p className="text-sm font-medium text-foreground">{issue.title}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">{issue.id}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant={issue.severity === "Critical" ? "destructive" : "secondary"} className="text-xs">
+                                  {issue.severity}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  {issue.status}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-border bg-accent/30 p-4 text-center">
+                          <p className="text-xs text-muted-foreground">
+                            No risks or issues assigned. Assign from the RAID Log tab.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             <DialogFooter>
               <Button
@@ -3506,7 +3622,7 @@ const EngagementDetail = () => {
                   setShowAddTeamMember(false);
                 }}
               >
-                Cancel
+                {editingTeamMember ? "Close" : "Cancel"}
               </Button>
               <Button onClick={handleSaveTeamMember}>
                 {editingTeamMember ? "Save Changes" : "Add Member"}
