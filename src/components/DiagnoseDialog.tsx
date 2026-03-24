@@ -26,7 +26,7 @@ interface Message {
   links?: Array<{
     text: string;
     url: string;
-    icon?: React.ComponentType<{ size?: number }>;
+    icon?: React.ComponentType<any>;
   }>;
   metadata?: {
     tower?: string;
@@ -322,9 +322,9 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       );
     } else if (conversationStep === 2) {
       // Store transformation stage and provide recommendations
-      const stage = message.toLowerCase().includes("starting") ? "starting" : 
+      const stage: "starting" | "underway" | "optimizing" = message.toLowerCase().includes("starting") ? "starting" : 
                    message.toLowerCase().includes("underway") ? "underway" : "optimizing";
-      const updatedProfile = { ...userProfile, transformationStage: stage };
+      const updatedProfile: UserProfile = { ...userProfile, transformationStage: stage };
       setUserProfile(updatedProfile);
       setConversationStep(3);
       
@@ -602,7 +602,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                           onClick={() => handleLinkClick(link.url)}
                           className="flex w-full items-center gap-2 rounded-lg border border-border bg-background/50 p-2 text-left text-xs transition-colors hover:border-primary/40 hover:bg-accent"
                         >
-                          {link.icon && <link.icon size={14} className="text-primary" />}
+                          {link.icon && <link.icon size={14} />}
                           <span className="text-foreground">{link.text}</span>
                           <ExternalLink size={12} className="ml-auto text-muted-foreground" />
                         </button>
