@@ -602,6 +602,70 @@ const mockTeamMembers = [
   },
 ];
 
+// Mock stakeholders data
+const mockStakeholders = [
+  {
+    id: "SH001",
+    name: "Mohammed Al-Rashid",
+    position: "Chief Information Officer",
+    organisation: "STC Bank",
+    influence: "High",
+    interest: "High",
+    engagementStrategy: "Manage Closely",
+    lastInteraction: "2026-02-15",
+    email: "m.alrashid@stcbank.com",
+    notes: "Key decision maker for digital transformation initiatives. Requires weekly updates.",
+  },
+  {
+    id: "SH002",
+    name: "Sarah Al-Mansour",
+    position: "Head of IT Governance",
+    organisation: "STC Bank",
+    influence: "High",
+    interest: "Medium",
+    engagementStrategy: "Keep Satisfied",
+    lastInteraction: "2026-02-10",
+    email: "s.almansour@stcbank.com",
+    notes: "Responsible for compliance and risk management. Needs to approve all governance frameworks.",
+  },
+  {
+    id: "SH003",
+    name: "Ahmed Hassan",
+    position: "IT Security Manager",
+    organisation: "STC Bank",
+    influence: "Medium",
+    interest: "High",
+    engagementStrategy: "Keep Informed",
+    lastInteraction: "2026-02-12",
+    email: "a.hassan@stcbank.com",
+    notes: "Very engaged in security aspects. Attends all technical reviews.",
+  },
+  {
+    id: "SH004",
+    name: "Fatima Al-Zahrani",
+    position: "Business Process Owner",
+    organisation: "STC Bank",
+    influence: "Medium",
+    interest: "Medium",
+    engagementStrategy: "Keep Informed",
+    lastInteraction: "2026-02-08",
+    email: "f.alzahrani@stcbank.com",
+    notes: "Represents business units. Interested in operational impact.",
+  },
+  {
+    id: "SH005",
+    name: "Omar Abdullah",
+    position: "IT Operations Manager",
+    organisation: "STC Bank",
+    influence: "Low",
+    interest: "Medium",
+    engagementStrategy: "Monitor",
+    lastInteraction: "2026-01-28",
+    email: "o.abdullah@stcbank.com",
+    notes: "Will be involved during implementation phase.",
+  },
+];
+
 // Mock financial data
 const mockContractData = {
   contractNumber: "CNT-2026-001",
@@ -721,6 +785,9 @@ const EngagementDetail = () => {
   const [raidView, setRaidView] = useState<"risks" | "assumptions" | "issues" | "dependencies">("risks");
   const [editingTeamMember, setEditingTeamMember] = useState<string | null>(null);
   const [showAddTeamMember, setShowAddTeamMember] = useState(false);
+  const [stakeholders, setStakeholders] = useState(mockStakeholders);
+  const [editingStakeholder, setEditingStakeholder] = useState<string | null>(null);
+  const [showAddStakeholder, setShowAddStakeholder] = useState(false);
   
   // Form state for team member
   const [teamMemberForm, setTeamMemberForm] = useState({
@@ -761,6 +828,17 @@ const EngagementDetail = () => {
     startDate: "",
     endDate: "",
     owner: "",
+  });
+
+  // Form states for stakeholder
+  const [stakeholderForm, setStakeholderForm] = useState({
+    name: "",
+    position: "",
+    organisation: "",
+    influence: "Medium",
+    interest: "Medium",
+    email: "",
+    notes: "",
   });
 
   const getHealthColor = (status: string) => {
@@ -1129,6 +1207,7 @@ const EngagementDetail = () => {
             <TabsTrigger value="deliverables" className="px-4">Deliverables</TabsTrigger>
             <TabsTrigger value="sessions" className="px-4">Working Sessions</TabsTrigger>
             <TabsTrigger value="team" className="px-4">Team</TabsTrigger>
+            <TabsTrigger value="stakeholders" className="px-4">Stakeholders</TabsTrigger>
             <TabsTrigger value="raid" className="px-4">RAID Log</TabsTrigger>
             <TabsTrigger value="reports" className="px-4">Reports</TabsTrigger>
             <TabsTrigger value="financials" className="px-4">Financials</TabsTrigger>
@@ -2215,6 +2294,474 @@ const EngagementDetail = () => {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="stakeholders" className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Stakeholder Management</h2>
+                <p className="text-sm text-muted-foreground">
+                  Identify and manage key stakeholders for this engagement
+                </p>
+              </div>
+              <Button onClick={() => setShowAddStakeholder(true)} className="gap-2">
+                <Plus size={16} />
+                Add Stakeholder
+              </Button>
+            </div>
+
+            {/* Stakeholders Table */}
+            <Card>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead>Influence</TableHead>
+                      <TableHead>Interest</TableHead>
+                      <TableHead>Engagement Strategy</TableHead>
+                      <TableHead>Last Interaction</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {stakeholders.map((stakeholder) => (
+                      <TableRow
+                        key={stakeholder.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => {
+                          setStakeholderForm({
+                            name: stakeholder.name,
+                            position: stakeholder.position,
+                            organisation: stakeholder.organisation,
+                            influence: stakeholder.influence,
+                            interest: stakeholder.interest,
+                            email: stakeholder.email || "",
+                            notes: stakeholder.notes || "",
+                          });
+                          setEditingStakeholder(stakeholder.id);
+                        }}
+                      >
+                        <TableCell>
+                          <div>
+                            <p className="font-medium text-foreground">{stakeholder.name}</p>
+                            {stakeholder.email && (
+                              <p className="text-xs text-muted-foreground">{stakeholder.email}</p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="text-sm text-foreground">{stakeholder.position}</p>
+                            <p className="text-xs text-muted-foreground">{stakeholder.organisation}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              stakeholder.influence === "High"
+                                ? "destructive"
+                                : stakeholder.influence === "Medium"
+                                ? "default"
+                                : "secondary"
+                            }
+                            className="text-xs"
+                          >
+                            {stakeholder.influence}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              stakeholder.interest === "High"
+                                ? "default"
+                                : stakeholder.interest === "Medium"
+                                ? "secondary"
+                                : "outline"
+                            }
+                            className="text-xs"
+                          >
+                            {stakeholder.interest}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-xs">
+                            {stakeholder.engagementStrategy}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {formatDate(stakeholder.lastInteraction)}
+                        </TableCell>
+                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => {
+                                setStakeholderForm({
+                                  name: stakeholder.name,
+                                  position: stakeholder.position,
+                                  organisation: stakeholder.organisation,
+                                  influence: stakeholder.influence,
+                                  interest: stakeholder.interest,
+                                  email: stakeholder.email || "",
+                                  notes: stakeholder.notes || "",
+                                });
+                                setEditingStakeholder(stakeholder.id);
+                              }}
+                            >
+                              <Edit size={14} />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive"
+                              onClick={() => {
+                                if (confirm("Are you sure you want to remove this stakeholder?")) {
+                                  setStakeholders(stakeholders.filter((s) => s.id !== stakeholder.id));
+                                }
+                              }}
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {stakeholders.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Users size={48} className="mx-auto mb-4 opacity-20" />
+                    <p className="text-sm">No stakeholders yet.</p>
+                    <p className="text-xs mt-1">Add stakeholders to manage engagement relationships.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Stakeholder Matrix View - Contemporary Card-Based Design */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Manage Closely Quadrant */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <Card className="h-full border-2 border-red-200 bg-gradient-to-br from-red-50 via-white to-red-50/30 hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg text-red-900 flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                          Manage Closely
+                        </CardTitle>
+                        <CardDescription className="text-xs mt-1 text-red-700">
+                          High Influence • High Interest
+                        </CardDescription>
+                      </div>
+                      <div className="text-3xl font-bold text-red-600">
+                        {stakeholders.filter((s) => s.influence === "High" && s.interest === "High").length}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {stakeholders
+                      .filter((s) => s.influence === "High" && s.interest === "High")
+                      .map((stakeholder, idx) => (
+                        <motion.div
+                          key={stakeholder.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.2 + idx * 0.1 }}
+                          className="group relative"
+                        >
+                          <div
+                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-red-100 hover:border-red-300 hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => {
+                              setStakeholderForm({
+                                name: stakeholder.name,
+                                position: stakeholder.position,
+                                organisation: stakeholder.organisation,
+                                influence: stakeholder.influence,
+                                interest: stakeholder.interest,
+                                email: stakeholder.email || "",
+                                notes: stakeholder.notes || "",
+                              });
+                              setEditingStakeholder(stakeholder.id);
+                            }}
+                          >
+                            <Avatar className="h-10 w-10 border-2 border-red-200">
+                              <AvatarFallback className="bg-red-500 text-white font-semibold text-sm">
+                                {stakeholder.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm text-foreground truncate">
+                                {stakeholder.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {stakeholder.position}
+                              </p>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              <Badge variant="outline" className="text-[10px] bg-red-50 border-red-200">
+                                Last: {new Date(stakeholder.lastInteraction).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </Badge>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    {stakeholders.filter((s) => s.influence === "High" && s.interest === "High").length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">No stakeholders in this quadrant</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Keep Satisfied Quadrant */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card className="h-full border-2 border-amber-200 bg-gradient-to-br from-amber-50 via-white to-amber-50/30 hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg text-amber-900 flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                          Keep Satisfied
+                        </CardTitle>
+                        <CardDescription className="text-xs mt-1 text-amber-700">
+                          High Influence • Low-Medium Interest
+                        </CardDescription>
+                      </div>
+                      <div className="text-3xl font-bold text-amber-600">
+                        {stakeholders.filter((s) => s.influence === "High" && (s.interest === "Low" || s.interest === "Medium")).length}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {stakeholders
+                      .filter((s) => s.influence === "High" && (s.interest === "Low" || s.interest === "Medium"))
+                      .map((stakeholder, idx) => (
+                        <motion.div
+                          key={stakeholder.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.3 + idx * 0.1 }}
+                          className="group relative"
+                        >
+                          <div
+                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-amber-100 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => {
+                              setStakeholderForm({
+                                name: stakeholder.name,
+                                position: stakeholder.position,
+                                organisation: stakeholder.organisation,
+                                influence: stakeholder.influence,
+                                interest: stakeholder.interest,
+                                email: stakeholder.email || "",
+                                notes: stakeholder.notes || "",
+                              });
+                              setEditingStakeholder(stakeholder.id);
+                            }}
+                          >
+                            <Avatar className="h-10 w-10 border-2 border-amber-200">
+                              <AvatarFallback className="bg-amber-500 text-white font-semibold text-sm">
+                                {stakeholder.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm text-foreground truncate">
+                                {stakeholder.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {stakeholder.position}
+                              </p>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              <Badge variant="outline" className="text-[10px] bg-amber-50 border-amber-200">
+                                Last: {new Date(stakeholder.lastInteraction).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </Badge>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    {stakeholders.filter((s) => s.influence === "High" && (s.interest === "Low" || s.interest === "Medium")).length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">No stakeholders in this quadrant</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Keep Informed Quadrant */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Card className="h-full border-2 border-blue-200 bg-gradient-to-br from-blue-50 via-white to-blue-50/30 hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg text-blue-900 flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                          Keep Informed
+                        </CardTitle>
+                        <CardDescription className="text-xs mt-1 text-blue-700">
+                          Low-Medium Influence • High Interest
+                        </CardDescription>
+                      </div>
+                      <div className="text-3xl font-bold text-blue-600">
+                        {stakeholders.filter((s) => (s.influence === "Low" || s.influence === "Medium") && s.interest === "High").length}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {stakeholders
+                      .filter((s) => (s.influence === "Low" || s.influence === "Medium") && s.interest === "High")
+                      .map((stakeholder, idx) => (
+                        <motion.div
+                          key={stakeholder.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 + idx * 0.1 }}
+                          className="group relative"
+                        >
+                          <div
+                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => {
+                              setStakeholderForm({
+                                name: stakeholder.name,
+                                position: stakeholder.position,
+                                organisation: stakeholder.organisation,
+                                influence: stakeholder.influence,
+                                interest: stakeholder.interest,
+                                email: stakeholder.email || "",
+                                notes: stakeholder.notes || "",
+                              });
+                              setEditingStakeholder(stakeholder.id);
+                            }}
+                          >
+                            <Avatar className="h-10 w-10 border-2 border-blue-200">
+                              <AvatarFallback className="bg-blue-500 text-white font-semibold text-sm">
+                                {stakeholder.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm text-foreground truncate">
+                                {stakeholder.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {stakeholder.position}
+                              </p>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              <Badge variant="outline" className="text-[10px] bg-blue-50 border-blue-200">
+                                Last: {new Date(stakeholder.lastInteraction).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </Badge>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    {stakeholders.filter((s) => (s.influence === "Low" || s.influence === "Medium") && s.interest === "High").length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">No stakeholders in this quadrant</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Monitor Quadrant */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Card className="h-full border-2 border-gray-200 bg-gradient-to-br from-gray-50 via-white to-gray-50/30 hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg text-gray-900 flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                          Monitor
+                        </CardTitle>
+                        <CardDescription className="text-xs mt-1 text-gray-700">
+                          Low-Medium Influence • Low-Medium Interest
+                        </CardDescription>
+                      </div>
+                      <div className="text-3xl font-bold text-gray-600">
+                        {stakeholders.filter((s) => (s.influence === "Low" || s.influence === "Medium") && (s.interest === "Low" || s.interest === "Medium")).length}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {stakeholders
+                      .filter((s) => (s.influence === "Low" || s.influence === "Medium") && (s.interest === "Low" || s.interest === "Medium"))
+                      .map((stakeholder, idx) => (
+                        <motion.div
+                          key={stakeholder.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.5 + idx * 0.1 }}
+                          className="group relative"
+                        >
+                          <div
+                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100 hover:border-gray-300 hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => {
+                              setStakeholderForm({
+                                name: stakeholder.name,
+                                position: stakeholder.position,
+                                organisation: stakeholder.organisation,
+                                influence: stakeholder.influence,
+                                interest: stakeholder.interest,
+                                email: stakeholder.email || "",
+                                notes: stakeholder.notes || "",
+                              });
+                              setEditingStakeholder(stakeholder.id);
+                            }}
+                          >
+                            <Avatar className="h-10 w-10 border-2 border-gray-200">
+                              <AvatarFallback className="bg-gray-400 text-white font-semibold text-sm">
+                                {stakeholder.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm text-foreground truncate">
+                                {stakeholder.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {stakeholder.position}
+                              </p>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              <Badge variant="outline" className="text-[10px] bg-gray-50 border-gray-200">
+                                Last: {new Date(stakeholder.lastInteraction).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </Badge>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
+                    {stakeholders.filter((s) => (s.influence === "Low" || s.influence === "Medium") && (s.interest === "Low" || s.interest === "Medium")).length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">No stakeholders in this quadrant</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
           </TabsContent>
 
           <TabsContent value="raid" className="space-y-6">
@@ -3626,6 +4173,208 @@ const EngagementDetail = () => {
               </Button>
               <Button onClick={handleSaveTeamMember}>
                 {editingTeamMember ? "Save Changes" : "Add Member"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add/Edit Stakeholder Dialog */}
+        <Dialog open={editingStakeholder !== null || showAddStakeholder} onOpenChange={(open) => {
+          if (!open) {
+            setEditingStakeholder(null);
+            setShowAddStakeholder(false);
+            setStakeholderForm({
+              name: "",
+              position: "",
+              organisation: "",
+              influence: "Medium",
+              interest: "Medium",
+              email: "",
+              notes: "",
+            });
+          }
+        }}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {editingStakeholder ? "Edit Stakeholder" : "Add Stakeholder"}
+              </DialogTitle>
+              <DialogDescription>
+                {editingStakeholder
+                  ? "Update stakeholder information and engagement strategy"
+                  : "Add a new stakeholder to this engagement"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="stakeholder-name">Name *</Label>
+                  <Input
+                    id="stakeholder-name"
+                    value={stakeholderForm.name}
+                    onChange={(e) => setStakeholderForm({ ...stakeholderForm, name: e.target.value })}
+                    placeholder="e.g., Mohammed Al-Rashid"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stakeholder-position">Position *</Label>
+                  <Input
+                    id="stakeholder-position"
+                    value={stakeholderForm.position}
+                    onChange={(e) => setStakeholderForm({ ...stakeholderForm, position: e.target.value })}
+                    placeholder="e.g., Chief Information Officer"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="stakeholder-organisation">Organisation</Label>
+                  <Input
+                    id="stakeholder-organisation"
+                    value={stakeholderForm.organisation}
+                    onChange={(e) => setStakeholderForm({ ...stakeholderForm, organisation: e.target.value })}
+                    placeholder="e.g., STC Bank"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stakeholder-email">Email</Label>
+                  <Input
+                    id="stakeholder-email"
+                    type="email"
+                    value={stakeholderForm.email}
+                    onChange={(e) => setStakeholderForm({ ...stakeholderForm, email: e.target.value })}
+                    placeholder="e.g., m.alrashid@stcbank.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="stakeholder-influence">Influence Level *</Label>
+                  <Select
+                    value={stakeholderForm.influence}
+                    onValueChange={(value) => setStakeholderForm({ ...stakeholderForm, influence: value })}
+                  >
+                    <SelectTrigger id="stakeholder-influence">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">Level of power or decision authority</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stakeholder-interest">Interest Level *</Label>
+                  <Select
+                    value={stakeholderForm.interest}
+                    onValueChange={(value) => setStakeholderForm({ ...stakeholderForm, interest: value })}
+                  >
+                    <SelectTrigger id="stakeholder-interest">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">How invested they are in the engagement</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Recommended Engagement Strategy</Label>
+                  <Badge variant="outline" className="text-xs">
+                    {stakeholderForm.influence === "High" && stakeholderForm.interest === "High" && "Manage Closely"}
+                    {stakeholderForm.influence === "High" && stakeholderForm.interest !== "High" && "Keep Satisfied"}
+                    {stakeholderForm.influence !== "High" && stakeholderForm.interest === "High" && "Keep Informed"}
+                    {stakeholderForm.influence !== "High" && stakeholderForm.interest !== "High" && "Monitor"}
+                  </Badge>
+                </div>
+                <div className="rounded-lg border border-border bg-accent/30 p-3">
+                  <p className="text-xs text-muted-foreground">
+                    {stakeholderForm.influence === "High" && stakeholderForm.interest === "High" && 
+                      "Maintain regular alignment discussions. Include in steering committee sessions. Escalate risks early."}
+                    {stakeholderForm.influence === "High" && stakeholderForm.interest !== "High" && 
+                      "Provide periodic updates. Involve in major decisions. Keep satisfied with progress."}
+                    {stakeholderForm.influence !== "High" && stakeholderForm.interest === "High" && 
+                      "Share milestone updates. Invite to product demonstrations. Keep well informed."}
+                    {stakeholderForm.influence !== "High" && stakeholderForm.interest !== "High" && 
+                      "Maintain awareness of stakeholder perspective. Engage if interest increases."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="stakeholder-notes">Notes</Label>
+                <Textarea
+                  id="stakeholder-notes"
+                  value={stakeholderForm.notes}
+                  onChange={(e) => setStakeholderForm({ ...stakeholderForm, notes: e.target.value })}
+                  placeholder="Additional context about this stakeholder..."
+                  rows={3}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEditingStakeholder(null);
+                  setShowAddStakeholder(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={() => {
+                const engagementStrategy = 
+                  stakeholderForm.influence === "High" && stakeholderForm.interest === "High" ? "Manage Closely" :
+                  stakeholderForm.influence === "High" ? "Keep Satisfied" :
+                  stakeholderForm.interest === "High" ? "Keep Informed" : "Monitor";
+
+                if (editingStakeholder) {
+                  setStakeholders(
+                    stakeholders.map((s) =>
+                      s.id === editingStakeholder
+                        ? {
+                            ...s,
+                            ...stakeholderForm,
+                            engagementStrategy,
+                            lastInteraction: s.lastInteraction,
+                          }
+                        : s
+                    )
+                  );
+                } else {
+                  const newId = `SH${String(stakeholders.length + 1).padStart(3, '0')}`;
+                  setStakeholders([
+                    ...stakeholders,
+                    {
+                      id: newId,
+                      ...stakeholderForm,
+                      engagementStrategy,
+                      lastInteraction: new Date().toISOString().split('T')[0],
+                    },
+                  ]);
+                }
+                setEditingStakeholder(null);
+                setShowAddStakeholder(false);
+                setStakeholderForm({
+                  name: "",
+                  position: "",
+                  organisation: "",
+                  influence: "Medium",
+                  interest: "Medium",
+                  email: "",
+                  notes: "",
+                });
+              }}>
+                {editingStakeholder ? "Save Changes" : "Add Stakeholder"}
               </Button>
             </DialogFooter>
           </DialogContent>
