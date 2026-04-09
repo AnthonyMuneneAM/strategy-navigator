@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Explore from "./pages/Explore";
 import Marketplace from "./pages/Marketplace";
@@ -23,6 +23,17 @@ import Complete from "./pages/onboarding/Complete";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 const queryClient = new QueryClient();
+
+// Wrapper component to conditionally render ChatButton
+const ConditionalChatButton = () => {
+  const location = useLocation();
+  
+  // Only show ChatButton on pre-login pages (not on dashboard or onboarding)
+  const showChatButton = !location.pathname.startsWith('/dashboard') && 
+                         !location.pathname.startsWith('/onboarding');
+  
+  return showChatButton ? <ChatButton /> : null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -56,7 +67,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <ChatButton />
+        <ConditionalChatButton />
       </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

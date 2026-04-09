@@ -1,16 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, Sparkles, Send, ExternalLink, Brain, BookOpen, MessageCircle } from "lucide-react";
+import { X, ArrowRight, Sparkles, Send, ExternalLink, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useLocation } from "react-router-dom";
-import { 
-  knowledgeBase, 
-  serviceRecommendations, 
-  intentPatterns, 
-  conversationTemplates,
-  type ServiceRecommendation 
-} from "@/data/butlerAI";
+import { mockedRecommendations, mockedFAQs, mockedEscalation, teamHandoff } from "@/data/butlerAI";
 
 interface DiagnoseDialogProps {
   isOpen: boolean;
@@ -20,7 +13,7 @@ interface DiagnoseDialogProps {
 
 interface Message {
   id: string;
-  type: "user" | "ai";
+  type: "user" | "ai" | "team";
   content: string;
   options?: string[];
   links?: Array<{
@@ -28,111 +21,23 @@ interface Message {
     url: string;
     icon?: React.ComponentType<any>;
   }>;
-  metadata?: {
-    tower?: string;
-    domain?: string;
-    service?: string;
-    stage?: "concierge" | "advisory";
-    intent?: string;
+  isHandoff?: boolean;
+  teamMember?: {
+    name: string;
+    title: string;
   };
-}
-
-interface UserProfile {
-  organizationType?: "enterprise" | "smb" | "startup";
-  transformationStage?: "starting" | "underway" | "optimizing";
-  industry?: string;
-  challenges?: string[];
 }
 
 const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialogProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [currentStage, setCurrentStage] = useState<"concierge" | "advisory">("concierge");
-  const [conversationStep, setConversationStep] = useState(0);
-  const [userProfile, setUserProfile] = useState<UserProfile>({});
-  const [unresolved, setUnresolved] = useState(0);
-  const [conversationStartTime] = useState(Date.now());
-  const [responseCount, setResponseCount] = useState(0);
+  const [conversationStep, setConversationStep] = useState(0); // 0: initial, 1: Q2 asked, 2: recommendation shown
+  const [selectedGoal, setSelectedGoal] = useState<string>("");
+  const [unresolvedCount, setUnresolvedCount] = useState(0);
+  const [isHandedOff, setIsHandedOff] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-
-  // Simulate conversation analytics
-  const logConversationMetrics = (intent: string, responseTime: number) => {
-    setResponseCount(prev => prev + 1);
-    
-    // Simulate analytics (in real implementation, this would send to analytics service)
-    console.log("Butler.AI Analytics:", {
-      stage: currentStage,
-      intent,
-      responseTime,
-      conversationLength: responseCount,
-      sessionDuration: Date.now() - conversationStartTime,
-      userProfile,
-      timestamp: new Date().toISOString()
-    });
-  };
-
-  // Enhanced Intent Classification using knowledge base
-  const classifyIntent = (message: string): string => {
-    const lowerMessage = message.toLowerCase();
-    
-    // Check FAQ patterns
-    for (const category of intentPatterns.faq) {
-      if (category.pattern.test(lowerMessage)) {
-        return category.intent;
-      }
-    }
-    
-    // Check routing patterns
-    for (const category of intentPatterns.routing) {
-      if (category.pattern.test(lowerMessage)) {
-        return category.intent;
-      }
-    }
-    
-    // Check advisory patterns
-    for (const category of intentPatterns.advisory) {
-      if (category.pattern.test(lowerMessage)) {
-        return category.intent;
-      }
-    }
-    
-    // Problem description (longer messages)
-    if (lowerMessage.length > 20) return "problem_description";
-    
-    return "general_inquiry";
-  };
-
-  // Enhanced Service Recommendations
-  const getServiceRecommendations = (profile: UserProfile): {
-    primary: ServiceRecommendation;
-    secondary: ServiceRecommendation[];
-  } => {
-    const { organizationType, transformationStage } = profile;
-    
-    // Filter recommendations based on profile
-    let filteredRecommendations = serviceRecommendations.filter(service => {
-      if (transformationStage === "starting") {
-        return service.type === "design" || service.id === "diagnose-ai";
-      }
-      if (organizationType === "enterprise") {
-        return service.confidence >= 85;
-      }
-      if (organizationType === "startup") {
-        return parseInt(service.price.replace(/[^\d]/g, '')) <= 50000 || service.price === "Free";
-      }
-      return true;
-    });
-
-    // Sort by confidence
-    filteredRecommendations.sort((a, b) => b.confidence - a.confidence);
-    
-    const primary = filteredRecommendations[0] || serviceRecommendations[0];
-    const secondary = filteredRecommendations.slice(1, 4);
-    
-    return { primary, secondary };
-  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -142,59 +47,31 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Determine stage based on current route
-  useEffect(() => {
-    const path = location.pathname;
-    if (path === "/" || path === "/index") {
-      setCurrentStage("concierge");
-    } else if (path.includes("/marketplace") || path.includes("/explore")) {
-      setCurrentStage("advisory");
-    }
-  }, [location]);
-
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Initial greeting based on stage
+      // Initial greeting - no chips inside dialog
       setTimeout(() => {
-        if (currentStage === "concierge") {
-          addAIMessage(
-            conversationTemplates.greeting.concierge,
-            ["What is TMaaS?", "How does it work?", "Explore Services", "Talk to Team"],
-            undefined,
-            { stage: "concierge", intent: "greeting" }
-          );
-        } else {
-          addAIMessage(
-            conversationTemplates.greeting.advisory,
-            ["Get Recommendations", "Browse by Category", "I have a specific problem"],
-            undefined,
-            { stage: "advisory", intent: "greeting" }
-          );
-        }
+        addAIMessage(
+          "Hi, I'm Butler — your TMaaS guide. What are you trying to achieve with your transformation?"
+        );
       }, 500);
     }
-  }, [isOpen, currentStage]);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && initialProblem && messages.length === 1) {
-      // Auto-submit initial problem
+      // Auto-submit initial problem - treat it as a chip click
       setTimeout(() => {
-        handleUserMessage(initialProblem);
+        handleOptionClick(initialProblem);
       }, 800);
     }
   }, [isOpen, initialProblem, messages.length]);
 
-  const addAIMessage = (
-    content: string, 
-    options?: string[], 
-    links?: Message["links"], 
-    metadata?: Message["metadata"]
-  ) => {
-    const startTime = Date.now();
+  const addAIMessage = (content: string, options?: string[], links?: Message["links"]) => {
     setIsTyping(true);
     
-    // Simulate realistic response time (500ms - 2000ms based on complexity)
-    const responseTime = Math.random() * 1500 + 500;
+    // Simulate realistic response time (500ms - 1500ms)
+    const responseTime = Math.random() * 1000 + 500;
     
     setTimeout(() => {
       setIsTyping(false);
@@ -206,14 +83,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
           content,
           options,
           links,
-          metadata,
         },
       ]);
-      
-      // Log analytics
-      if (metadata?.intent) {
-        logConversationMetrics(metadata.intent, Date.now() - startTime);
-      }
     }, responseTime);
   };
 
@@ -228,287 +99,442 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     ]);
   };
 
-  const handleFAQResponse = (intent: string) => {
-    const faqId = intent.replace("faq_", "").replace(/_/g, "-");
-    const response = knowledgeBase.find(entry => entry.id === faqId);
+  const addTeamMessage = (content: string, options?: string[]) => {
+    setIsTyping(true);
     
-    if (response) {
-      const links = response.links?.map(link => ({
-        text: link.text,
-        url: link.url,
-        icon: ExternalLink
-      }));
-      
-      addAIMessage(
-        response.answer,
-        ["Ask another question", "Explore Services", "Talk to Expert"],
-        links,
-        { stage: currentStage, intent }
-      );
-    } else {
-      // Fallback for unmatched FAQ
-      addAIMessage(
-        "I'd be happy to help you with that! Let me connect you with the right information.",
-        ["Browse Services", "Contact Support", "Ask something else"],
-        [
-          { text: "Explore TMaaS", url: "/explore", icon: ExternalLink },
-          { text: "Contact Team", url: "/contact", icon: MessageCircle }
-        ],
-        { stage: currentStage, intent }
-      );
-    }
+    // Simulate realistic human response time (1-3 seconds)
+    const responseTime = Math.random() * 2000 + 1000;
+    
+    setTimeout(() => {
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: "team",
+          content,
+          options,
+          teamMember: {
+            name: mockedEscalation.contact.name,
+            title: mockedEscalation.contact.title
+          }
+        },
+      ]);
+    }, responseTime);
   };
 
-  const handleRoutingIntent = (intent: string) => {
-    switch (intent) {
-      case "route_explore":
-        addAIMessage(
-          "Our Services Marketplace includes:\n\n• Design Services - Strategic blueprints and architectures\n• Deploy Services - Ready-to-implement solutions\n• Knowledge Centre - Best practices and guides\n• Diagnose AI - Personalized recommendations\n\nWhere would you like to start?",
-          ["Browse All Services", "Get AI Recommendations", "View by Category"],
-          [
-            { text: "Explore Marketplace", url: "/marketplace", icon: ExternalLink },
-            { text: "Start with Diagnose AI", url: "#diagnose", icon: Brain }
-          ],
-          { stage: "concierge", intent }
-        );
-        break;
-      case "route_learn":
-        addAIMessage(
-          "Here's what you should know about TMaaS:\n\n• 4D Framework - Our proven transformation methodology\n• Service Catalog - 20+ ready-to-deploy services\n• Expert Network - Certified transformation specialists\n• Success Stories - Real client transformations\n\nWhat interests you most?",
-          ["4D Framework Details", "View Success Stories", "Meet the Team"],
-          [
-            { text: "Learn About 4D Framework", url: "/explore", icon: BookOpen },
-            { text: "View Case Studies", url: "/marketplace", icon: ExternalLink }
-          ],
-          { stage: "concierge", intent }
-        );
-        break;
-      case "route_contact":
-        addAIMessage(
-          "I can help you connect with our team:\n\n• Continue chatting with me for instant answers\n• Schedule a consultation with our specialists\n• Contact our support team for technical assistance\n\nHow would you prefer to connect?",
-          ["Schedule Consultation", "Continue Chatting", "Email Support"],
-          [
-            { text: "Get Started", url: "/sign-in", icon: MessageCircle },
-            { text: "Email Us", url: "mailto:hello@tmaas.com", icon: ExternalLink }
-          ],
-          { stage: "concierge", intent }
-        );
-        break;
+  const getAgentResponse = (userMessage: string): string => {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    // Detect intent and return appropriate response
+    if (lowerMessage.includes("price") || lowerMessage.includes("cost") || lowerMessage.includes("pricing") || lowerMessage.includes("budget")) {
+      const responses = teamHandoff.responses.pricing;
+      let response = responses[Math.floor(Math.random() * responses.length)];
+      
+      // Add context if user had selected a goal
+      if (selectedGoal && Math.random() > 0.5) {
+        const goalService = selectedGoal === "Improve customer experience" 
+          ? "Digital Experience Strategy"
+          : selectedGoal === "Improve internal operations"
+          ? "DWS Strategy"
+          : selectedGoal === "Unlock value from data"
+          ? "Data & Intelligence Strategy"
+          : "SecDevOps Strategy";
+        response = `For ${goalService}, which aligns with your interest in ${selectedGoal.toLowerCase()}, we typically start at $25-30k for a 4-6 week engagement. ${response}`;
+      }
+      
+      return response;
     }
+    
+    if (lowerMessage.includes("timeline") || lowerMessage.includes("how long") || lowerMessage.includes("duration") || lowerMessage.includes("time")) {
+      return teamHandoff.responses.timeline[Math.floor(Math.random() * teamHandoff.responses.timeline.length)];
+    }
+    
+    if (lowerMessage.includes("service") || lowerMessage.includes("what do you offer") || lowerMessage.includes("solutions")) {
+      const responses = teamHandoff.responses.services;
+      let response = responses[Math.floor(Math.random() * responses.length)];
+      
+      // Reference their selected goal if available
+      if (selectedGoal && Math.random() > 0.5) {
+        response = `Based on your interest in ${selectedGoal.toLowerCase()}, ${response}`;
+      }
+      
+      return response;
+    }
+    
+    if (lowerMessage.includes("consultation") || lowerMessage.includes("schedule") || lowerMessage.includes("meeting") || lowerMessage.includes("call") || lowerMessage.includes("demo")) {
+      return teamHandoff.responses.consultation[Math.floor(Math.random() * teamHandoff.responses.consultation.length)];
+    }
+    
+    if (lowerMessage.includes("hi") || lowerMessage.includes("hello") || lowerMessage.includes("hey") || lowerMessage.length < 20) {
+      return teamHandoff.responses.greeting[Math.floor(Math.random() * teamHandoff.responses.greeting.length)];
+    }
+    
+    // Default to general response
+    return teamHandoff.responses.general[Math.floor(Math.random() * teamHandoff.responses.general.length)];
   };
 
-  const handleAdvisoryFlow = (message: string, intent: string) => {
-    if (conversationStep === 0) {
-      // First qualification question
-      setConversationStep(1);
-      addAIMessage(
-        "To recommend the most relevant services, I'd like to understand your context.\n\nWhat type of organization are you?",
-        ["Enterprise (1000+ employees)", "SMB (50-1000 employees)", "Startup (< 50 employees)", "Government/Non-profit"],
-        undefined,
-        { stage: "advisory", intent: "qualification_org_type" }
-      );
-    } else if (conversationStep === 1) {
-      // Store org type and ask second question
-      const orgType = message.toLowerCase().includes("enterprise") ? "enterprise" : 
-                     message.toLowerCase().includes("smb") ? "smb" : "startup";
-      setUserProfile(prev => ({ ...prev, organizationType: orgType }));
-      setConversationStep(2);
+  const simulateTeamHandoff = () => {
+    setIsTyping(true);
+    
+    // Step 1: Connecting message
+    setTimeout(() => {
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: "ai",
+          content: teamHandoff.connecting,
+          isHandoff: true,
+        },
+      ]);
+      setIsTyping(true);
+    }, 500);
+    
+    // Step 2: Checking availability
+    setTimeout(() => {
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: "ai",
+          content: teamHandoff.checking,
+          isHandoff: true,
+        },
+      ]);
+      setIsTyping(true);
+    }, 1500);
+    
+    // Step 3: Team member available
+    setTimeout(() => {
+      setIsTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: "ai",
+          content: teamHandoff.available,
+          isHandoff: true,
+        },
+      ]);
+      setIsTyping(true);
+    }, 2500);
+    
+    // Step 4: Team member introduction with context awareness
+    setTimeout(() => {
+      setIsTyping(false);
+      setIsHandedOff(true);
       
-      addAIMessage(
-        "Thanks. Where are you in your transformation journey?",
-        ["Just starting - need strategy", "Underway - have some initiatives", "Optimizing - improving existing systems"],
-        undefined,
-        { stage: "advisory", intent: "qualification_transformation_stage" }
-      );
-    } else if (conversationStep === 2) {
-      // Store transformation stage and provide recommendations
-      const stage: "starting" | "underway" | "optimizing" = message.toLowerCase().includes("starting") ? "starting" : 
-                   message.toLowerCase().includes("underway") ? "underway" : "optimizing";
-      const updatedProfile: UserProfile = { ...userProfile, transformationStage: stage };
-      setUserProfile(updatedProfile);
-      setConversationStep(3);
+      // Build context-aware introduction
+      let introduction = "Hi there! I'm Anthony, a Transformation Specialist at TMaaS. ";
       
-      const recommendations = getServiceRecommendations(updatedProfile);
+      if (selectedGoal) {
+        // Reference the specific goal they selected
+        const goalContext = selectedGoal === "Improve customer experience" 
+          ? "I see you're interested in improving customer experience"
+          : selectedGoal === "Improve internal operations"
+          ? "I see you're interested in improving internal operations"
+          : selectedGoal === "Unlock value from data"
+          ? "I see you're interested in unlocking value from data"
+          : "I see you're interested in improving delivery speed and DevOps";
+        
+        introduction += `${goalContext} — that's a great area to focus on. `;
+      } else {
+        introduction += "Butler filled me in on your interest. ";
+      }
       
-      addAIMessage(
-        `Based on your profile as a ${updatedProfile.organizationType} organization that's ${updatedProfile.transformationStage}, here's what I recommend:\n\nPrimary Recommendation: ${recommendations.primary.name}\n${recommendations.primary.description}\n\nWhy this fits: ${recommendations.primary.reason}\n\nOther services to consider:\n${recommendations.secondary.map(s => `• ${s.name}`).join('\n')}\n\nConfidence: ${recommendations.primary.confidence}% match`,
-        ["View Service Details", "Get Different Recommendations", "Talk to Expert", "Start Over"],
-        [
-          { text: recommendations.primary.name, url: recommendations.primary.url, icon: ArrowRight },
-          ...recommendations.secondary.slice(0, 2).map(s => ({ text: s.name, url: s.url, icon: ExternalLink }))
-        ],
-        { 
-          stage: "advisory", 
-          intent: "service_recommendation",
-          service: recommendations.primary.name,
-          tower: recommendations.primary.tower
-        }
-      );
+      introduction += "How can I help you today?";
+      
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: "team",
+          content: introduction,
+          teamMember: {
+            name: mockedEscalation.contact.name,
+            title: mockedEscalation.contact.title
+          }
+        },
+      ]);
+      
+      // Log for production integration
+      console.log("🔔 LIVE AGENT NOTIFICATION: User requesting team connection", {
+        timestamp: new Date().toISOString(),
+        conversationHistory: messages,
+        userInterest: selectedGoal || "General inquiry",
+        conversationSummary: selectedGoal 
+          ? `User selected: ${selectedGoal}` 
+          : "User requested to talk to team"
+      });
+    }, 4000);
+  };
+
+  const getGoalKey = (goal: string): string => {
+    if (goal === "Improve customer experience") return "customer-experience";
+    if (goal === "Improve internal operations") return "internal-operations";
+    if (goal === "Unlock value from data") return "data-value";
+    if (goal === "Improve delivery speed / DevOps") return "devops";
+    return "";
+  };
+
+  const getStageKey = (stage: string): string => {
+    if (stage.includes("Exploring") || stage.includes("defining")) return "exploring";
+    if (stage.includes("Designing")) return "designing";
+    if (stage.includes("implement")) return "implementing";
+    if (stage.includes("optimisation") || stage.includes("running")) return "optimizing";
+    return "";
+  };
+
+  const handleFAQ = (message: string) => {
+    const lowerMessage = message.toLowerCase();
+    
+    if (lowerMessage.includes("what is tmaas") || lowerMessage.includes("learn about tmaas")) {
+      const faq = mockedFAQs["what-is-tmaas"];
+      addAIMessage(faq.message, faq.options);
+      return true;
     }
+    
+    if (lowerMessage.includes("how does it work") || lowerMessage.includes("how it works")) {
+      const faq = mockedFAQs["how-does-it-work"];
+      addAIMessage(faq.message, faq.options);
+      return true;
+    }
+    
+    if (lowerMessage.includes("cost") || lowerMessage.includes("price") || lowerMessage.includes("pricing")) {
+      const faq = mockedFAQs["what-does-it-cost"];
+      addAIMessage(faq.message, faq.options);
+      return true;
+    }
+    
+    if (lowerMessage.includes("started") || lowerMessage.includes("how do i start")) {
+      const faq = mockedFAQs["how-to-get-started"];
+      addAIMessage(faq.message, faq.options);
+      return true;
+    }
+    
+    return false;
   };
 
   const handleUserMessage = (message: string) => {
-    addUserMessage(message);
+    // Don't add user message here - it's added in handleOptionClick or handleSubmit
     setInput("");
     
-    const intent = classifyIntent(message);
-    
-    // Handle FAQ responses (Stage 0)
-    if (intent.startsWith("faq_")) {
-      handleFAQResponse(intent);
-      return;
-    }
-    
-    // Handle routing intents (Stage 0)
-    if (intent.startsWith("route_")) {
-      handleRoutingIntent(intent);
-      return;
-    }
-    
-    // Handle advisory flow (Stage 1)
-    if (currentStage === "advisory" || intent.startsWith("advisory_")) {
-      handleAdvisoryFlow(message, intent);
-      return;
-    }
-    
-    // Handle problem descriptions
-    if (intent === "problem_description") {
-      setCurrentStage("advisory");
-      setConversationStep(0);
-      addAIMessage(
-        "I can help you find the right transformation services to address your challenges.\n\nTo provide relevant recommendations, I'll ask you a couple of quick questions.",
-        ["Let's get started", "I want to browse services instead"],
-        undefined,
-        { stage: "advisory", intent: "problem_intake" }
-      );
-      return;
-    }
-    
-    // Handle unresolved queries
-    setUnresolved(prev => prev + 1);
-    
-    if (unresolved >= 2) {
-      // Escalation after 3 unresolved queries
-      addAIMessage(
-        conversationTemplates.escalation,
-        ["Yes, connect me with an expert", "No, I'll keep exploring", "Start over with different questions"],
-        [
-          { text: "Schedule Expert Call", url: "/sign-in", icon: MessageCircle },
-          { text: "Browse Services", url: "/marketplace", icon: ExternalLink },
-          { text: "View Knowledge Base", url: "/explore", icon: BookOpen }
-        ],
-        { stage: currentStage, intent: "escalation" }
-      );
-      setUnresolved(0);
-    } else {
-      // Enhanced fallback response with more options
-      const fallbackOptions = currentStage === "concierge" 
-        ? ["Explain TMaaS platform", "Show me the 4D Framework", "What services do you offer?", "Get pricing information"]
-        : ["Get service recommendations", "Browse by transformation tower", "I need help with a specific problem", "Talk to an expert"];
-        
-      const fallbackLinks = currentStage === "concierge"
-        ? [
-            { text: "Explore Platform", url: "/explore", icon: ExternalLink },
-            { text: "View Case Studies", url: "/marketplace", icon: BookOpen },
-            { text: "Contact Support", url: "/sign-in", icon: MessageCircle }
-          ]
-        : [
-            { text: "Browse All Services", url: "/marketplace", icon: ExternalLink },
-            { text: "Start Diagnosis", url: "#diagnose", icon: Brain },
-            { text: "Contact Expert", url: "/sign-in", icon: MessageCircle }
-          ];
+    // If handed off to live team, simulate agent response
+    if (isHandedOff) {
+      // Get appropriate agent response based on user message
+      const agentResponse = getAgentResponse(message);
+      addTeamMessage(agentResponse);
       
+      // TODO: In production, send message to live agent via WebSocket/API
+      console.log("📨 MESSAGE TO LIVE AGENT:", message);
+      return;
+    }
+    
+    // Check if it's an FAQ
+    if (handleFAQ(message)) {
+      setUnresolvedCount(0);
+      return;
+    }
+    
+    // Increment unresolved count
+    setUnresolvedCount(prev => prev + 1);
+    
+    // After 3 unresolved queries, show escalation
+    if (unresolvedCount >= 2) {
       addAIMessage(
-        `Here are some ways I can assist you:\n\n${currentStage === "concierge" ? "Platform Information" : "Service Discovery"}\n• Get detailed explanations\n• Find the right solutions\n• Connect with experts\n\nWhat interests you most?`,
-        fallbackOptions,
-        fallbackLinks,
-        { stage: currentStage, intent: "fallback" }
+        mockedEscalation.message,
+        undefined,
+        [
+          { text: `Contact ${mockedEscalation.contact.name}`, url: `mailto:${mockedEscalation.contact.email}`, icon: ExternalLink }
+        ]
+      );
+      setUnresolvedCount(0);
+    } else {
+      // Show fallback with FAQ options
+      addAIMessage(
+        "I'm not sure I understood that. Here are some things I can help with:",
+        ["What is TMaaS?", "How does it work?", "What does it cost?", "How do I get started?"]
       );
     }
   };
 
   const handleOptionClick = (option: string) => {
-    // Handle navigation options
-    if (option === "View Service Details" || option === "Browse All Services") {
-      window.location.href = "/marketplace";
-    } else if (option === "Explore Services") {
-      window.location.href = "/explore";
-    } else if (option === "Talk to Team" || option === "Talk to Expert" || option === "Schedule Consultation") {
-      window.location.href = "/sign-in";
-    } else if (option === "Start with Diagnose AI" || option === "Get AI Recommendations") {
-      // Restart conversation in advisory mode
-      setCurrentStage("advisory");
-      setConversationStep(0);
-      setMessages([]);
-      setTimeout(() => {
-        addAIMessage(
-          "I can help you find the right services for your transformation needs.\n\nLet's start with understanding your organization better.",
-          ["Let's begin", "I want to describe my problem first"],
-          undefined,
-          { stage: "advisory", intent: "diagnose_start" }
-        );
-      }, 500);
-    } else if (option === "Start Over") {
-      setMessages([]);
-      setConversationStep(0);
-      setUserProfile({});
-      setUnresolved(0);
-      setTimeout(() => {
-        if (currentStage === "concierge") {
-          addAIMessage(
-            "Welcome back. I'm here to help you understand TMaaS and find the right services.\n\nWhat would you like to know?",
-            ["What is TMaaS?", "How does it work?", "Explore Services", "Talk to Team"],
-            undefined,
-            { stage: "concierge", intent: "greeting" }
-          );
-        } else {
-          addAIMessage(
-            "Let's start fresh. I can help you find the right transformation services.\n\nWhat brings you here today?",
-            ["Get Recommendations", "Browse by Category", "I have a specific problem"],
-            undefined,
-            { stage: "advisory", intent: "greeting" }
-          );
-        }
-      }, 500);
-    } else if (option === "Continue Chatting" || option === "Ask another question") {
+    // STEP 1: Handle initial goal selection - EXACT STRING MATCHES FIRST
+    if (option === "Improve customer experience") {
+      addUserMessage(option);
+      setSelectedGoal(option);
+      setConversationStep(1);
+      setUnresolvedCount(0);
+      
       addAIMessage(
-        "Perfect! I'm here to help. What else would you like to know?",
-        currentStage === "concierge" 
-          ? ["What is TMaaS?", "How does it work?", "What does it cost?", "Explore Services"]
-          : ["Get service recommendations", "Browse by category", "Pricing information", "Talk to expert"],
-        undefined,
-        { stage: currentStage, intent: "continue_conversation" }
+        "Customer experience — great focus. Where are you in that journey right now?",
+        ["Exploring / defining the problem", "Designing a solution", "Ready to implement", "Already running, need optimisation"]
       );
-    } else {
-      // Handle as regular user message
-      handleUserMessage(option);
+      return;
     }
+    
+    if (option === "Improve internal operations") {
+      addUserMessage(option);
+      setSelectedGoal(option);
+      setConversationStep(1);
+      setUnresolvedCount(0);
+      
+      addAIMessage(
+        "Internal operations — understood. Where are you in that journey right now?",
+        ["Exploring / defining the problem", "Designing a solution", "Ready to implement", "Already running, need optimisation"]
+      );
+      return;
+    }
+    
+    if (option === "Unlock value from data") {
+      addUserMessage(option);
+      setSelectedGoal(option);
+      setConversationStep(1);
+      setUnresolvedCount(0);
+      
+      addAIMessage(
+        "Data and analytics — a high-impact focus. Where are you in that journey right now?",
+        ["Exploring / defining the problem", "Designing a solution", "Ready to implement", "Already running, need optimisation"]
+      );
+      return;
+    }
+    
+    if (option === "Improve delivery speed / DevOps") {
+      addUserMessage(option);
+      setSelectedGoal(option);
+      setConversationStep(1);
+      setUnresolvedCount(0);
+      
+      addAIMessage(
+        "Delivery speed and DevOps — critical area. Where are you in that journey right now?",
+        ["Exploring / defining the problem", "Designing a solution", "Ready to implement", "Already running, need optimisation"]
+      );
+      return;
+    }
+    
+    // STEP 2: Handle journey stage selection (Q2 answer)
+    if (conversationStep === 1 && (
+        option === "Exploring / defining the problem" ||
+        option === "Designing a solution" ||
+        option === "Ready to implement" ||
+        option === "Already running, need optimisation")) {
+      
+      addUserMessage(option);
+      setConversationStep(2);
+      
+      // Get the mocked recommendation
+      const goalKey = getGoalKey(selectedGoal);
+      const stageKey = getStageKey(option);
+      const recommendationKey = `${goalKey}-${stageKey}` as keyof typeof mockedRecommendations;
+      const recommendation = mockedRecommendations[recommendationKey];
+      
+      if (recommendation) {
+        addAIMessage(
+          recommendation.message,
+          [`Explore ${recommendation.serviceName}`, "Show me all services"],
+          [
+            { text: recommendation.serviceName, url: recommendation.serviceUrl, icon: ArrowRight },
+            { text: "Browse Marketplace", url: "/marketplace", icon: ExternalLink }
+          ]
+        );
+      }
+      return;
+    }
+    
+    // Handle "Explore [service name]" options
+    if (option.startsWith("Explore ")) {
+      // Just close the dialog, don't navigate
+      onClose();
+      return;
+    }
+    
+    // Handle "Show me all services"
+    if (option === "Show me all services" || option === "Show me the services" || option === "Explore the services") {
+      // Just close the dialog, don't navigate
+      onClose();
+      return;
+    }
+    
+    // Handle FAQ options
+    if (option === "What is TMaaS?" || option === "Learn About TMaaS") {
+      addUserMessage(option);
+      const faq = mockedFAQs["what-is-tmaas"];
+      addAIMessage(faq.message, faq.options);
+      setUnresolvedCount(0);
+      return;
+    }
+    
+    if (option === "How does it work?") {
+      addUserMessage(option);
+      const faq = mockedFAQs["how-does-it-work"];
+      addAIMessage(faq.message, faq.options);
+      setUnresolvedCount(0);
+      return;
+    }
+    
+    if (option === "What does it cost?") {
+      addUserMessage(option);
+      const faq = mockedFAQs["what-does-it-cost"];
+      addAIMessage(faq.message, faq.options);
+      setUnresolvedCount(0);
+      return;
+    }
+    
+    if (option === "How do I get started?" || option === "Get started" || option === "Get Started") {
+      if (option !== "Get Started") {
+        addUserMessage(option);
+      }
+      if (option === "Get Started") {
+        onClose();
+        window.location.href = "/sign-in";
+      } else {
+        const faq = mockedFAQs["how-to-get-started"];
+        addAIMessage(faq.message, faq.options);
+        setUnresolvedCount(0);
+      }
+      return;
+    }
+    
+    // Handle "Talk to the team"
+    if (option === "Talk to the team") {
+      addUserMessage(option);
+      simulateTeamHandoff();
+      return;
+    }
+    
+    // Handle "Get Started" - only this one navigates
+    if (option === "Get Started") {
+      onClose();
+      window.location.href = "/sign-in";
+      return;
+    }
+    
+    // If we get here, it's an unrecognized option - treat as typed message
+    addUserMessage(option);
+    handleUserMessage(option);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      handleUserMessage(input);
+      const message = input;
+      addUserMessage(message);
+      handleUserMessage(message);
     }
   };
 
   const handleLinkClick = (url: string) => {
-    if (url.startsWith("#")) {
-      // Handle internal actions
-      if (url === "#diagnose") {
-        setCurrentStage("advisory");
-        setConversationStep(0);
-        handleUserMessage("I want to get AI recommendations");
-      }
-    } else if (url.startsWith("/")) {
-      // Internal navigation - close dialog and navigate
+    if (url.startsWith("/")) {
+      // Don't navigate, just close dialog
       onClose();
-      window.location.href = url;
     } else if (url.startsWith("mailto:")) {
-      // Email links
-      window.location.href = url;
+      // Open email in new window/tab
+      window.open(url, '_blank');
     } else {
-      // External links
+      // External links open in new tab
       window.open(url, '_blank');
     }
   };
@@ -526,32 +552,31 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-border p-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-brand">
-              <Sparkles size={16} className="text-primary-foreground" />
+            <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+              isHandedOff ? "bg-green-500" : "bg-gradient-brand"
+            }`}>
+              {isHandedOff ? <User size={16} className="text-white" /> : <Sparkles size={16} className="text-primary-foreground" />}
             </div>
             <div>
               <h2 className="text-sm font-semibold text-foreground">
-                TMaaS AI {currentStage === "concierge" ? "Concierge" : "Advisor"}
+                {isHandedOff ? mockedEscalation.contact.name : "TMaaS AI Butler"}
               </h2>
               <p className="text-xs text-muted-foreground">
-                {currentStage === "concierge" ? "Platform Guide" : "Service Recommendation Engine"}
+                {isHandedOff ? mockedEscalation.contact.title : "Your Transformation Guide"}
               </p>
             </div>
+            {isHandedOff && (
+              <Badge variant="outline" className="ml-2 text-xs bg-green-500/10 text-green-700 border-green-500/30">
+                Live
+              </Badge>
+            )}
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">
-              Stage {currentStage === "concierge" ? "0" : "1"}
-            </Badge>
-            <Badge variant="secondary" className="text-xs">
-              {responseCount} responses
-            </Badge>
-            <button
-              onClick={onClose}
-              className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              <X size={20} />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Messages */}
@@ -569,13 +594,31 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                   className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                     message.type === "user"
                       ? "bg-gradient-brand text-primary-foreground"
+                      : message.type === "team"
+                      ? "border-2 border-green-500/30 bg-green-50 text-foreground"
                       : "border border-border bg-accent/50 text-foreground"
                   }`}
                 >
+                  {/* Team member header */}
+                  {message.type === "team" && message.teamMember && (
+                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-green-500/20">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-white">
+                        <User size={14} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{message.teamMember.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{message.teamMember.title}</p>
+                      </div>
+                      <Badge variant="outline" className="ml-auto text-[10px] bg-green-500/10 text-green-700 border-green-500/30">
+                        Live
+                      </Badge>
+                    </div>
+                  )}
+                  
                   <p className="whitespace-pre-line text-sm leading-relaxed">{message.content}</p>
                   
-                  {/* Quick Reply Options */}
-                  {message.options && (
+                  {/* Quick Reply Options - Hidden when handed off to live team */}
+                  {message.options && !isHandedOff && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {message.options.map((option) => (
                         <button
@@ -609,26 +652,6 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                       ))}
                     </div>
                   )}
-
-                  {/* Metadata Display */}
-                  {message.metadata && (message.metadata.tower || message.metadata.service) && (
-                    <div className="mt-3 space-y-2 rounded-lg border border-border/50 bg-background/50 p-3">
-                      {message.metadata.tower && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">Tower:</span>
-                          <Badge className="bg-purple-500/10 text-purple-700 text-xs">
-                            {message.metadata.tower}
-                          </Badge>
-                        </div>
-                      )}
-                      {message.metadata.service && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground">Recommended:</span>
-                          <Badge variant="secondary" className="text-xs">{message.metadata.service}</Badge>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               </motion.div>
             ))}
@@ -647,6 +670,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                     <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]"></div>
                     <div className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground"></div>
                   </div>
+                  <span className="text-xs text-muted-foreground">Butler is thinking...</span>
                 </div>
               </div>
             </motion.div>
@@ -663,9 +687,9 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={
-                currentStage === "concierge" 
-                  ? "Ask about TMaaS, services, or pricing..." 
-                  : "Describe your transformation challenge..."
+                isHandedOff 
+                  ? "Type your message to Anthony..." 
+                  : "Ask about TMaaS, services, or pricing..."
               }
               className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary"
               disabled={isTyping}

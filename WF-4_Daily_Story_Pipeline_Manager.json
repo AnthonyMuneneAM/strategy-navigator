@@ -1,0 +1,1021 @@
+{
+  "name": "WF-4: Daily Story Pipeline Manager",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "webhookId": "",
+      "credentials": {},
+      "executeOnce": false,
+      "retryOnFail": false,
+      "maxTries": 3,
+      "waitBetweenTries": 1000,
+      "alwaysOutputData": false,
+      "onError": "stopWorkflow",
+      "notesInFlow": false,
+      "notes": "Runs daily at 00:00",
+      "color": "",
+      "continueOnFail": false
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Verified Contact",
+        "options": {}
+      },
+      "id": "get-all-contacts",
+      "name": "Get ALL Verified Contacts",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Campaign Tracking",
+        "options": {}
+      },
+      "id": "get-all-campaigns",
+      "name": "Get ALL Campaign Tracking Records",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [450, 500],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all contacts\nconst allContacts = $('Get ALL Verified Contacts').all();\n\n// Get all campaign tracking records\nconst allCampaigns = $('Get ALL Campaign Tracking Records').all();\n\n// Extract contact IDs that already have campaigns\nconst contactsWithCampaigns = new Set(\n  allCampaigns.map(record => record.json.fields.Contact[0])\n);\n\n// Find contacts WITHOUT any campaigns\nconst newContacts = allContacts.filter(\n  contact => !contactsWithCampaigns.has(contact.json.id)\n);\n\nconsole.log(`Total contacts: ${allContacts.length}`);\nconsole.log(`Contacts with campaigns: ${contactsWithCampaigns.size}`);\nconsole.log(`New contacts: ${newContacts.length}`);\n\nreturn newContacts;"
+      },
+      "id": "find-new-contacts",
+      "name": "Find Contacts With No Stories Sent",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [650, 400],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.length }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "if-new-contacts",
+      "name": "IF New Contacts Exist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Publication Story",
+        "options": {
+          "filterByFormula": "AND({Week} = 'Week 1', {Status} = 'Done')",
+          "sort": [
+            {
+              "field": "Week",
+              "direction": "asc"
+            }
+          ],
+          "maxRecords": 1
+        }
+      },
+      "id": "get-week1-story",
+      "name": "Get Week 1 Story",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1050, 300],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "if-week1-exists",
+      "name": "IF Week 1 Story Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Get Week 1 Story').item.json.fields.Image[0].url }}",
+          "mode": "url"
+        }
+      },
+      "id": "download-week1-image",
+      "name": "Download Week 1 Image",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1450, 200],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Get Week 1 Story').item.json.fields.Attachment[0].url }}",
+          "mode": "url"
+        }
+      },
+      "id": "download-week1-attachment",
+      "name": "Download Week 1 Attachment",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1450, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Get Week 1 Story').item.json.fields.Pitch[0].url }}",
+          "mode": "url"
+        }
+      },
+      "id": "download-week1-pitch",
+      "name": "Download Week 1 Pitch",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1450, 400],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "split-contacts",
+      "name": "Split New Contacts Into Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Campaign Tracking",
+        "options": {},
+        "fields": {
+          "mappings": [
+            {
+              "fieldId": "Story",
+              "fieldValue": "={{ [$('Get Week 1 Story').item.json.id] }}"
+            },
+            {
+              "fieldId": "Contact",
+              "fieldValue": "={{ [$json.id] }}"
+            },
+            {
+              "fieldId": "Story Week Number",
+              "fieldValue": 1
+            },
+            {
+              "fieldId": "Is Latest Story",
+              "fieldValue": true
+            },
+            {
+              "fieldId": "Pipeline Status",
+              "fieldValue": "Queued"
+            },
+            {
+              "fieldId": "Send Status",
+              "fieldValue": "Pending"
+            },
+            {
+              "fieldId": "Next Action Type",
+              "fieldValue": "Initial_Send"
+            },
+            {
+              "fieldId": "Next Action Date",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "create-campaign-week1",
+      "name": "Create Campaign Tracking - Week 1",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1850, 300],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields.Email }}",
+        "subject": "Week 1 - {{ $json.fields.Publication }}",
+        "emailType": "html",
+        "message": "={{ $('Get Week 1 Story').item.json.fields['Story Content'] }}",
+        "options": {
+          "attachments": "data",
+          "attachmentsPropertyName": "={{ $('Download Week 1 Image').item.binary }},={{ $('Download Week 1 Attachment').item.binary }},={{ $('Download Week 1 Pitch').item.binary }}"
+        }
+      },
+      "id": "send-week1-email",
+      "name": "Send Week 1 Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2050, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Campaign Tracking",
+        "id": "={{ $('Create Campaign Tracking - Week 1').item.json.id }}",
+        "options": {},
+        "fields": {
+          "mappings": [
+            {
+              "fieldId": "Pipeline Status",
+              "fieldValue": "Active"
+            },
+            {
+              "fieldId": "Send Status",
+              "fieldValue": "Sent"
+            },
+            {
+              "fieldId": "Sent Date",
+              "fieldValue": "={{ $now.toISO() }}"
+            },
+            {
+              "fieldId": "Next Action Type",
+              "fieldValue": "Publication_Check_1"
+            },
+            {
+              "fieldId": "Next Action Date",
+              "fieldValue": "={{ $now.plus(7, 'days').toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-campaign-sent",
+      "name": "Update Campaign Tracking - Mark as Sent",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [2250, 300],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Campaign Tracking",
+        "options": {
+          "filterByFormula": "AND({Is Latest Story} = TRUE(), {Pipeline Status} = 'Complete', {Next Story Send Date} <= TODAY())"
+        }
+      },
+      "id": "get-ready-for-next",
+      "name": "Get Contacts Ready for Next Story",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [850, 700],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.length }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "if-ready-for-next",
+      "name": "IF Contacts Ready for Next Story",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1050, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "const currentWeek = $json.fields['Story Week Number'];\nconst nextWeek = currentWeek + 1;\n\nreturn {\n  json: {\n    contactId: $json.fields.Contact[0],\n    currentWeek: currentWeek,\n    nextWeek: nextWeek,\n    campaignId: $json.id\n  }\n};"
+      },
+      "id": "calculate-next-week",
+      "name": "Calculate Next Week Number",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 700]
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Publication Story",
+        "options": {
+          "filterByFormula": "AND({Week} = 'Week {{ $json.nextWeek }}', {Status} = 'Done')",
+          "maxRecords": 1
+        }
+      },
+      "id": "get-next-story",
+      "name": "Get Next Week Story",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1450, 700],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "if-next-story-exists",
+      "name": "IF Next Week Story Exists",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1650, 700]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Campaign Tracking",
+        "id": "={{ $('Calculate Next Week Number').item.json.campaignId }}",
+        "options": {},
+        "fields": {
+          "mappings": [
+            {
+              "fieldId": "Is Latest Story",
+              "fieldValue": false
+            }
+          ]
+        }
+      },
+      "id": "mark-previous-not-latest",
+      "name": "Mark Previous Story as Not Latest",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1850, 600],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Get Next Week Story').item.json.fields.Image[0].url }}",
+          "mode": "url"
+        }
+      },
+      "id": "download-next-image",
+      "name": "Download Next Story Image",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1850, 700],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Get Next Week Story').item.json.fields.Attachment[0].url }}",
+          "mode": "url"
+        }
+      },
+      "id": "download-next-attachment",
+      "name": "Download Next Story Attachment",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1850, 800],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Get Next Week Story').item.json.fields.Pitch[0].url }}",
+          "mode": "url"
+        }
+      },
+      "id": "download-next-pitch",
+      "name": "Download Next Story Pitch",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1850, 900],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Campaign Tracking",
+        "options": {},
+        "fields": {
+          "mappings": [
+            {
+              "fieldId": "Story",
+              "fieldValue": "={{ [$('Get Next Week Story').item.json.id] }}"
+            },
+            {
+              "fieldId": "Contact",
+              "fieldValue": "={{ [$('Calculate Next Week Number').item.json.contactId] }}"
+            },
+            {
+              "fieldId": "Story Week Number",
+              "fieldValue": "={{ $('Calculate Next Week Number').item.json.nextWeek }}"
+            },
+            {
+              "fieldId": "Is Latest Story",
+              "fieldValue": true
+            },
+            {
+              "fieldId": "Pipeline Status",
+              "fieldValue": "Queued"
+            },
+            {
+              "fieldId": "Send Status",
+              "fieldValue": "Pending"
+            },
+            {
+              "fieldId": "Next Action Type",
+              "fieldValue": "Initial_Send"
+            },
+            {
+              "fieldId": "Next Action Date",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "create-campaign-next",
+      "name": "Create Campaign Tracking - Next Week",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [2050, 700],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Verified Contact",
+        "id": "={{ $('Calculate Next Week Number').item.json.contactId }}"
+      },
+      "id": "get-contact-details",
+      "name": "Get Contact Details",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [2250, 700],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.fields.Email }}",
+        "subject": "Week {{ $('Calculate Next Week Number').item.json.nextWeek }} - {{ $json.fields.Publication }}",
+        "emailType": "html",
+        "message": "={{ $('Get Next Week Story').item.json.fields['Story Content'] }}",
+        "options": {
+          "attachments": "data",
+          "attachmentsPropertyName": "={{ $('Download Next Story Image').item.binary }},={{ $('Download Next Story Attachment').item.binary }},={{ $('Download Next Story Pitch').item.binary }}"
+        }
+      },
+      "id": "send-next-email",
+      "name": "Send Next Week Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2450, 700],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "application": "appXXXXXXXXXXXXXX",
+        "table": "Campaign Tracking",
+        "id": "={{ $('Create Campaign Tracking - Next Week').item.json.id }}",
+        "options": {},
+        "fields": {
+          "mappings": [
+            {
+              "fieldId": "Pipeline Status",
+              "fieldValue": "Active"
+            },
+            {
+              "fieldId": "Send Status",
+              "fieldValue": "Sent"
+            },
+            {
+              "fieldId": "Sent Date",
+              "fieldValue": "={{ $now.toISO() }}"
+            },
+            {
+              "fieldId": "Next Action Type",
+              "fieldValue": "Publication_Check_1"
+            },
+            {
+              "fieldId": "Next Action Date",
+              "fieldValue": "={{ $now.plus(7, 'days').toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-next-sent",
+      "name": "Update Campaign Tracking - Next Week Sent",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [2650, 700],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "1",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "your-email@domain.com",
+        "subject": "Daily Story Pipeline Report - {{ $now.format('yyyy-MM-dd') }}",
+        "emailType": "html",
+        "message": "<h2>Daily Story Pipeline Report</h2>\n<p><strong>New contacts who received Week 1:</strong> {{ $('Find Contacts With No Stories Sent').item.json.length || 0 }}</p>\n<p><strong>Contacts who received next story:</strong> {{ $('Get Contacts Ready for Next Story').item.json.length || 0 }}</p>\n<p><em>Report generated at {{ $now.toISO() }}</em></p>",
+        "options": {}
+      },
+      "id": "send-summary",
+      "name": "Send Summary Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2850, 500],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get ALL Verified Contacts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get ALL Campaign Tracking Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get ALL Verified Contacts": {
+      "main": [
+        [
+          {
+            "node": "Find Contacts With No Stories Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get ALL Campaign Tracking Records": {
+      "main": [
+        [
+          {
+            "node": "Find Contacts With No Stories Sent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Contacts Ready for Next Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Contacts With No Stories Sent": {
+      "main": [
+        [
+          {
+            "node": "IF New Contacts Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF New Contacts Exist": {
+      "main": [
+        [
+          {
+            "node": "Get Week 1 Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Week 1 Story": {
+      "main": [
+        [
+          {
+            "node": "IF Week 1 Story Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Week 1 Story Exists": {
+      "main": [
+        [
+          {
+            "node": "Download Week 1 Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download Week 1 Attachment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download Week 1 Pitch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Week 1 Image": {
+      "main": [
+        [
+          {
+            "node": "Split New Contacts Into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Week 1 Attachment": {
+      "main": [
+        [
+          {
+            "node": "Split New Contacts Into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Week 1 Pitch": {
+      "main": [
+        [
+          {
+            "node": "Split New Contacts Into Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split New Contacts Into Batches": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Tracking - Week 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Campaign Tracking - Week 1": {
+      "main": [
+        [
+          {
+            "node": "Send Week 1 Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Week 1 Email": {
+      "main": [
+        [
+          {
+            "node": "Update Campaign Tracking - Mark as Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Campaign Tracking - Mark as Sent": {
+      "main": [
+        [
+          {
+            "node": "Split New Contacts Into Batches",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Summary Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Contacts Ready for Next Story": {
+      "main": [
+        [
+          {
+            "node": "IF Contacts Ready for Next Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Contacts Ready for Next Story": {
+      "main": [
+        [
+          {
+            "node": "Calculate Next Week Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Next Week Number": {
+      "main": [
+        [
+          {
+            "node": "Get Next Week Story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Next Week Story": {
+      "main": [
+        [
+          {
+            "node": "IF Next Week Story Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Next Week Story Exists": {
+      "main": [
+        [
+          {
+            "node": "Mark Previous Story as Not Latest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download Next Story Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download Next Story Attachment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download Next Story Pitch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Previous Story as Not Latest": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Tracking - Next Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Next Story Image": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Tracking - Next Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Next Story Attachment": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Tracking - Next Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Next Story Pitch": {
+      "main": [
+        [
+          {
+            "node": "Create Campaign Tracking - Next Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Campaign Tracking - Next Week": {
+      "main": [
+        [
+          {
+            "node": "Get Contact Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Contact Details": {
+      "main": [
+        [
+          {
+            "node": "Send Next Week Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Next Week Email": {
+      "main": [
+        [
+          {
+            "node": "Update Campaign Tracking - Next Week Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Campaign Tracking - Next Week Sent": {
+      "main": [
+        [
+          {
+            "node": "Send Summary Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-03-26T00:00:00.000Z",
+  "versionId": "1"
+}
