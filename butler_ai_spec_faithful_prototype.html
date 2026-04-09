@@ -1,0 +1,305 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.page { font-family: var(--font-sans); background: #f4f2ee; min-height: 600px; position: relative; border-radius: var(--border-radius-lg); overflow: hidden; }
+
+/* ── HERO SECTION ── */
+.hero { padding: 48px 24px 40px; text-align: center; background: linear-gradient(160deg, #faf8f5 0%, #f4f2ee 100%); }
+.hero-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: #854F0B; text-transform: uppercase; margin-bottom: 12px; }
+.hero-title { font-size: 28px; font-weight: 500; color: #1a1a1a; line-height: 1.25; margin-bottom: 6px; }
+.hero-title span { color: #D85A30; font-style: italic; }
+.hero-sub { font-size: 13px; color: #666; margin-bottom: 28px; line-height: 1.6; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+/* ── HERO CHAT BOX ── */
+.hero-chat-box { background: white; border-radius: 16px; border: 1px solid #e8e4dc; padding: 0; max-width: 560px; margin: 0 auto; overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+
+.butler-greeting { padding: 16px 18px 12px; border-bottom: 0.5px solid #f0ece4; display: flex; gap: 10px; align-items: flex-start; }
+.butler-dot { width: 32px; height: 32px; border-radius: 50%; background: #EEEDFE; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: #3C3489; flex-shrink: 0; margin-top: 1px; }
+.butler-text { font-size: 13px; color: #333; line-height: 1.5; }
+.butler-text strong { color: #1a1a1a; font-weight: 500; }
+
+.hero-input-row { display: flex; align-items: center; padding: 10px 14px; gap: 8px; }
+.hero-input { flex: 1; border: none; outline: none; font-size: 13px; color: #333; background: transparent; }
+.hero-input::placeholder { color: #bbb; }
+.hero-send { width: 30px; height: 30px; border-radius: 50%; background: #D85A30; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; flex-shrink: 0; }
+.hero-send:hover { background: #993C1D; }
+
+/* ── BREADCRUMBS ── */
+.breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; max-width: 560px; margin-left: auto; margin-right: auto; }
+.bc { font-size: 12px; padding: 7px 14px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #444; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; }
+.bc:hover { border-color: #D85A30; color: #D85A30; background: #FAECE7; }
+.bc-icon { font-size: 13px; }
+
+/* ── BUTLER RESPONSE PANEL ── */
+.response-panel { max-width: 560px; margin: 16px auto 0; background: white; border-radius: 14px; border: 1px solid #e8e4dc; padding: 16px 18px; display: none; }
+.response-panel.visible { display: block; }
+.rp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.rp-dot { width: 26px; height: 26px; border-radius: 50%; background: #EEEDFE; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #3C3489; flex-shrink: 0; }
+.rp-name { font-size: 12px; font-weight: 500; color: #3C3489; }
+.rp-body { font-size: 13px; color: #333; line-height: 1.6; }
+.rp-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.rp-chip { font-size: 12px; padding: 5px 12px; border-radius: 16px; border: 0.5px solid #AFA9EC; color: #534AB7; cursor: pointer; background: white; transition: all 0.15s; }
+.rp-chip:hover { background: #EEEDFE; }
+
+/* ── SERVICE CARDS (Stage 1 inline) ── */
+.svc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.svc { background: #faf9f7; border: 0.5px solid #e8e4dc; border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: border-color 0.15s; }
+.svc:hover { border-color: #AFA9EC; }
+.svc-name { font-size: 12px; font-weight: 500; color: #1a1a1a; }
+.svc-desc { font-size: 11px; color: #777; margin-top: 2px; line-height: 1.4; }
+.svc-tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 8px; margin-top: 5px; }
+.tag-live { background: #EAF3DE; color: #3B6D11; }
+.tag-soon { background: #FAEEDA; color: #854F0B; }
+
+/* ── FLOATING WIDGET ── */
+.floating-btn { position: absolute; bottom: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: #D85A30; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; box-shadow: 0 3px 12px rgba(216,90,48,0.35); z-index: 10; transition: background 0.15s; }
+.floating-btn:hover { background: #993C1D; }
+
+.floating-panel { position: absolute; bottom: 74px; right: 20px; width: 300px; background: white; border-radius: 14px; border: 1px solid #e8e4dc; box-shadow: 0 4px 24px rgba(0,0,0,0.12); z-index: 10; overflow: hidden; display: none; }
+.floating-panel.open { display: flex; flex-direction: column; }
+.fp-header { background: #1a1a1a; padding: 12px 14px; display: flex; align-items: center; gap: 8px; }
+.fp-avatar { width: 28px; height: 28px; border-radius: 50%; background: #EEEDFE; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #3C3489; }
+.fp-title { font-size: 13px; font-weight: 500; color: white; }
+.fp-sub { font-size: 11px; color: #aaa; }
+.fp-close { margin-left: auto; color: #888; cursor: pointer; font-size: 16px; background: none; border: none; color: white; }
+.fp-msgs { max-height: 220px; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.fp-bubble { font-size: 12px; line-height: 1.5; padding: 8px 11px; border-radius: 10px; max-width: 90%; }
+.fp-bot { background: #f4f2ee; color: #333; border-radius: 10px 10px 10px 3px; align-self: flex-start; }
+.fp-user { background: #534AB7; color: #EEEDFE; border-radius: 10px 10px 3px 10px; align-self: flex-end; }
+.fp-chips { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 12px 8px; }
+.fp-chip { font-size: 11px; padding: 4px 10px; border-radius: 14px; border: 0.5px solid #AFA9EC; color: #534AB7; cursor: pointer; background: white; }
+.fp-chip:hover { background: #EEEDFE; }
+.fp-input-row { display: flex; gap: 6px; padding: 10px 12px; border-top: 0.5px solid #f0ece4; }
+.fp-input { flex: 1; font-size: 12px; padding: 7px 10px; border: 0.5px solid #ddd; border-radius: 16px; outline: none; }
+.fp-send { width: 28px; height: 28px; border-radius: 50%; background: #D85A30; border: none; cursor: pointer; color: white; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+/* typing */
+.typing { display: flex; gap: 3px; align-items: center; padding: 2px 0; }
+.typing span { width: 5px; height: 5px; border-radius: 50%; background: #aaa; animation: bop 1s infinite; }
+.typing span:nth-child(2) { animation-delay: 0.15s; }
+.typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bop { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-4px)} }
+</style>
+
+<div class="page" id="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">DQ · TMaaS</div>
+    <div class="hero-title">Digital Transformation,<br><span>simplified.</span></div>
+    <div class="hero-sub">Turn your real business problems into architecture-backed, ready-to-launch transformation blueprints.</div>
+
+    <!-- BUTLER EMBEDDED CHAT — HERO SECTION -->
+    <div class="hero-chat-box">
+      <div class="butler-greeting">
+        <div class="butler-dot">B</div>
+        <div class="butler-text">
+          <strong>Hi, I'm Butler — your TMaaS guide.</strong><br>
+          I can help you orient on the platform, find the right service, or answer common questions. How can I support you today?
+        </div>
+      </div>
+      <div class="hero-input-row">
+        <input class="hero-input" id="heroInput" placeholder="Ask me anything about TMaaS..." onkeydown="if(event.key==='Enter') heroSend()" />
+        <button class="hero-send" onclick="heroSend()">&#8593;</button>
+      </div>
+    </div>
+
+    <!-- BREADCRUMBS — Butler's 3 service paths per spec -->
+    <div class="breadcrumbs">
+      <div class="bc" onclick="heroPath('orient')"><span class="bc-icon">🗺</span> Understand the platform</div>
+      <div class="bc" onclick="heroPath('route')"><span class="bc-icon">🧭</span> Find the right service</div>
+      <div class="bc" onclick="heroPath('faq')"><span class="bc-icon">💬</span> Common questions</div>
+    </div>
+
+    <!-- RESPONSE PANEL -->
+    <div class="response-panel" id="responsePanel">
+      <div class="rp-header">
+        <div class="rp-dot">B</div>
+        <div class="rp-name">Butler · TMaaS guide</div>
+      </div>
+      <div class="rp-body" id="rpBody"></div>
+      <div class="rp-chips" id="rpChips"></div>
+    </div>
+  </div>
+
+  <!-- FLOATING BUTTON -->
+  <button class="floating-btn" onclick="toggleFloat()" id="floatBtn">B</button>
+
+  <!-- FLOATING PANEL -->
+  <div class="floating-panel" id="floatPanel">
+    <div class="fp-header">
+      <div class="fp-avatar">B</div>
+      <div>
+        <div class="fp-title">Butler</div>
+        <div class="fp-sub">TMaaS concierge</div>
+      </div>
+      <button class="fp-close" onclick="toggleFloat()">✕</button>
+    </div>
+    <div class="fp-msgs" id="fpMsgs"></div>
+    <div class="fp-chips" id="fpChips"></div>
+    <div class="fp-input-row">
+      <input class="fp-input" id="fpInput" placeholder="Ask Butler..." onkeydown="if(event.key==='Enter') fpSend()" />
+      <button class="fp-send" onclick="fpSend()">&#8593;</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PATHS = {
+  orient: {
+    text: "TMaaS — Transformation Management as a Service — is a DQ digital platform built on the 4D Framework: <strong>Discern, Design, Deploy, and Drive.</strong><br><br>It's designed to take your organisation from understanding a transformation challenge all the way to executing and sustaining it — with AI guiding you at every stage.",
+    chips: ["What is the 4D Framework?", "Who is TMaaS for?", "Take me to the marketplace"]
+  },
+  route: {
+    text: "To point you to the right service, let me ask two quick questions.<br><br><strong>First:</strong> What type of organisation are you — public sector, private sector, or NGO?",
+    chips: ["Public sector", "Private sector", "NGO / non-profit"]
+  },
+  faq: {
+    text: "Here are the most common questions visitors ask:<br><br>• <strong>What is TMaaS?</strong> — A platform for structured digital transformation<br>• <strong>How does it work?</strong> — You start with Diagnose AI, then move through the 4D stages<br>• <strong>What does it cost?</strong> — Pricing is scoped to your transformation context after assessment<br>• <strong>How do I get started?</strong> — Click 'Get Started' or explore the marketplace",
+    chips: ["Tell me more about Diagnose AI", "What is the 4D Framework?", "Talk to the team"]
+  },
+  "4d": {
+    text: "<strong>The 4D Framework:</strong><br><br>• <strong>Discern</strong> — Understand your current situation and gaps<br>• <strong>Design</strong> — Map your transformation blueprint<br>• <strong>Deploy</strong> — Execute with the right tools and support<br>• <strong>Drive</strong> — Sustain, measure, and optimise<br><br>Each stage has dedicated services on the TMaaS marketplace.",
+    chips: ["Show me the services", "Which stage am I in?", "Common questions"]
+  },
+  services: {
+    text: "Here's what's available across the TMaaS marketplace:",
+    chips: ["Tell me about Diagnose AI", "I need design help", "What's coming soon?"],
+    cards: true
+  },
+  diagnose: {
+    text: "<strong>Diagnose AI</strong> is your starting point in the Discern stage.<br><br>It runs an AI-powered readiness assessment to show you where your organisation stands — gaps across people, process, and technology — and gives you a prioritised recommendation report.<br><br>It's the right entry point if you're new to structured transformation.",
+    chips: ["How do I access it?", "Show all services", "Talk to the team"]
+  },
+  team: {
+    text: "The TMaaS team is available to walk you through the platform in your specific context.<br><br>You can reach them via the support portal once you click <strong>'Get Started'</strong>, or use the form on the contact page.",
+    chips: ["Back to services", "Common questions", "Understand the platform"]
+  },
+  public: {
+    text: "For public sector organisations, I'd recommend starting with <strong>Diagnose AI</strong> — it's built to assess transformation readiness across complex institutional structures.<br><br>From there, the <strong>Knowledge Centre</strong> has public sector-specific transformation guides.",
+    chips: ["Tell me about Diagnose AI", "Show all services", "Talk to the team"]
+  },
+  private: {
+    text: "For private sector organisations, the path depends on where you are in your journey. If you're just starting, <strong>Diagnose AI</strong> gives you the clearest picture. If you're already underway, <strong>Design Services</strong> can help you structure the next phase.",
+    chips: ["Tell me about Diagnose AI", "Tell me about Design Services", "Show all services"]
+  },
+  ngo: {
+    text: "For NGOs and non-profits, TMaaS offers tailored services focused on capability building and impact measurement. Start with the <strong>Knowledge Centre</strong> — it has frameworks designed for mission-driven organisations.",
+    chips: ["Show all services", "Talk to the team", "Common questions"]
+  },
+  default: {
+    text: "I wasn't able to find a clear answer for that. Would you like me to connect you with the TMaaS team, or can I help you in a different way?",
+    chips: ["Talk to the team", "Show all services", "Common questions"]
+  }
+};
+
+function matchIntent(text) {
+  const t = text.toLowerCase();
+  if (t.includes('4d') || t.includes('framework') || t.includes('discern') || t.includes('design') || t.includes('deploy') || t.includes('drive')) return PATHS['4d'];
+  if (t.includes('diagnose')) return PATHS.diagnose;
+  if (t.includes('service') || t.includes('marketplace') || t.includes('explore')) return PATHS.services;
+  if (t.includes('team') || t.includes('contact') || t.includes('talk')) return PATHS.team;
+  if (t.includes('orient') || t.includes('what is tmaas') || t.includes('understand') || t.includes('platform') || t.includes('tmaas')) return PATHS.orient;
+  if (t.includes('public')) return PATHS.public;
+  if (t.includes('private')) return PATHS.private;
+  if (t.includes('ngo') || t.includes('non')) return PATHS.ngo;
+  if (t.includes('faq') || t.includes('question') || t.includes('common')) return PATHS.faq;
+  if (t.includes('right service') || t.includes('find') || t.includes('route') || t.includes('recommend')) return PATHS.route;
+  return PATHS.default;
+}
+
+function renderCards() {
+  return `<div class="svc-grid">
+    <div class="svc" onclick="heroReply('Tell me about Diagnose AI')"><div class="svc-name">Diagnose AI</div><div class="svc-desc">AI-powered readiness assessment</div><span class="svc-tag tag-live">Live</span></div>
+    <div class="svc" onclick="heroReply('Tell me about the Knowledge Centre')"><div class="svc-name">Knowledge Centre</div><div class="svc-desc">Transformation resources & guides</div><span class="svc-tag tag-live">Live</span></div>
+    <div class="svc" onclick="heroReply('Tell me about Design Services')"><div class="svc-name">Design Services</div><div class="svc-desc">Expert-led transformation design</div><span class="svc-tag tag-live">Live</span></div>
+    <div class="svc" onclick="heroReply('What is coming soon?')"><div class="svc-name">Drive Analytics</div><div class="svc-desc">Performance dashboards</div><span class="svc-tag tag-soon">Coming soon</span></div>
+  </div>`;
+}
+
+function showResponse(resp) {
+  const panel = document.getElementById('responsePanel');
+  const body = document.getElementById('rpBody');
+  const chips = document.getElementById('rpChips');
+  body.innerHTML = resp.text + (resp.cards ? renderCards() : '');
+  chips.innerHTML = (resp.chips || []).map(c => `<span class="rp-chip" onclick="heroReply('${c}')">${c}</span>`).join('');
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function heroPath(key) { showResponse(PATHS[key]); }
+
+function heroReply(text) { showResponse(matchIntent(text)); }
+
+function heroSend() {
+  const inp = document.getElementById('heroInput');
+  const t = inp.value.trim();
+  if (!t) return;
+  inp.value = '';
+  showResponse(matchIntent(t));
+}
+
+// ── FLOATING PANEL ──
+let fpOpen = false;
+let fpTyping = false;
+
+function toggleFloat() {
+  fpOpen = !fpOpen;
+  document.getElementById('floatPanel').classList.toggle('open', fpOpen);
+  if (fpOpen && document.getElementById('fpMsgs').children.length === 0) {
+    fpAddMsg('bot', 'Need help navigating TMaaS? I\'m Butler — ask me anything.', ['Find the right service', 'What is TMaaS?', 'Common questions']);
+  }
+}
+
+function fpAddMsg(role, text, chips) {
+  const msgs = document.getElementById('fpMsgs');
+  const d = document.createElement('div');
+  d.className = `fp-bubble fp-${role}`;
+  d.innerHTML = text;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+  if (chips) {
+    const fc = document.getElementById('fpChips');
+    fc.innerHTML = chips.map(c => `<span class="fp-chip" onclick="fpChipClick('${c}')">${c}</span>`).join('');
+  }
+}
+
+function fpSend() {
+  if (fpTyping) return;
+  const inp = document.getElementById('fpInput');
+  const t = inp.value.trim();
+  if (!t) return;
+  inp.value = '';
+  document.getElementById('fpChips').innerHTML = '';
+  fpAddMsg('user', t);
+  fpRespond(t);
+}
+
+function fpChipClick(text) {
+  if (fpTyping) return;
+  document.getElementById('fpChips').innerHTML = '';
+  fpAddMsg('user', text);
+  fpRespond(text);
+}
+
+function fpRespond(text) {
+  fpTyping = true;
+  const msgs = document.getElementById('fpMsgs');
+  const typing = document.createElement('div');
+  typing.className = 'fp-bubble fp-bot';
+  typing.id = 'fp-typing';
+  typing.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => {
+    typing.remove();
+    const resp = matchIntent(text);
+    let display = resp.text.replace(/<br>/g, ' ').replace(/<[^>]+>/g, '');
+    if (display.length > 180) display = display.substring(0, 177) + '...';
+    fpAddMsg('bot', display, resp.chips);
+    fpTyping = false;
+  }, 800 + Math.random() * 500);
+}
+</script>

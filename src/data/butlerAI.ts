@@ -1,4 +1,6 @@
 // Butler.AI Knowledge Base and Configuration
+// STATIC PROTOTYPE - All responses are hardcoded, no API calls
+
 export interface ServiceRecommendation {
   id: string;
   name: string;
@@ -24,255 +26,177 @@ export interface KnowledgeBaseEntry {
   }>;
 }
 
-// Extended Knowledge Base
-export const knowledgeBase: KnowledgeBaseEntry[] = [
-  {
-    id: "what-is-tmaas",
-    question: "What is TMaaS?",
-    answer: "TMaaS (Transformation Management as a Service) is a low-cost, architecture-led digital transformation marketplace and execution platform. It enables organisations to identify, design, deploy, and continuously drive digital transformation initiatives using AI-powered, ready-to-launch blueprints grounded in enterprise architecture.\n\nOur 4D Framework guides you through:\n🔍 Discern - Identify challenges and assess capabilities\n🎨 Design - Create strategic blueprints and architectures\n🚀 Deploy - Execute with ready-to-launch solutions\n📈 Drive - Optimize outcomes and enable continuous improvement",
-    category: "platform",
-    keywords: ["tmaas", "transformation", "platform", "4d framework", "what is"],
-    links: [
-      { text: "Explore Services", url: "/explore" },
-      { text: "Browse Marketplace", url: "/marketplace" }
-    ]
+// STATIC MOCKED RESPONSES - 16 recommendation paths (4 goals × 4 stages)
+export const mockedRecommendations = {
+  // PATH 1: Customer Experience
+  "customer-experience-exploring": {
+    message: "Based on what you've told me, I'd suggest the Digital Experience Strategy service. TMaaS packages this as a structured blueprint — rather than starting from scratch, you get a proven architecture you can adapt and deploy. At the exploration stage, this gives you a clear framework to define your platform direction and make the case internally. Ready to take a look?",
+    serviceName: "Digital Experience Strategy",
+    serviceUrl: "/marketplace?tower=dxp&type=design"
   },
-  {
-    id: "4d-framework",
-    question: "What is the 4D Framework?",
-    answer: "The 4D Framework is our proven methodology for digital transformation:\n\n1. Discern 🔍\n• Problem identification and context assessment\n• Capability gap analysis\n• Transformation signal translation\n\n2. Design 🎨\n• Strategic blueprint creation\n• Architecture design\n• Implementation roadmaps\n\n3. Deploy 🚀\n• Solution implementation\n• SaaS and on-premise options\n• Change management\n\n4. Drive 📈\n• Continuous optimization\n• Performance monitoring\n• Adoption enablement",
-    category: "platform",
-    keywords: ["4d", "framework", "methodology", "discern", "design", "deploy", "drive"],
-    links: [
-      { text: "View Case Studies", url: "/explore" },
-      { text: "Browse Services by Phase", url: "/marketplace" }
-    ]
+  "customer-experience-designing": {
+    message: "Based on what you've told me, I'd suggest the Digital Experience Strategy service. You're already in design mode — this blueprint accelerates that by giving you a reference architecture for a scalable, compliant digital experience platform. It cuts design time by over 50%. Ready to take a look?",
+    serviceName: "Digital Experience Strategy",
+    serviceUrl: "/marketplace?tower=dxp&type=design"
   },
-  {
-    id: "how-it-works",
-    question: "How does TMaaS work?",
-    answer: "TMaaS works through a structured, proven approach:\n\nStep 1: Problem Diagnosis 🔍\n• AI-powered challenge analysis\n• Context and capability assessment\n• Transformation opportunity identification\n\nStep 2: Service Matching 🎯\n• Personalized service recommendations\n• Expert consultation and validation\n• Custom solution design\n\nStep 3: Implementation 🚀\n• Architecture-backed deployment\n• Expert-led execution\n• Change management support\n\nStep 4: Optimization 📈\n• Performance monitoring\n• Continuous improvement\n• Adoption enablement",
-    category: "process",
-    keywords: ["how", "works", "process", "steps", "implementation"],
-    links: [
-      { text: "Start Diagnosis", url: "#diagnose" },
-      { text: "Browse Services", url: "/marketplace" }
-    ]
+  "customer-experience-implementing": {
+    message: "Based on what you've told me, I'd suggest starting with the Digital Experience Strategy service. TMaaS's current services are at the Design stage — which is the right foundation before implementation. Deploy services are coming soon. Getting your blueprint in place now means you're ready to move fast when they launch. Ready to take a look?",
+    serviceName: "Digital Experience Strategy",
+    serviceUrl: "/marketplace?tower=dxp&type=design"
   },
-  {
-    id: "pricing-model",
-    question: "How much does TMaaS cost?",
-    answer: "TMaaS pricing is transparent and value-based:\n\nDesign Services 🎨\n• Strategic blueprints: $25k - $75k\n• Duration: 4-12 weeks\n• Includes: Architecture, roadmap, business case\n\nDeploy Services 🚀\n• SaaS implementations: $40k - $75k\n• Duration: 6-16 weeks\n• Includes: Full deployment, training, support\n\nManaged Services 📈\n• Custom pricing based on scope\n• Ongoing optimization and support\n\nWhat's Always Included:\n✅ Expert consultation\n✅ Proven frameworks\n✅ Implementation support\n✅ Training and documentation",
-    category: "pricing",
-    keywords: ["cost", "price", "pricing", "investment", "budget"],
-    links: [
-      { text: "View Detailed Pricing", url: "/marketplace" },
-      { text: "Get Custom Quote", url: "/sign-in" }
-    ]
-  },
-  {
-    id: "service-types",
-    question: "What types of services do you offer?",
-    answer: "We offer services across four transformation towers:\n\nDigital Experience Platform 🌐\n• Customer journey optimization\n• Omnichannel platforms\n• CRM and service management\n\nDigital Workspace Solutions 👥\n• Collaboration platforms\n• Governance and compliance\n• Productivity optimization\n\nData & Intelligence 📊\n• Data platform architecture\n• Analytics and BI\n• AI/ML implementation\n\nSecDevOps 🔒\n• Security architecture\n• DevOps automation\n• Platform engineering",
-    category: "services",
-    keywords: ["services", "types", "towers", "digital experience", "workspace", "data", "security"],
-    links: [
-      { text: "Explore All Services", url: "/marketplace" },
-      { text: "Get Recommendations", url: "#diagnose" }
-    ]
-  }
-];
-
-// Service Recommendation Engine - Aligned with actual Marketplace services
-export const serviceRecommendations: ServiceRecommendation[] = [
-  // Starting Journey Recommendations
-  {
-    id: "diagnose-ai",
-    name: "Diagnose AI",
-    description: "AI-powered problem analysis and transformation roadmap creation. Perfect for organizations beginning their digital transformation journey.",
-    url: "#diagnose",
-    reason: "Ideal for getting clarity on transformation priorities and creating a strategic roadmap",
-    tower: "dxp",
-    type: "design",
-    price: "Free",
-    duration: "30 minutes",
-    confidence: 95
-  },
-  {
-    id: "0",
-    name: "Digital Organisation Strategy",
-    description: "Comprehensive digital transformation strategy covering all four execution streams: Digital Experience, Digital Workspace, Data & Intelligence, and SecDevOps.",
-    url: "/marketplace",
-    reason: "Best fit for organizations needing holistic transformation across all business areas",
-    tower: "dxp",
-    type: "design",
-    price: "From $75k",
-    duration: "8-12 weeks",
-    confidence: 90
+  "customer-experience-optimizing": {
+    message: "Based on what you've told me, I'd suggest the Digital Experience Strategy service as your baseline review. TMaaS Drive services for ongoing optimisation are coming soon — but starting with the strategy blueprint helps you identify where your current platform needs strengthening. Ready to take a look?",
+    serviceName: "Digital Experience Strategy",
+    serviceUrl: "/marketplace?tower=dxp&type=design"
   },
   
-  // Enterprise Recommendations - Design Services
-  {
-    id: "3",
-    name: "Data & Intelligence Strategy",
-    description: "Build your data platform architecture, analytics capabilities, and AI roadmap.",
-    url: "/marketplace?tower=dia&type=design",
-    reason: "Critical for enterprises looking to leverage data as a strategic asset",
-    tower: "dia",
-    type: "design",
-    price: "From $30k",
-    duration: "5-7 weeks",
-    confidence: 88
+  // PATH 2: Internal Operations
+  "internal-operations-exploring": {
+    message: "Based on what you've told me, I'd suggest the DWS Strategy service. TMaaS packages this as a structured blueprint for designing your core business platforms — integrated, efficient, and compliant. At the exploration stage, this gives you a clear architecture to work from rather than defining everything from scratch. Ready to take a look?",
+    serviceName: "DWS Strategy",
+    serviceUrl: "/marketplace?tower=dws&type=design"
   },
-  {
-    id: "4",
-    name: "SecDevOps Strategy",
-    description: "Define security posture, DevOps maturity, and platform engineering roadmap.",
-    url: "/marketplace?tower=sdo&type=design",
-    reason: "Essential for enterprises requiring robust security and scalable development practices",
-    tower: "sdo",
-    type: "design",
-    price: "From $25k",
-    duration: "4-6 weeks",
-    confidence: 85
+  "internal-operations-designing": {
+    message: "Based on what you've told me, I'd suggest the DWS Strategy service. You're in design mode — this blueprint gives you a reference architecture for your Digital Core Platform, cutting design and deployment time by 35%. Ready to take a look?",
+    serviceName: "DWS Strategy",
+    serviceUrl: "/marketplace?tower=dws&type=design"
   },
-
-  // SMB Recommendations - Design Services
-  {
-    id: "1",
-    name: "Digital Experience Platform Strategy",
-    description: "Define your end-to-end customer experience architecture and transformation roadmap.",
-    url: "/marketplace?tower=dxp&type=design",
-    reason: "Perfect for SMBs looking to improve customer interactions and drive growth",
-    tower: "dxp",
-    type: "design",
-    price: "From $25k",
-    duration: "4-6 weeks",
-    confidence: 92
+  "internal-operations-implementing": {
+    message: "Based on what you've told me, I'd suggest the DWS Strategy service as your starting point. TMaaS Deploy services are coming soon — but having the strategy blueprint in place now means your implementation has a solid, compliant foundation to build from. Ready to take a look?",
+    serviceName: "DWS Strategy",
+    serviceUrl: "/marketplace?tower=dws&type=design"
   },
-  {
-    id: "2",
-    name: "Digital Workspace Solutions Strategy",
-    description: "Modernize internal collaboration, productivity, and governance platforms.",
-    url: "/marketplace?tower=dws&type=design",
-    reason: "Ideal for improving team productivity and operational efficiency",
-    tower: "dws",
-    type: "design",
-    price: "From $25k",
-    duration: "4-6 weeks",
-    confidence: 87
-  },
-
-  // Deploy Services - SaaS
-  {
-    id: "104",
-    name: "CRM & Service Platform",
-    description: "Implement CRM with lead-to-revenue lifecycle, service management, and customer interaction tracking.",
-    url: "/marketplace?tower=dxp&type=deploy-saas",
-    reason: "Ready-to-deploy solution for organizations with defined CRM requirements",
-    tower: "dxp",
-    type: "deploy-saas",
-    price: "From $60k",
-    duration: "10-12 weeks",
-    confidence: 90
-  },
-  {
-    id: "302",
-    name: "Modern Data Platform",
-    description: "Implement cloud data platform with data lake, warehouse, and integration pipelines.",
-    url: "/marketplace?tower=dia&type=deploy-saas",
-    reason: "Perfect for organizations ready to implement a modern data architecture",
-    tower: "dia",
-    type: "deploy-saas",
-    price: "From $70k",
-    duration: "12-14 weeks",
-    confidence: 88
+  "internal-operations-optimizing": {
+    message: "Based on what you've told me, I'd suggest the DWS Strategy service as a baseline review of your current platform architecture. TMaaS Drive services for optimisation are coming soon. Getting the strategy layer right first ensures your optimisation efforts are targeted and effective. Ready to take a look?",
+    serviceName: "DWS Strategy",
+    serviceUrl: "/marketplace?tower=dws&type=design"
   },
   
-  // Additional Deploy Services for better coverage
-  {
-    id: "101",
-    name: "Customer Journey & Experience Platform",
-    description: "Deploy end-to-end journey orchestration with persona-based experiences and lifecycle management.",
-    url: "/marketplace?tower=dxp&type=deploy-saas",
-    reason: "Ideal for organizations focused on customer experience optimization",
-    tower: "dxp",
-    type: "deploy-saas",
-    price: "From $45k",
-    duration: "8-10 weeks",
-    confidence: 86
+  // PATH 3: Data Value
+  "data-value-exploring": {
+    message: "Based on what you've told me, I'd suggest the Digital Intelligence and Analytics Strategy service. TMaaS packages this as a structured blueprint for building your data platform architecture, analytics capabilities, and AI roadmap. At the exploration stage, this gives you a clear picture of what to build and in what order. Ready to take a look?",
+    serviceName: "DI&A Strategy",
+    serviceUrl: "/marketplace?tower=dia&type=design"
   },
-  {
-    id: "201",
-    name: "Modern Collaboration & Hybrid Work Platform",
-    description: "Deploy integrated collaboration tools, intranet, and hybrid work enablement.",
-    url: "/marketplace?tower=dws&type=deploy-saas",
-    reason: "Perfect for organizations modernizing workplace collaboration",
-    tower: "dws",
-    type: "deploy-saas",
-    price: "From $45k",
-    duration: "8-10 weeks",
-    confidence: 84
+  "data-value-designing": {
+    message: "Based on what you've told me, I'd suggest the Digital Intelligence and Analytics Strategy service. You're in design mode — this blueprint gives you a reference architecture for integrating your data systems and enabling actionable insights across the organisation. Ready to take a look?",
+    serviceName: "DI&A Strategy",
+    serviceUrl: "/marketplace?tower=dia&type=design"
   },
-  {
-    id: "303",
-    name: "Analytics & BI Platform",
-    description: "Deploy enterprise BI with dashboards, self-service analytics, and reporting.",
-    url: "/marketplace?tower=dia&type=deploy-saas",
-    reason: "Essential for data-driven decision making and business intelligence",
-    tower: "dia",
-    type: "deploy-saas",
-    price: "From $55k",
-    duration: "10-12 weeks",
-    confidence: 87
+  "data-value-implementing": {
+    message: "Based on what you've told me, I'd suggest the Digital Intelligence and Analytics Strategy service as your foundation. TMaaS Deploy services are coming soon — but a solid data architecture blueprint now means your implementation is structured and scalable from day one. Ready to take a look?",
+    serviceName: "DI&A Strategy",
+    serviceUrl: "/marketplace?tower=dia&type=design"
   },
-  {
-    id: "402",
-    name: "DevSecOps & CI/CD Platform",
-    description: "Implement automated CI/CD pipelines with integrated security scanning and compliance.",
-    url: "/marketplace?tower=sdo&type=deploy-saas",
-    reason: "Critical for organizations adopting DevOps practices with security integration",
-    tower: "sdo",
-    type: "deploy-saas",
-    price: "From $50k",
-    duration: "8-10 weeks",
-    confidence: 85
+  "data-value-optimizing": {
+    message: "Based on what you've told me, I'd suggest the Digital Intelligence and Analytics Strategy service as a review of your current data architecture. TMaaS Drive services for continuous optimisation are coming soon. This blueprint helps you identify the gaps between what you have and what you need. Ready to take a look?",
+    serviceName: "DI&A Strategy",
+    serviceUrl: "/marketplace?tower=dia&type=design"
+  },
+  
+  // PATH 4: DevOps
+  "devops-exploring": {
+    message: "Based on what you've told me, I'd suggest the SecDevOps Strategy service. TMaaS packages this as a structured blueprint for defining your security posture, DevOps maturity, and platform engineering roadmap. At the exploration stage, this gives you a clear baseline to build from. Ready to take a look?",
+    serviceName: "SecDevOps Strategy",
+    serviceUrl: "/marketplace?tower=sdo&type=design"
+  },
+  "devops-designing": {
+    message: "Based on what you've told me, I'd suggest the SecDevOps Strategy service. You're in design mode — this blueprint gives you a reference architecture for integrating security and DevOps practices across your delivery lifecycle. Ready to take a look?",
+    serviceName: "SecDevOps Strategy",
+    serviceUrl: "/marketplace?tower=sdo&type=design"
+  },
+  "devops-implementing": {
+    message: "Based on what you've told me, I'd suggest the SecDevOps Strategy service as your foundation. TMaaS Deploy services are coming soon — but having your SecDevOps blueprint in place ensures your implementation is secure and structured from the start. Ready to take a look?",
+    serviceName: "SecDevOps Strategy",
+    serviceUrl: "/marketplace?tower=sdo&type=design"
+  },
+  "devops-optimizing": {
+    message: "Based on what you've told me, I'd suggest the SecDevOps Strategy service as a maturity review of your current delivery setup. TMaaS Drive services for continuous optimisation are coming soon. This blueprint helps you identify where your pipeline needs strengthening. Ready to take a look?",
+    serviceName: "SecDevOps Strategy",
+    serviceUrl: "/marketplace?tower=sdo&type=design"
   }
-];
-
-// Intent Classification Patterns
-export const intentPatterns = {
-  faq: [
-    { pattern: /what is tmaas|what is transformation/i, intent: "faq_what_is_tmaas" },
-    { pattern: /how does|how it works|how do you/i, intent: "faq_how_it_works" },
-    { pattern: /cost|price|pricing|budget|investment/i, intent: "faq_pricing" },
-    { pattern: /4d framework|framework|methodology/i, intent: "faq_4d_framework" },
-    { pattern: /services|what do you offer|types of services/i, intent: "faq_service_types" }
-  ],
-  routing: [
-    { pattern: /explore|services|marketplace|browse/i, intent: "route_explore" },
-    { pattern: /learn|about|information|tell me more/i, intent: "route_learn" },
-    { pattern: /contact|talk|team|support|help|human/i, intent: "route_contact" }
-  ],
-  advisory: [
-    { pattern: /recommend|suggest|help me choose|what should/i, intent: "advisory_recommend" },
-    { pattern: /customer|experience|cx|journey/i, intent: "advisory_customer_experience" },
-    { pattern: /data|analytics|ai|intelligence|ml/i, intent: "advisory_data" },
-    { pattern: /security|devops|platform|infrastructure/i, intent: "advisory_security" },
-    { pattern: /workspace|collaboration|productivity|teams/i, intent: "advisory_workspace" },
-    { pattern: /governance|compliance|risk|grc/i, intent: "advisory_governance" }
-  ]
 };
 
-// Conversation Templates
+// STATIC MOCKED FAQ RESPONSES - 4 FAQ paths
+export const mockedFAQs = {
+  "what-is-tmaas": {
+    message: "TMaaS — Technology Management as a Service — is a digital platform that helps organisations design, deploy, and manage their digital transformation through structured services, AI-driven guidance, and collaborative delivery workspaces. Instead of traditional consulting, TMaaS gives you proven blueprints you can adapt and deploy.",
+    options: ["Explore the services", "How does it work?", "Talk to the team"]
+  },
+  "how-does-it-work": {
+    message: "You describe your transformation challenge, Butler qualifies your context with two questions, and TMaaS recommends the right service. Once you engage a service, a structured delivery workspace is created for your team to manage execution together.",
+    options: ["Show me the services", "What does it cost?", "Get started"]
+  },
+  "what-does-it-cost": {
+    message: "Pricing is scoped to your specific transformation context after an initial service assessment. Speak to the TMaaS team to understand the right engagement model for your organisation.",
+    options: ["Talk to the team", "Explore the services"]
+  },
+  "how-to-get-started": {
+    message: "Click Get Started to create your account, describe your transformation challenge to Butler, and explore the service catalogue. Butler will recommend a starting point based on your context.",
+    options: ["Get Started", "Explore the services"]
+  }
+};
+
+// STATIC ESCALATION RESPONSE - 1 escalation path
+export const mockedEscalation = {
+  message: "I wasn't able to find a clear answer for that. Would you like me to connect you with the TMaaS team?",
+  contact: {
+    name: "Anthony Mwangi",
+    email: "support@digitalqatalyst.com",
+    title: "Transformation Specialist"
+  }
+};
+
+// TEAM HANDOFF SIMULATION
+export const teamHandoff = {
+  connecting: "Let me connect you with someone from our team...",
+  checking: "Checking team availability...",
+  available: "Great news! Anthony Mwangi is available right now.",
+  introduction: "Hi there! I'm Anthony, a Transformation Specialist at TMaaS. Butler filled me in on your interest. How can I help you today?",
+  
+  // Simulated agent responses based on user input
+  responses: {
+    greeting: [
+      "Thanks for reaching out! I'm here to help. What specific aspect of digital transformation are you looking to explore?",
+      "Great to connect with you! What brings you to TMaaS today?",
+      "Happy to help! What's your main challenge right now?"
+    ],
+    pricing: [
+      "Our pricing is tailored to your specific needs. Design services typically start at $25k for a 4-6 week engagement. Would you like me to walk you through what's included?",
+      "Great question! Investment depends on the scope and complexity. For a typical Digital Experience Strategy, we're looking at $25-30k. Can I learn more about your organization to give you a more accurate estimate?"
+    ],
+    timeline: [
+      "Most of our Design services run 4-6 weeks, while Deploy services are 8-14 weeks depending on complexity. What timeline are you working with?",
+      "Good question! Design phase is typically 4-6 weeks. If you're looking at implementation, that's another 8-12 weeks. Does that align with your expectations?"
+    ],
+    services: [
+      "We offer services across four transformation towers: Digital Experience, Digital Workspace, Data & Intelligence, and SecDevOps. Which area is most relevant to your needs?",
+      "TMaaS provides both Design services (strategic blueprints) and Deploy services (implementation). Based on what Butler shared, I think the Digital Experience Strategy might be a good fit. Want to dive deeper into that?"
+    ],
+    consultation: [
+      "I'd be happy to schedule a consultation! Can you share your email and best time to connect? We typically do 30-minute discovery calls.",
+      "Absolutely! Let me get you on the calendar. What's your email address and preferred time zone?"
+    ],
+    general: [
+      "That's a great question. Let me make sure I understand correctly - are you asking about [topic]?",
+      "I can definitely help with that. Could you give me a bit more context about your situation?",
+      "Interesting! Tell me more about what you're trying to achieve."
+    ]
+  }
+};
+
+// Legacy data structures (kept for backward compatibility but not used in static prototype)
+export const knowledgeBase: KnowledgeBaseEntry[] = [];
+export const serviceRecommendations: ServiceRecommendation[] = [];
+export const intentPatterns = { faq: [], routing: [], advisory: [] };
 export const conversationTemplates = {
   greeting: {
-    concierge: "👋 Welcome to TMaaS! I'm your AI transformation assistant.\n\nI'm here to help you understand our platform and find the right services for your needs. What would you like to know?",
-    advisory: "🎯 Hi! I'm your TMaaS AI advisor.\n\nI can help you find the perfect transformation services based on your specific needs. What brings you to our marketplace today?"
+    concierge: "",
+    advisory: ""
   },
   qualification: {
-    orgType: "To give you the best recommendations, I'd like to understand your context better.\n\nWhat type of organization are you?",
-    transformationStage: "Thanks! Now, where are you in your transformation journey?"
+    orgType: "",
+    transformationStage: ""
   },
-  escalation: "I want to make sure you get the best help possible. It seems like you might need more specialized assistance.\n\nWould you like me to connect you with one of our transformation experts? They can provide detailed guidance tailored to your specific situation."
+  escalation: ""
 };

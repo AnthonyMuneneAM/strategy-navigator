@@ -53,29 +53,39 @@ const HeroSection = () => {
           ready-to-launch transformation blueprints.
         </motion.p>
 
-        {/* Problem Input — like the Shipper chat box */}
+        {/* Butler Embedded Chat Box */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mx-auto mt-10 max-w-2xl"
         >
-          <div className="rounded-2xl border border-border bg-card p-3 shadow-card transition-shadow focus-within:shadow-elevated">
-            <textarea
-              value={problem}
-              onChange={(e) => setProblem(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Describe your transformation challenge… e.g. 'Our customer onboarding takes 3 weeks and we're losing 40% of signups'"
-              rows={3}
-              className="w-full resize-none rounded-xl bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
-            />
-            <div className="flex items-center justify-between px-1 pt-1">
-              <span className="text-xs text-muted-foreground/50">AI-powered problem resolution</span>
+          <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-card">
+            {/* Butler Greeting */}
+            <div className="flex items-start gap-3 border-b border-border/50 px-5 py-4">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-brand text-white text-sm font-medium mt-0.5">
+                B
+              </div>
+              <div className="text-sm text-foreground leading-relaxed text-left">
+                Hi, I'm Butler — your TMaaS guide. What are you trying to achieve with your transformation?
+              </div>
+            </div>
+
+            {/* Input Row */}
+            <div className="flex items-center gap-2 px-4 py-3">
+              <textarea
+                value={problem}
+                onChange={(e) => setProblem(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask me anything about TMaaS..."
+                rows={1}
+                className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+              />
               <Button
                 onClick={handleSubmit}
                 disabled={!problem.trim()}
                 size="sm"
-                className="h-8 w-8 rounded-full bg-gradient-brand p-0 text-primary-foreground shadow-brand hover:opacity-90 disabled:opacity-50"
+                className="h-8 w-8 shrink-0 rounded-full bg-gradient-brand p-0 text-white shadow-brand hover:opacity-90 disabled:opacity-50"
               >
                 <ArrowRight size={16} />
               </Button>
@@ -83,23 +93,28 @@ const HeroSection = () => {
           </div>
         </motion.div>
 
-        {/* Quick tags */}
+        {/* Breadcrumbs - Butler's 4 transformation goals */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.45 }}
           className="mt-6 flex flex-wrap items-center justify-center gap-2"
         >
-          {["IT governance gaps", "Disconnected tools", "Slow time-to-market", "Data silos"].map((tag) => (
+          {[
+            { text: "Improve customer experience", action: "Improve customer experience" },
+            { text: "Improve internal operations", action: "Improve internal operations" },
+            { text: "Unlock value from data", action: "Unlock value from data" },
+            { text: "Improve delivery speed / DevOps", action: "Improve delivery speed / DevOps" }
+          ].map((item) => (
             <button
-              key={tag}
+              key={item.text}
               onClick={() => {
-                setProblem(tag);
+                setProblem(item.action);
                 setIsDialogOpen(true);
               }}
-              className="rounded-full border border-border bg-card px-4 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+              className="rounded-full border border-border bg-card px-4 py-2 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
             >
-              {tag}
+              {item.text}
             </button>
           ))}
         </motion.div>

@@ -178,12 +178,12 @@ const upcomingSessions = [
 
 const quickActions = [
   {
-    label: "TMaaS AI",
-    description: "Get AI-powered recommendations",
+    label: "Transact.AI",
+    description: "Get personalized recommendations",
     icon: Sparkles,
     link: "#",
     onClick: () => {
-      window.dispatchEvent(new CustomEvent("openDiagnoseAI"));
+      window.dispatchEvent(new CustomEvent("openTransactAI"));
     },
   },
   {

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Package,
@@ -22,7 +22,10 @@ import {
   Headphones,
   Users,
   BookOpen,
+  Brain,
+  X,
 } from "lucide-react";
+import TransactAIMode01 from "@/components/TransactAIMode01";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -126,11 +129,34 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedOrg, setSelectedOrg] = useState("stc-bank");
+  const [transactAIOpen, setTransactAIOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(true);
 
   const navigationItems = user.role === 'dq_delivery_lead' ? dqNavigationItems : clientNavigationItems;
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Listen for custom event to open Transact.AI
+  useEffect(() => {
+    const handleOpenTransactAI = () => {
+      setTransactAIOpen(true);
+      setShowTooltip(false);
+    };
+
+    window.addEventListener("openTransactAI", handleOpenTransactAI);
+    return () => {
+      window.removeEventListener("openTransactAI", handleOpenTransactAI);
+    };
+  }, []);
+
+  // Hide tooltip after 8 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTooltip(false);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="flex h-screen bg-background">
@@ -353,6 +379,85 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <main className="h-[calc(100vh-4rem)] overflow-y-auto p-6">
           {children}
         </main>
+
+        {/* Transact.AI Mode 01 Floating Button with Tooltip */}
+        <div className="fixed bottom-6 right-6 z-30 flex flex-col items-end gap-2">
+          {/* Tooltip */}
+          <AnimatePresence>
+            {showTooltip && !transactAIOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="relative mr-2 max-w-xs rounded-2xl border border-border bg-card p-4 shadow-elevated"
+              >
+                <button
+                  onClick={() => setShowTooltip(false)}
+                  className="absolute right-2 top-2 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  <X size={14} />
+                </button>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-brand">
+                    <Brain size={14} className="text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Need help with your engagements?</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Chat with Transact.AI for personalized guidance on your transformation journey
+                    </p>
+                    <button
+                      onClick={() => {
+                        setTransactAIOpen(true);
+                        setShowTooltip(false);
+                      }}
+                      className="mt-2 text-xs font-medium text-primary hover:underline"
+                    >
+                      Get Started →
+                    </button>
+                  </div>
+                </div>
+                {/* Arrow pointing to button */}
+                <div className="absolute -bottom-2 right-8 h-4 w-4 rotate-45 border-b border-r border-border bg-card"></div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Floating Button */}
+          <AnimatePresence>
+            {!transactAIOpen && (
+              <motion.button
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setTransactAIOpen(true);
+                  setShowTooltip(false);
+                }}
+                className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-brand text-white shadow-brand hover:shadow-xl transition-shadow"
+                title="Transact.AI Mode 01"
+              >
+                <Brain size={24} />
+                
+                {/* Pulse animation */}
+                <span className="absolute inset-0 rounded-full bg-gradient-brand opacity-75 animate-pulse"></span>
+                
+                {/* Stage indicator */}
+                <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-navy text-xs font-bold text-white">
+                  01
+                </div>
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Transact.AI Mode 01 Dialog */}
+        <TransactAIMode01 
+          isOpen={transactAIOpen} 
+          onClose={() => setTransactAIOpen(false)} 
+        />
       </div>
     </div>
   );

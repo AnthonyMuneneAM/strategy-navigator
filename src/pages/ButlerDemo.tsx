@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Brain, Search, MessageCircle, CheckCircle, Clock, Target, Users } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,8 +76,6 @@ const ButlerDemo = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-accent/60 to-accent/40 pb-16 pt-32">
         <div className="mx-auto max-w-7xl px-6">
