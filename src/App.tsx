@@ -21,6 +21,10 @@ import ProfileSetup from "./pages/onboarding/ProfileSetup";
 import OrganisationAccess from "./pages/onboarding/OrganisationAccess";
 import OrganisationSetup from "./pages/onboarding/OrganisationSetup";
 import Complete from "./pages/onboarding/Complete";
+import Legal from "./pages/legal/Legal";
+import Terms from "./pages/legal/Terms";
+import Privacy from "./pages/legal/Privacy";
+import FAQ from "./pages/legal/FAQ";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -67,6 +71,12 @@ const App = () => (
           <Route path="/dashboard/orders" element={<ServiceOrders />} />
           <Route path="/dashboard/orders/:id" element={<ServiceOrderDetail />} />
           <Route path="/dashboard/profile" element={<OrganisationProfile />} />
+          
+          {/* Legal Routes */}
+          <Route path="/legal" element={<Legal />} />
+          <Route path="/legal/terms" element={<Terms />} />
+          <Route path="/legal/privacy" element={<Privacy />} />
+          <Route path="/legal/faq" element={<FAQ />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
