@@ -1120,7 +1120,7 @@ const EngagementDetail = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Back Navigation */}
         <Link to="/dashboard/services">
           <Button variant="ghost" className="gap-2">
@@ -1200,24 +1200,24 @@ const EngagementDetail = () => {
         </div>
 
         {/* Tabs Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-muted p-1 h-auto">
-            <TabsTrigger value="overview" className="px-4">Overview</TabsTrigger>
-            <TabsTrigger value="plan" className="px-4">Plan</TabsTrigger>
-            <TabsTrigger value="deliverables" className="px-4">Deliverables</TabsTrigger>
-            <TabsTrigger value="sessions" className="px-4">Working Sessions</TabsTrigger>
-            <TabsTrigger value="team" className="px-4">Team</TabsTrigger>
-            <TabsTrigger value="stakeholders" className="px-4">Stakeholders</TabsTrigger>
-            <TabsTrigger value="raid" className="px-4">RAID Log</TabsTrigger>
-            <TabsTrigger value="reports" className="px-4">Reports</TabsTrigger>
-            <TabsTrigger value="financials" className="px-4">Financials</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="bg-muted p-1 h-auto gap-0.5">
+            <TabsTrigger value="overview" className="px-4 py-1.5 text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="plan" className="px-4 py-1.5 text-sm">Plan</TabsTrigger>
+            <TabsTrigger value="deliverables" className="px-4 py-1.5 text-sm">Deliverables</TabsTrigger>
+            <TabsTrigger value="sessions" className="px-4 py-1.5 text-sm">Working Sessions</TabsTrigger>
+            <TabsTrigger value="team" className="px-4 py-1.5 text-sm">Team</TabsTrigger>
+            <TabsTrigger value="stakeholders" className="px-4 py-1.5 text-sm">Stakeholders</TabsTrigger>
+            <TabsTrigger value="raid" className="px-4 py-1.5 text-sm">RAID Log</TabsTrigger>
+            <TabsTrigger value="reports" className="px-4 py-1.5 text-sm">Reports</TabsTrigger>
+            <TabsTrigger value="financials" className="px-4 py-1.5 text-sm">Financials</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-3">
+          <TabsContent value="overview" className="space-y-4">
+            <div className="grid gap-4 lg:grid-cols-3">
               {/* Main Content - 2 columns */}
-              <div className="lg:col-span-2 space-y-6">
+              <div className="lg:col-span-2 space-y-4">
                 {/* Project Health */}
                 <Card>
                   <CardHeader>
@@ -1493,7 +1493,7 @@ const EngagementDetail = () => {
               </div>
 
               {/* Right Context Panel */}
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Financial Snapshot */}
                 <Card>
                   <CardHeader>
@@ -1588,7 +1588,7 @@ const EngagementDetail = () => {
           </TabsContent>
 
           {/* Plan Tab */}
-          <TabsContent value="plan" className="space-y-6">
+          <TabsContent value="plan" className="space-y-4">
             {/* Header Actions */}
             <div className="flex items-center justify-between">
               <div>
@@ -1945,7 +1945,7 @@ const EngagementDetail = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="deliverables" className="space-y-6">
+          <TabsContent value="deliverables" className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
@@ -2189,7 +2189,7 @@ const EngagementDetail = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="team" className="space-y-6">
+          <TabsContent value="team" className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
@@ -2296,7 +2296,7 @@ const EngagementDetail = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="stakeholders" className="space-y-6">
+          <TabsContent value="stakeholders" className="space-y-4">
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
@@ -2445,7 +2445,7 @@ const EngagementDetail = () => {
             </Card>
 
             {/* Stakeholder Matrix View - Contemporary Card-Based Design */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4">
               {/* Manage Closely Quadrant */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -2453,23 +2453,23 @@ const EngagementDetail = () => {
                 transition={{ delay: 0.1 }}
               >
                 <Card className="h-full border-2 border-red-200 bg-gradient-to-br from-red-50 via-white to-red-50/30 hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-2 pt-4 px-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-lg text-red-900 flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                        <CardTitle className="text-base text-red-900 flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
                           Manage Closely
                         </CardTitle>
-                        <CardDescription className="text-xs mt-1 text-red-700">
+                        <CardDescription className="text-xs mt-0.5 text-red-700">
                           High Influence • High Interest
                         </CardDescription>
                       </div>
-                      <div className="text-3xl font-bold text-red-600">
+                      <div className="text-2xl font-bold text-red-600">
                         {stakeholders.filter((s) => s.influence === "High" && s.interest === "High").length}
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-1.5 px-4 pb-4">
                     {stakeholders
                       .filter((s) => s.influence === "High" && s.interest === "High")
                       .map((stakeholder, idx) => (
@@ -2481,7 +2481,7 @@ const EngagementDetail = () => {
                           className="group relative"
                         >
                           <div
-                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-red-100 hover:border-red-300 hover:shadow-md transition-all cursor-pointer"
+                            className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white border border-red-100 hover:border-red-300 hover:shadow-md transition-all cursor-pointer"
                             onClick={() => {
                               setStakeholderForm({
                                 name: stakeholder.name,
@@ -2495,8 +2495,8 @@ const EngagementDetail = () => {
                               setEditingStakeholder(stakeholder.id);
                             }}
                           >
-                            <Avatar className="h-10 w-10 border-2 border-red-200">
-                              <AvatarFallback className="bg-red-500 text-white font-semibold text-sm">
+                            <Avatar className="h-9 w-9 border-2 border-red-200">
+                              <AvatarFallback className="bg-red-500 text-white font-semibold text-xs">
                                 {stakeholder.name.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
@@ -2517,8 +2517,8 @@ const EngagementDetail = () => {
                         </motion.div>
                       ))}
                     {stakeholders.filter((s) => s.influence === "High" && s.interest === "High").length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p className="text-sm">No stakeholders in this quadrant</p>
+                      <div className="text-center py-6 text-muted-foreground">
+                        <p className="text-xs">No stakeholders in this quadrant</p>
                       </div>
                     )}
                   </CardContent>
@@ -2532,23 +2532,23 @@ const EngagementDetail = () => {
                 transition={{ delay: 0.2 }}
               >
                 <Card className="h-full border-2 border-amber-200 bg-gradient-to-br from-amber-50 via-white to-amber-50/30 hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-2 pt-4 px-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-lg text-amber-900 flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                        <CardTitle className="text-base text-amber-900 flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
                           Keep Satisfied
                         </CardTitle>
-                        <CardDescription className="text-xs mt-1 text-amber-700">
+                        <CardDescription className="text-xs mt-0.5 text-amber-700">
                           High Influence • Low-Medium Interest
                         </CardDescription>
                       </div>
-                      <div className="text-3xl font-bold text-amber-600">
+                      <div className="text-2xl font-bold text-amber-600">
                         {stakeholders.filter((s) => s.influence === "High" && (s.interest === "Low" || s.interest === "Medium")).length}
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-1.5 px-4 pb-4">
                     {stakeholders
                       .filter((s) => s.influence === "High" && (s.interest === "Low" || s.interest === "Medium"))
                       .map((stakeholder, idx) => (
@@ -2560,7 +2560,7 @@ const EngagementDetail = () => {
                           className="group relative"
                         >
                           <div
-                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-amber-100 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer"
+                            className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white border border-amber-100 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer"
                             onClick={() => {
                               setStakeholderForm({
                                 name: stakeholder.name,
@@ -2574,8 +2574,8 @@ const EngagementDetail = () => {
                               setEditingStakeholder(stakeholder.id);
                             }}
                           >
-                            <Avatar className="h-10 w-10 border-2 border-amber-200">
-                              <AvatarFallback className="bg-amber-500 text-white font-semibold text-sm">
+                            <Avatar className="h-9 w-9 border-2 border-amber-200">
+                              <AvatarFallback className="bg-amber-500 text-white font-semibold text-xs">
                                 {stakeholder.name.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
@@ -2596,8 +2596,8 @@ const EngagementDetail = () => {
                         </motion.div>
                       ))}
                     {stakeholders.filter((s) => s.influence === "High" && (s.interest === "Low" || s.interest === "Medium")).length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p className="text-sm">No stakeholders in this quadrant</p>
+                      <div className="text-center py-6 text-muted-foreground">
+                        <p className="text-xs">No stakeholders in this quadrant</p>
                       </div>
                     )}
                   </CardContent>
@@ -2611,23 +2611,23 @@ const EngagementDetail = () => {
                 transition={{ delay: 0.3 }}
               >
                 <Card className="h-full border-2 border-blue-200 bg-gradient-to-br from-blue-50 via-white to-blue-50/30 hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-2 pt-4 px-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-lg text-blue-900 flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                        <CardTitle className="text-base text-blue-900 flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
                           Keep Informed
                         </CardTitle>
-                        <CardDescription className="text-xs mt-1 text-blue-700">
+                        <CardDescription className="text-xs mt-0.5 text-blue-700">
                           Low-Medium Influence • High Interest
                         </CardDescription>
                       </div>
-                      <div className="text-3xl font-bold text-blue-600">
+                      <div className="text-2xl font-bold text-blue-600">
                         {stakeholders.filter((s) => (s.influence === "Low" || s.influence === "Medium") && s.interest === "High").length}
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-1.5 px-4 pb-4">
                     {stakeholders
                       .filter((s) => (s.influence === "Low" || s.influence === "Medium") && s.interest === "High")
                       .map((stakeholder, idx) => (
@@ -2639,7 +2639,7 @@ const EngagementDetail = () => {
                           className="group relative"
                         >
                           <div
-                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
+                            className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
                             onClick={() => {
                               setStakeholderForm({
                                 name: stakeholder.name,
@@ -2653,8 +2653,8 @@ const EngagementDetail = () => {
                               setEditingStakeholder(stakeholder.id);
                             }}
                           >
-                            <Avatar className="h-10 w-10 border-2 border-blue-200">
-                              <AvatarFallback className="bg-blue-500 text-white font-semibold text-sm">
+                            <Avatar className="h-9 w-9 border-2 border-blue-200">
+                              <AvatarFallback className="bg-blue-500 text-white font-semibold text-xs">
                                 {stakeholder.name.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
@@ -2675,8 +2675,8 @@ const EngagementDetail = () => {
                         </motion.div>
                       ))}
                     {stakeholders.filter((s) => (s.influence === "Low" || s.influence === "Medium") && s.interest === "High").length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p className="text-sm">No stakeholders in this quadrant</p>
+                      <div className="text-center py-6 text-muted-foreground">
+                        <p className="text-xs">No stakeholders in this quadrant</p>
                       </div>
                     )}
                   </CardContent>
@@ -2690,23 +2690,23 @@ const EngagementDetail = () => {
                 transition={{ delay: 0.4 }}
               >
                 <Card className="h-full border-2 border-gray-200 bg-gradient-to-br from-gray-50 via-white to-gray-50/30 hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
+                  <CardHeader className="pb-2 pt-4 px-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-lg text-gray-900 flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                        <CardTitle className="text-base text-gray-900 flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-full bg-gray-400"></div>
                           Monitor
                         </CardTitle>
-                        <CardDescription className="text-xs mt-1 text-gray-700">
+                        <CardDescription className="text-xs mt-0.5 text-gray-700">
                           Low-Medium Influence • Low-Medium Interest
                         </CardDescription>
                       </div>
-                      <div className="text-3xl font-bold text-gray-600">
+                      <div className="text-2xl font-bold text-gray-600">
                         {stakeholders.filter((s) => (s.influence === "Low" || s.influence === "Medium") && (s.interest === "Low" || s.interest === "Medium")).length}
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-1.5 px-4 pb-4">
                     {stakeholders
                       .filter((s) => (s.influence === "Low" || s.influence === "Medium") && (s.interest === "Low" || s.interest === "Medium"))
                       .map((stakeholder, idx) => (
@@ -2718,7 +2718,7 @@ const EngagementDetail = () => {
                           className="group relative"
                         >
                           <div
-                            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-gray-100 hover:border-gray-300 hover:shadow-md transition-all cursor-pointer"
+                            className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white border border-gray-100 hover:border-gray-300 hover:shadow-md transition-all cursor-pointer"
                             onClick={() => {
                               setStakeholderForm({
                                 name: stakeholder.name,
@@ -2732,8 +2732,8 @@ const EngagementDetail = () => {
                               setEditingStakeholder(stakeholder.id);
                             }}
                           >
-                            <Avatar className="h-10 w-10 border-2 border-gray-200">
-                              <AvatarFallback className="bg-gray-400 text-white font-semibold text-sm">
+                            <Avatar className="h-9 w-9 border-2 border-gray-200">
+                              <AvatarFallback className="bg-gray-400 text-white font-semibold text-xs">
                                 {stakeholder.name.split(' ').map(n => n[0]).join('')}
                               </AvatarFallback>
                             </Avatar>
@@ -2754,8 +2754,8 @@ const EngagementDetail = () => {
                         </motion.div>
                       ))}
                     {stakeholders.filter((s) => (s.influence === "Low" || s.influence === "Medium") && (s.interest === "Low" || s.interest === "Medium")).length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <p className="text-sm">No stakeholders in this quadrant</p>
+                      <div className="text-center py-6 text-muted-foreground">
+                        <p className="text-xs">No stakeholders in this quadrant</p>
                       </div>
                     )}
                   </CardContent>
@@ -2764,7 +2764,7 @@ const EngagementDetail = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="raid" className="space-y-6">
+          <TabsContent value="raid" className="space-y-4">
             {/* RAID Header with Chips */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -3126,7 +3126,7 @@ const EngagementDetail = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="financials" className="space-y-6">
+          <TabsContent value="financials" className="space-y-4">
             {/* Contract Overview */}
             <Card>
               <CardHeader>
