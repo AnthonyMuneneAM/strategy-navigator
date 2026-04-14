@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Globe, CheckCircle2, TrendingUp, Users, Target } from "lucide-react";
+import { ArrowLeft, Globe, CheckCircle2, TrendingUp, Users, Target, Database, ShieldCheck } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,10 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ServiceRequestDialog from "@/components/ServiceRequestDialog";
 
-const ServiceDetail = () => {
-  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
-
-  const serviceData = {
+// Service data mapping
+const servicesData: Record<string, any> = {
+  "1": {
     name: "Digital Experience Strategy",
     category: "Digital Experience",
     type: "Design",
@@ -19,7 +19,56 @@ const ServiceDetail = () => {
     price: "From $25k",
     duration: "4-6 weeks",
     capabilities: ["Customer Journey", "Omnichannel", "MarTech", "CRM", "Analytics"],
-  };
+    icon: Globe,
+    iconColor: "text-blue-500",
+    badgeColor: "bg-blue-500/10 text-blue-700",
+  },
+  "2": {
+    name: "DWS Strategy",
+    category: "Digital Workspace",
+    type: "Design",
+    tower: "Digital Workspace",
+    price: "From $25k",
+    duration: "4-6 weeks",
+    capabilities: ["Collaboration", "GRC", "Automation", "Core Systems", "Adoption"],
+    icon: Users,
+    iconColor: "text-purple-500",
+    badgeColor: "bg-purple-500/10 text-purple-700",
+  },
+  "3": {
+    name: "DI&A Strategy",
+    category: "Data & Intelligence",
+    type: "Design",
+    tower: "Data & Intelligence",
+    price: "From $30k",
+    duration: "5-7 weeks",
+    capabilities: ["Data Governance", "Data Platform", "Analytics", "AI/ML", "Data Products"],
+    icon: Database,
+    iconColor: "text-green-500",
+    badgeColor: "bg-green-500/10 text-green-700",
+  },
+  "4": {
+    name: "SecDevOps Strategy",
+    category: "SecDevOps",
+    type: "Design",
+    tower: "SecDevOps",
+    price: "From $25k",
+    duration: "4-6 weeks",
+    capabilities: ["Security", "DevOps", "ITSM", "Observability", "Integration"],
+    icon: ShieldCheck,
+    iconColor: "text-orange-500",
+    badgeColor: "bg-orange-500/10 text-orange-700",
+  },
+};
+
+const ServiceDetail = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+
+  // Get service data based on ID, fallback to service 1 if not found
+  const serviceData = servicesData[id || "1"] || servicesData["1"];
+  const ServiceIcon = serviceData.icon;
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,29 +77,29 @@ const ServiceDetail = () => {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-accent/60 to-accent/40 pb-12 pt-32">
         <div className="mx-auto max-w-7xl px-6">
-          <a
-            href="/marketplace"
+          <button
+            onClick={() => navigate("/marketplace")}
             className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft size={16} />
             Back to Marketplace
-          </a>
+          </button>
 
           <div className="mt-6 grid gap-8 lg:grid-cols-3">
             {/* Main Info */}
             <div className="lg:col-span-2">
               <div className="mb-4 flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand shadow-brand">
-                  <Globe size={24} className="text-primary-foreground" />
+                  <ServiceIcon size={24} className="text-primary-foreground" />
                 </div>
                 <div className="flex gap-2">
-                  <Badge className="bg-blue-500/10 text-blue-700">Digital Experience</Badge>
-                  <Badge variant="secondary">Design Service</Badge>
+                  <Badge className={serviceData.badgeColor}>{serviceData.category}</Badge>
+                  <Badge variant="secondary">{serviceData.type} Service</Badge>
                 </div>
               </div>
 
               <h1 className="text-4xl font-bold text-foreground md:text-5xl">
-                Digital Experience Strategy
+                {serviceData.name}
               </h1>
               
               <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
@@ -75,21 +124,21 @@ const ServiceDetail = () => {
             <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
               <div className="mb-4 flex items-baseline justify-between">
                 <span className="text-sm text-muted-foreground">Investment</span>
-                <span className="text-2xl font-bold text-foreground">From $25k</span>
+                <span className="text-2xl font-bold text-foreground">{serviceData.price}</span>
               </div>
 
               <div className="space-y-3 border-t border-border pt-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Duration</span>
-                  <span className="font-medium text-foreground">4-6 weeks</span>
+                  <span className="font-medium text-foreground">{serviceData.duration}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Service Type</span>
-                  <span className="font-medium text-foreground">Design</span>
+                  <span className="font-medium text-foreground">{serviceData.type}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Tower</span>
-                  <span className="font-medium text-foreground">Digital Experience</span>
+                  <span className="font-medium text-foreground">{serviceData.tower}</span>
                 </div>
               </div>
 

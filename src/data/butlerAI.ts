@@ -32,88 +32,88 @@ export const mockedRecommendations = {
   "customer-experience-exploring": {
     message: "Based on what you've told me, I'd suggest the Digital Experience Strategy service. TMaaS packages this as a structured blueprint — rather than starting from scratch, you get a proven architecture you can adapt and deploy. At the exploration stage, this gives you a clear framework to define your platform direction and make the case internally. Ready to take a look?",
     serviceName: "Digital Experience Strategy",
-    serviceUrl: "/marketplace?tower=dxp&type=design"
+    serviceUrl: "/service/1"
   },
   "customer-experience-designing": {
     message: "Based on what you've told me, I'd suggest the Digital Experience Strategy service. You're already in design mode — this blueprint accelerates that by giving you a reference architecture for a scalable, compliant digital experience platform. It cuts design time by over 50%. Ready to take a look?",
     serviceName: "Digital Experience Strategy",
-    serviceUrl: "/marketplace?tower=dxp&type=design"
+    serviceUrl: "/service/1"
   },
   "customer-experience-implementing": {
     message: "Based on what you've told me, I'd suggest starting with the Digital Experience Strategy service. TMaaS's current services are at the Design stage — which is the right foundation before implementation. Deploy services are coming soon. Getting your blueprint in place now means you're ready to move fast when they launch. Ready to take a look?",
     serviceName: "Digital Experience Strategy",
-    serviceUrl: "/marketplace?tower=dxp&type=design"
+    serviceUrl: "/service/1"
   },
   "customer-experience-optimizing": {
     message: "Based on what you've told me, I'd suggest the Digital Experience Strategy service as your baseline review. TMaaS Drive services for ongoing optimisation are coming soon — but starting with the strategy blueprint helps you identify where your current platform needs strengthening. Ready to take a look?",
     serviceName: "Digital Experience Strategy",
-    serviceUrl: "/marketplace?tower=dxp&type=design"
+    serviceUrl: "/service/1"
   },
   
   // PATH 2: Internal Operations
   "internal-operations-exploring": {
     message: "Based on what you've told me, I'd suggest the DWS Strategy service. TMaaS packages this as a structured blueprint for designing your core business platforms — integrated, efficient, and compliant. At the exploration stage, this gives you a clear architecture to work from rather than defining everything from scratch. Ready to take a look?",
     serviceName: "DWS Strategy",
-    serviceUrl: "/marketplace?tower=dws&type=design"
+    serviceUrl: "/service/2"
   },
   "internal-operations-designing": {
     message: "Based on what you've told me, I'd suggest the DWS Strategy service. You're in design mode — this blueprint gives you a reference architecture for your Digital Core Platform, cutting design and deployment time by 35%. Ready to take a look?",
     serviceName: "DWS Strategy",
-    serviceUrl: "/marketplace?tower=dws&type=design"
+    serviceUrl: "/service/2"
   },
   "internal-operations-implementing": {
     message: "Based on what you've told me, I'd suggest the DWS Strategy service as your starting point. TMaaS Deploy services are coming soon — but having the strategy blueprint in place now means your implementation has a solid, compliant foundation to build from. Ready to take a look?",
     serviceName: "DWS Strategy",
-    serviceUrl: "/marketplace?tower=dws&type=design"
+    serviceUrl: "/service/2"
   },
   "internal-operations-optimizing": {
     message: "Based on what you've told me, I'd suggest the DWS Strategy service as a baseline review of your current platform architecture. TMaaS Drive services for optimisation are coming soon. Getting the strategy layer right first ensures your optimisation efforts are targeted and effective. Ready to take a look?",
     serviceName: "DWS Strategy",
-    serviceUrl: "/marketplace?tower=dws&type=design"
+    serviceUrl: "/service/2"
   },
   
   // PATH 3: Data Value
   "data-value-exploring": {
     message: "Based on what you've told me, I'd suggest the Digital Intelligence and Analytics Strategy service. TMaaS packages this as a structured blueprint for building your data platform architecture, analytics capabilities, and AI roadmap. At the exploration stage, this gives you a clear picture of what to build and in what order. Ready to take a look?",
     serviceName: "DI&A Strategy",
-    serviceUrl: "/marketplace?tower=dia&type=design"
+    serviceUrl: "/service/3"
   },
   "data-value-designing": {
     message: "Based on what you've told me, I'd suggest the Digital Intelligence and Analytics Strategy service. You're in design mode — this blueprint gives you a reference architecture for integrating your data systems and enabling actionable insights across the organisation. Ready to take a look?",
     serviceName: "DI&A Strategy",
-    serviceUrl: "/marketplace?tower=dia&type=design"
+    serviceUrl: "/service/3"
   },
   "data-value-implementing": {
     message: "Based on what you've told me, I'd suggest the Digital Intelligence and Analytics Strategy service as your foundation. TMaaS Deploy services are coming soon — but a solid data architecture blueprint now means your implementation is structured and scalable from day one. Ready to take a look?",
     serviceName: "DI&A Strategy",
-    serviceUrl: "/marketplace?tower=dia&type=design"
+    serviceUrl: "/service/3"
   },
   "data-value-optimizing": {
     message: "Based on what you've told me, I'd suggest the Digital Intelligence and Analytics Strategy service as a review of your current data architecture. TMaaS Drive services for continuous optimisation are coming soon. This blueprint helps you identify the gaps between what you have and what you need. Ready to take a look?",
     serviceName: "DI&A Strategy",
-    serviceUrl: "/marketplace?tower=dia&type=design"
+    serviceUrl: "/service/3"
   },
   
   // PATH 4: DevOps
   "devops-exploring": {
     message: "Based on what you've told me, I'd suggest the SecDevOps Strategy service. TMaaS packages this as a structured blueprint for defining your security posture, DevOps maturity, and platform engineering roadmap. At the exploration stage, this gives you a clear baseline to build from. Ready to take a look?",
     serviceName: "SecDevOps Strategy",
-    serviceUrl: "/marketplace?tower=sdo&type=design"
+    serviceUrl: "/service/4"
   },
   "devops-designing": {
     message: "Based on what you've told me, I'd suggest the SecDevOps Strategy service. You're in design mode — this blueprint gives you a reference architecture for integrating security and DevOps practices across your delivery lifecycle. Ready to take a look?",
     serviceName: "SecDevOps Strategy",
-    serviceUrl: "/marketplace?tower=sdo&type=design"
+    serviceUrl: "/service/4"
   },
   "devops-implementing": {
     message: "Based on what you've told me, I'd suggest the SecDevOps Strategy service as your foundation. TMaaS Deploy services are coming soon — but having your SecDevOps blueprint in place ensures your implementation is secure and structured from the start. Ready to take a look?",
     serviceName: "SecDevOps Strategy",
-    serviceUrl: "/marketplace?tower=sdo&type=design"
+    serviceUrl: "/service/4"
   },
   "devops-optimizing": {
     message: "Based on what you've told me, I'd suggest the SecDevOps Strategy service as a maturity review of your current delivery setup. TMaaS Drive services for continuous optimisation are coming soon. This blueprint helps you identify where your pipeline needs strengthening. Ready to take a look?",
     serviceName: "SecDevOps Strategy",
-    serviceUrl: "/marketplace?tower=sdo&type=design"
+    serviceUrl: "/service/4"
   }
 };
 
