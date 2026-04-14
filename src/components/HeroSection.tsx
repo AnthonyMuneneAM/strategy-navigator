@@ -67,7 +67,7 @@ const HeroSection = () => {
                 B
               </div>
               <div className="text-sm text-foreground leading-relaxed text-left">
-                Hi, I'm Butler — your TMaaS guide. What are you trying to achieve with your transformation?
+                Hi, I'm Butler AI — your TMaaS guide.
               </div>
             </div>
 
@@ -77,7 +77,7 @@ const HeroSection = () => {
                 value={problem}
                 onChange={(e) => setProblem(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask me anything about TMaaS..."
+                placeholder="What are you trying to achieve with your transformation?"
                 rows={1}
                 className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
               />
