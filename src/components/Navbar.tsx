@@ -9,10 +9,10 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-1.5">
+          <a href="/" className="flex items-center gap-1.5 transition-opacity hover:opacity-80">
             <span className="text-2xl font-bold text-foreground">DQ</span>
             <span className="text-sm font-semibold tracking-wide text-muted-foreground">TMaaS</span>
-          </div>
+          </a>
           
           <a href="/explore" className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:block">
             Explore
