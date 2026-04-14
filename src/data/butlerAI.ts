@@ -121,7 +121,7 @@ export const mockedRecommendations = {
 export const mockedFAQs = {
   "what-is-tmaas": {
     message: "TMaaS — Technology Management as a Service — is a digital platform that helps organisations design, deploy, and manage their digital transformation through structured services, AI-driven guidance, and collaborative delivery workspaces. Instead of traditional consulting, TMaaS gives you proven blueprints you can adapt and deploy.",
-    options: ["Explore the services", "How does it work?", "Talk to the team"]
+    options: ["Explore the services", "How does it work?", "Contact the team"]
   },
   "how-does-it-work": {
     message: "You describe your transformation challenge, Butler qualifies your context with two questions, and TMaaS recommends the right service. Once you engage a service, a structured delivery workspace is created for your team to manage execution together.",
@@ -129,7 +129,7 @@ export const mockedFAQs = {
   },
   "what-does-it-cost": {
     message: "Pricing is scoped to your specific transformation context after an initial service assessment. Speak to the TMaaS team to understand the right engagement model for your organisation.",
-    options: ["Talk to the team", "Explore the services"]
+    options: ["Contact the team", "Explore the services"]
   },
   "how-to-get-started": {
     message: "Click Get Started to create your account, describe your transformation challenge to Butler, and explore the service catalogue. Butler will recommend a starting point based on your context.",

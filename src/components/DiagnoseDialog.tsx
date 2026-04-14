@@ -36,8 +36,9 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
   const [conversationStep, setConversationStep] = useState(0); // 0: initial, 1: Q2 asked, 2: recommendation shown
   const [selectedGoal, setSelectedGoal] = useState<string>("");
   const [unresolvedCount, setUnresolvedCount] = useState(0);
-  const [isHandedOff, setIsHandedOff] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [contactFormStep, setContactFormStep] = useState(0); // 0: not started, 1: asking name, 2: asking email, 3: asking reason, 4: complete
+  const [contactFormData, setContactFormData] = useState({ name: "", email: "", reason: "" });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -54,7 +55,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       // Initial greeting - no chips inside dialog
       setTimeout(() => {
         addAIMessage(
-          "Hi, I'm Butler — your TMaaS guide. What are you trying to achieve with your transformation?"
+          "Hi, I'm Butler — your TMaaS guide."
         );
       }, 500);
     }
@@ -125,155 +126,6 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     }, responseTime);
   };
 
-  const getAgentResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    // Detect intent and return appropriate response
-    if (lowerMessage.includes("price") || lowerMessage.includes("cost") || lowerMessage.includes("pricing") || lowerMessage.includes("budget")) {
-      const responses = teamHandoff.responses.pricing;
-      let response = responses[Math.floor(Math.random() * responses.length)];
-      
-      // Add context if user had selected a goal
-      if (selectedGoal && Math.random() > 0.5) {
-        const goalService = selectedGoal === "Improve customer experience" 
-          ? "Digital Experience Strategy"
-          : selectedGoal === "Improve internal operations"
-          ? "DWS Strategy"
-          : selectedGoal === "Unlock value from data"
-          ? "Data & Intelligence Strategy"
-          : "SecDevOps Strategy";
-        response = `For ${goalService}, which aligns with your interest in ${selectedGoal.toLowerCase()}, we typically start at $25-30k for a 4-6 week engagement. ${response}`;
-      }
-      
-      return response;
-    }
-    
-    if (lowerMessage.includes("timeline") || lowerMessage.includes("how long") || lowerMessage.includes("duration") || lowerMessage.includes("time")) {
-      return teamHandoff.responses.timeline[Math.floor(Math.random() * teamHandoff.responses.timeline.length)];
-    }
-    
-    if (lowerMessage.includes("service") || lowerMessage.includes("what do you offer") || lowerMessage.includes("solutions")) {
-      const responses = teamHandoff.responses.services;
-      let response = responses[Math.floor(Math.random() * responses.length)];
-      
-      // Reference their selected goal if available
-      if (selectedGoal && Math.random() > 0.5) {
-        response = `Based on your interest in ${selectedGoal.toLowerCase()}, ${response}`;
-      }
-      
-      return response;
-    }
-    
-    if (lowerMessage.includes("consultation") || lowerMessage.includes("schedule") || lowerMessage.includes("meeting") || lowerMessage.includes("call") || lowerMessage.includes("demo")) {
-      return teamHandoff.responses.consultation[Math.floor(Math.random() * teamHandoff.responses.consultation.length)];
-    }
-    
-    if (lowerMessage.includes("hi") || lowerMessage.includes("hello") || lowerMessage.includes("hey") || lowerMessage.length < 20) {
-      return teamHandoff.responses.greeting[Math.floor(Math.random() * teamHandoff.responses.greeting.length)];
-    }
-    
-    // Default to general response
-    return teamHandoff.responses.general[Math.floor(Math.random() * teamHandoff.responses.general.length)];
-  };
-
-  const simulateTeamHandoff = () => {
-    setIsTyping(true);
-    
-    // Step 1: Connecting message
-    setTimeout(() => {
-      setIsTyping(false);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          type: "ai",
-          content: teamHandoff.connecting,
-          isHandoff: true,
-        },
-      ]);
-      setIsTyping(true);
-    }, 500);
-    
-    // Step 2: Checking availability
-    setTimeout(() => {
-      setIsTyping(false);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          type: "ai",
-          content: teamHandoff.checking,
-          isHandoff: true,
-        },
-      ]);
-      setIsTyping(true);
-    }, 1500);
-    
-    // Step 3: Team member available
-    setTimeout(() => {
-      setIsTyping(false);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          type: "ai",
-          content: teamHandoff.available,
-          isHandoff: true,
-        },
-      ]);
-      setIsTyping(true);
-    }, 2500);
-    
-    // Step 4: Team member introduction with context awareness
-    setTimeout(() => {
-      setIsTyping(false);
-      setIsHandedOff(true);
-      
-      // Build context-aware introduction
-      let introduction = "Hi there! I'm Anthony, a Transformation Specialist at TMaaS. ";
-      
-      if (selectedGoal) {
-        // Reference the specific goal they selected
-        const goalContext = selectedGoal === "Improve customer experience" 
-          ? "I see you're interested in improving customer experience"
-          : selectedGoal === "Improve internal operations"
-          ? "I see you're interested in improving internal operations"
-          : selectedGoal === "Unlock value from data"
-          ? "I see you're interested in unlocking value from data"
-          : "I see you're interested in improving delivery speed and DevOps";
-        
-        introduction += `${goalContext} — that's a great area to focus on. `;
-      } else {
-        introduction += "Butler filled me in on your interest. ";
-      }
-      
-      introduction += "How can I help you today?";
-      
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          type: "team",
-          content: introduction,
-          teamMember: {
-            name: mockedEscalation.contact.name,
-            title: mockedEscalation.contact.title
-          }
-        },
-      ]);
-      
-      // Log for production integration
-      console.log("🔔 LIVE AGENT NOTIFICATION: User requesting team connection", {
-        timestamp: new Date().toISOString(),
-        conversationHistory: messages,
-        userInterest: selectedGoal || "General inquiry",
-        conversationSummary: selectedGoal 
-          ? `User selected: ${selectedGoal}` 
-          : "User requested to talk to team"
-      });
-    }, 4000);
-  };
-
   const getGoalKey = (goal: string): string => {
     if (goal === "Improve customer experience") return "customer-experience";
     if (goal === "Improve internal operations") return "internal-operations";
@@ -321,18 +173,46 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
   };
 
   const handleUserMessage = (message: string) => {
-    // Don't add user message here - it's added in handleOptionClick or handleSubmit
     setInput("");
     
-    // If handed off to live team, simulate agent response
-    if (isHandedOff) {
-      // Get appropriate agent response based on user message
-      const agentResponse = getAgentResponse(message);
-      addTeamMessage(agentResponse);
-      
-      // TODO: In production, send message to live agent via WebSocket/API
-      console.log("📨 MESSAGE TO LIVE AGENT:", message);
-      return;
+    // Handle contact form flow
+    if (showContactForm) {
+      if (contactFormStep === 1) {
+        // Collecting name
+        setContactFormData(prev => ({ ...prev, name: message }));
+        addUserMessage(message);
+        setContactFormStep(2);
+        addAIMessage("Great! What's your email address?");
+        return;
+      } else if (contactFormStep === 2) {
+        // Collecting email
+        setContactFormData(prev => ({ ...prev, email: message }));
+        addUserMessage(message);
+        setContactFormStep(3);
+        addAIMessage("Perfect! What would you like to discuss with our team?");
+        return;
+      } else if (contactFormStep === 3) {
+        // Collecting reason
+        setContactFormData(prev => ({ ...prev, reason: message }));
+        addUserMessage(message);
+        setContactFormStep(4);
+        setShowContactForm(false);
+        
+        // Log contact request for production integration
+        console.log("📧 CONTACT REQUEST:", {
+          timestamp: new Date().toISOString(),
+          name: contactFormData.name,
+          email: contactFormData.email,
+          reason: message,
+          conversationContext: selectedGoal || "General inquiry",
+          conversationHistory: messages
+        });
+        
+        addAIMessage(
+          `Thank you, ${contactFormData.name}! Our team will review your request and get back to you at ${contactFormData.email} soon.`
+        );
+        return;
+      }
     }
     
     // Check if it's an FAQ
@@ -518,10 +398,12 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       return;
     }
     
-    // Handle "Talk to the team"
-    if (option === "Talk to the team") {
+    // Handle "Contact the team"
+    if (option === "Contact the team" || option === "Talk to the team") {
       addUserMessage(option);
-      simulateTeamHandoff();
+      setShowContactForm(true);
+      setContactFormStep(1);
+      addAIMessage("I'd be happy to connect you with our team. What's your name?");
       return;
     }
     
@@ -577,24 +459,13 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         {/* Header */}
         <div className="flex shrink-0 items-center justify-between border-b border-border p-4">
           <div className="flex items-center gap-2">
-            <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-              isHandedOff ? "bg-green-500" : "bg-gradient-brand"
-            }`}>
-              {isHandedOff ? <User size={16} className="text-white" /> : <Sparkles size={16} className="text-primary-foreground" />}
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-brand">
+              <Sparkles size={16} className="text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-foreground">
-                {isHandedOff ? mockedEscalation.contact.name : "TMaaS AI Butler"}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {isHandedOff ? mockedEscalation.contact.title : "Your Transformation Guide"}
-              </p>
+              <h2 className="text-sm font-semibold text-foreground">TMaaS AI Butler</h2>
+              <p className="text-xs text-muted-foreground">Your Transformation Guide</p>
             </div>
-            {isHandedOff && (
-              <Badge variant="outline" className="ml-2 text-xs bg-green-500/10 text-green-700 border-green-500/30">
-                Live
-              </Badge>
-            )}
           </div>
           <button
             onClick={onClose}
@@ -642,8 +513,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
                   
                   <p className="whitespace-pre-line text-sm leading-relaxed">{message.content}</p>
                   
-                  {/* Quick Reply Options - Hidden when handed off to live team */}
-                  {message.options && !isHandedOff && (
+                  {/* Quick Reply Options */}
+                  {message.options && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {message.options.map((option) => (
                         <button
@@ -711,11 +582,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={
-                isHandedOff 
-                  ? "Type your message to Anthony..." 
-                  : "Ask about TMaaS, services, or pricing..."
-              }
+              placeholder="What are you trying to achieve with your transformation?"
               className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary"
               disabled={isTyping}
             />
