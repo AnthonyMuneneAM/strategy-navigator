@@ -22,7 +22,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative bg-gradient-to-br from-accent/60 to-accent/40 pb-20 pt-32 md:pb-28 md:pt-40 overflow-hidden">
+    <section id="hero" className="relative bg-gradient-to-br from-accent/60 to-accent/40 pb-20 pt-32 md:pb-28 md:pt-40 overflow-hidden">
       {/* Mesh Gradient Background */}
       <div className="absolute inset-0 opacity-60">
         <div className="absolute bottom-0 left-1/4 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-brand/30 via-brand-glow/20 to-transparent blur-[120px]"></div>

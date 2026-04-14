@@ -6,11 +6,12 @@ const Footer = () => {
     <footer className="border-t border-border bg-background py-12">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Column 1: Logo */}
+          {/* Column 1: Brand */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-gradient-brand">TMaaS</span>
-            </div>
+            <Link to="/" className="flex items-center gap-2">
+              <span className="text-xl font-bold text-brand">DQ</span>
+              <span className="text-sm font-semibold text-muted-foreground">TMaaS</span>
+            </Link>
             <p className="text-sm text-muted-foreground">
               Transformation Management as a Service
             </p>
@@ -65,7 +66,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <Link
-                  to="/legal"
+                  to="/explore"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   About TMaaS
@@ -73,7 +74,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/"
+                  to="/#hero"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Start with AI
@@ -81,7 +82,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/explore"
+                  to="/marketplace"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Design & Deploy Services
