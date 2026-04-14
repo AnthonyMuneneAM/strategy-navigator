@@ -24,6 +24,7 @@ import {
   BookOpen,
   Brain,
   X,
+  ShoppingCart,
 } from "lucide-react";
 import TransactAIMode01 from "@/components/TransactAIMode01";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ const clientNavigationItems = [
     group: "WORKSPACE",
     items: [
       { name: "Active Engagements", icon: Package, path: "/dashboard/services", badge: 3 },
+      { name: "Service Orders", icon: ShoppingCart, path: "/dashboard/orders", badge: 6 },
       { name: "Calendar", icon: Calendar, path: "/dashboard/calendar", badge: null },
       { name: "Inbox", icon: MessageSquare, path: "/dashboard/inbox", badge: 5 },
     ],
@@ -88,6 +90,7 @@ const dqNavigationItems = [
     group: "DELIVERY",
     items: [
       { name: "Engagements", icon: Package, path: "/dashboard/services", badge: 3 },
+      { name: "Service Orders", icon: ShoppingCart, path: "/dashboard/orders", badge: 6 },
       { name: "Calendar", icon: Calendar, path: "/dashboard/calendar", badge: null },
       { name: "Inbox", icon: MessageSquare, path: "/dashboard/inbox", badge: 2 },
     ],

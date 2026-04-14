@@ -14,11 +14,17 @@ import Overview from "./pages/dashboard/Overview";
 import ActiveServices from "./pages/dashboard/ActiveServices";
 import OrganisationProfile from "./pages/dashboard/OrganisationProfile";
 import EngagementDetail from "./pages/dashboard/EngagementDetail";
+import ServiceOrders from "./pages/dashboard/ServiceOrders";
+import ServiceOrderDetail from "./pages/dashboard/ServiceOrderDetail";
 import SignIn from "./pages/auth/SignIn";
 import ProfileSetup from "./pages/onboarding/ProfileSetup";
 import OrganisationAccess from "./pages/onboarding/OrganisationAccess";
 import OrganisationSetup from "./pages/onboarding/OrganisationSetup";
 import Complete from "./pages/onboarding/Complete";
+import Legal from "./pages/legal/Legal";
+import Terms from "./pages/legal/Terms";
+import Privacy from "./pages/legal/Privacy";
+import FAQ from "./pages/legal/FAQ";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -62,7 +68,15 @@ const App = () => (
           <Route path="/dashboard/overview" element={<Overview />} />
           <Route path="/dashboard/services" element={<ActiveServices />} />
           <Route path="/dashboard/engagement/:id" element={<EngagementDetail />} />
+          <Route path="/dashboard/orders" element={<ServiceOrders />} />
+          <Route path="/dashboard/orders/:id" element={<ServiceOrderDetail />} />
           <Route path="/dashboard/profile" element={<OrganisationProfile />} />
+          
+          {/* Legal Routes */}
+          <Route path="/legal" element={<Legal />} />
+          <Route path="/legal/terms" element={<Terms />} />
+          <Route path="/legal/privacy" element={<Privacy />} />
+          <Route path="/legal/faq" element={<FAQ />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

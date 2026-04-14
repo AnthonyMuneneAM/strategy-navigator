@@ -1,84 +1,130 @@
+import { Link } from "react-router-dom";
+import { Linkedin, Instagram, Youtube } from "lucide-react";
+
 const Footer = () => {
   return (
     <footer className="border-t border-border bg-background py-12">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="grid gap-8 md:grid-cols-4">
-          {/* Brand Column */}
-          <div>
-            <a href="/" className="flex items-center gap-1.5 mb-4">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {/* Column 1: Brand */}
+          <div className="flex flex-col gap-4">
+            <Link to="/" className="flex items-center gap-2">
               <span className="text-xl font-bold text-brand">DQ</span>
               <span className="text-sm font-semibold text-muted-foreground">TMaaS</span>
-            </a>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            </Link>
+            <p className="text-sm text-muted-foreground">
               Transformation Management as a Service
             </p>
           </div>
 
-          {/* Explore DigitalQatalyst */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Explore DigitalQatalyst</h3>
-            <ul className="space-y-2">
+          {/* Column 2: Explore DigitalQatalyst */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-sm font-semibold text-foreground">Explore DigitalQatalyst</h3>
+            <ul className="space-y-3">
               <li>
-                <a href="https://digitalqatalyst.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a
+                  href="https://digitalqatalyst.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Visit DigitalQatalyst.com
                 </a>
               </li>
               <li>
-                <a href="https://digitalqatalyst.com/products" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a
+                  href="https://digitalqatalyst.com/products"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Our Products
                 </a>
               </li>
               <li>
-                <a href="https://digitalqatalyst.com/terms" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  to="/legal/terms"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Terms & Conditions
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="https://digitalqatalyst.com/privacy" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  to="/legal/privacy"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Explore TMaaS */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Explore TMaaS</h3>
-            <ul className="space-y-2">
+          {/* Column 3: Explore TMaaS */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-sm font-semibold text-foreground">Explore TMaaS</h3>
+            <ul className="space-y-3">
               <li>
-                <a href="/explore" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  to="/explore"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   About TMaaS
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/#hero" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  to="/#hero"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Start with AI
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/marketplace" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link
+                  to="/marketplace"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   Design & Deploy Services
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Follow Us */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Follow Us</h3>
-            <ul className="space-y-2">
+          {/* Column 4: Follow Us */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-sm font-semibold text-foreground">Follow Us</h3>
+            <ul className="space-y-3">
               <li>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a
+                  href="https://linkedin.com/company/digitalqatalyst"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Linkedin size={16} />
                   LinkedIn
                 </a>
               </li>
               <li>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a
+                  href="https://instagram.com/digitalqatalyst"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Instagram size={16} />
                   Instagram
                 </a>
               </li>
               <li>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <a
+                  href="https://youtube.com/@digitalqatalyst"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Youtube size={16} />
                   YouTube
                 </a>
               </li>
@@ -86,9 +132,9 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-12 border-t border-border pt-8 text-center">
-          <p className="text-xs text-muted-foreground">
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-8 border-t border-border">
+          <p className="text-center text-xs text-muted-foreground">
             © 2026 DigitalQatalyst. All rights reserved.
           </p>
         </div>
