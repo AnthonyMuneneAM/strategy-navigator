@@ -16,6 +16,8 @@ import OrganisationProfile from "./pages/dashboard/OrganisationProfile";
 import EngagementDetail from "./pages/dashboard/EngagementDetail";
 import ServiceOrders from "./pages/dashboard/ServiceOrders";
 import ServiceOrderDetail from "./pages/dashboard/ServiceOrderDetail";
+import CustomerServiceOrders from "./pages/dashboard/customer/ServiceOrders";
+import CustomerServiceOrderDetail from "./pages/dashboard/customer/ServiceOrderDetail";
 import SignIn from "./pages/auth/SignIn";
 import ProfileSetup from "./pages/onboarding/ProfileSetup";
 import OrganisationAccess from "./pages/onboarding/OrganisationAccess";
@@ -71,6 +73,10 @@ const App = () => (
           <Route path="/dashboard/orders" element={<ServiceOrders />} />
           <Route path="/dashboard/orders/:id" element={<ServiceOrderDetail />} />
           <Route path="/dashboard/profile" element={<OrganisationProfile />} />
+          
+          {/* Customer Dashboard Routes */}
+          <Route path="/dashboard/customer/orders" element={<CustomerServiceOrders />} />
+          <Route path="/dashboard/customer/orders/:id" element={<CustomerServiceOrderDetail />} />
           
           {/* Legal Routes */}
           <Route path="/legal" element={<Legal />} />

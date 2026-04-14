@@ -2,13 +2,13 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Building2,
   Calendar,
-  DollarSign,
-  FileText,
+  Clock,
   Search,
-  User,
   X,
+  AlertCircle,
+  CheckCircle2,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,58 +24,50 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import DashboardLayout from "@/components/DashboardLayout";
 import { mockOrders } from "@/data/mockOrders";
+import { useAuth } from "@/contexts/AuthContext";
 
-const ServiceOrders = () => {
+const CustomerServiceOrders = () => {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [stageFilter, setStageFilter] = useState("all");
-  const [clientFilter, setClientFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
-  const [deliveryLeadFilter, setDeliveryLeadFilter] = useState("all");
 
-  // Get unique values for filters
-  const uniqueClients = useMemo(() => {
-    return Array.from(new Set(mockOrders.map((o) => o.clientOrganisation)));
-  }, []);
+  // Filter orders by customer organization
+  const customerOrders = mockOrders.filter(
+    (order) => order.clientOrganisation === user.organization
+  );
 
-  const uniqueTypes = useMemo(() => {
-    return Array.from(new Set(mockOrders.map((o) => o.serviceType)));
-  }, []);
+  // Define stage order for sorting
+  const stageOrder = {
+    "Payment Pending": 1,
+    "Client Input Pending": 2,
+    "Input in Review": 3,
+    "In Delivery": 4,
+    "Deliverables Pending Review": 5,
+    "Closed": 6,
+  };
 
-  const uniqueDeliveryLeads = useMemo(() => {
-    return Array.from(new Set(mockOrders.map((o) => o.deliveryLead)));
-  }, []);
+  const filteredOrders = customerOrders
+    .filter((order) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        order.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.serviceOrderNumber.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const filteredOrders = mockOrders.filter((order) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      order.serviceName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.serviceOrderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.clientOrganisation.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStage = stageFilter === "all" || order.stage === stageFilter;
+      
+      const matchesType = typeFilter === "all" || order.serviceType === typeFilter;
 
-    const matchesStage = stageFilter === "all" || order.stage === stageFilter;
-    const matchesClient = clientFilter === "all" || order.clientOrganisation === clientFilter;
-    const matchesType = typeFilter === "all" || order.serviceType === typeFilter;
-    const matchesDeliveryLead = deliveryLeadFilter === "all" || order.deliveryLead === deliveryLeadFilter;
-
-    return matchesSearch && matchesStage && matchesClient && matchesType && matchesDeliveryLead;
-  }).sort((a, b) => {
-    // Define stage order for sorting
-    const stageOrder = {
-      "Payment Pending": 1,
-      "Client Input Pending": 2,
-      "Input in Review": 3,
-      "In Delivery": 4,
-      "Deliverables Pending Review": 5,
-      "Closed": 6,
-    };
-    
-    // Sort by stage order first
-    const stageComparison = stageOrder[a.stage] - stageOrder[b.stage];
-    if (stageComparison !== 0) return stageComparison;
-    
-    // If same stage, sort by start date (newest first)
-    return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
-  });
+      return matchesSearch && matchesStage && matchesType;
+    })
+    .sort((a, b) => {
+      // Sort by stage order first
+      const stageComparison = stageOrder[a.stage] - stageOrder[b.stage];
+      if (stageComparison !== 0) return stageComparison;
+      
+      // If same stage, sort by start date (newest first)
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+    });
 
   const getStageColor = (stage: string) => {
     switch (stage) {
@@ -96,16 +88,22 @@ const ServiceOrders = () => {
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "Design":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "Deploy":
-        return "bg-purple-100 text-purple-800 border-purple-200";
-      case "Drive":
-        return "bg-green-100 text-green-800 border-green-200";
+  const getStageIcon = (stage: string) => {
+    switch (stage) {
+      case "Payment Pending":
+        return <AlertCircle size={16} className="text-yellow-600" />;
+      case "Client Input Pending":
+        return <Clock size={16} className="text-orange-600" />;
+      case "Input in Review":
+        return <FileText size={16} className="text-blue-600" />;
+      case "In Delivery":
+        return <Clock size={16} className="text-purple-600" />;
+      case "Deliverables Pending Review":
+        return <FileText size={16} className="text-cyan-600" />;
+      case "Closed":
+        return <CheckCircle2 size={16} className="text-green-600" />;
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return <FileText size={16} className="text-gray-600" />;
     }
   };
 
@@ -118,28 +116,96 @@ const ServiceOrders = () => {
     "Closed",
   ];
 
-  const hasActiveFilters = stageFilter !== "all" || clientFilter !== "all" || typeFilter !== "all" || deliveryLeadFilter !== "all" || searchQuery !== "";
+  const hasActiveFilters = stageFilter !== "all" || typeFilter !== "all" || searchQuery !== "";
 
   const clearAllFilters = () => {
     setSearchQuery("");
     setStageFilter("all");
-    setClientFilter("all");
     setTypeFilter("all");
-    setDeliveryLeadFilter("all");
   };
+
+  // Calculate summary stats
+  const stats = useMemo(() => {
+    return {
+      total: customerOrders.length,
+      active: customerOrders.filter(
+        (o) => !["Closed", "Payment Pending"].includes(o.stage)
+      ).length,
+      pendingAction: customerOrders.filter((o) =>
+        ["Client Input Pending", "Deliverables Pending Review"].includes(o.stage)
+      ).length,
+      completed: customerOrders.filter((o) => o.stage === "Closed").length,
+    };
+  }, [customerOrders]);
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Service Orders</h1>
-            <p className="text-muted-foreground mt-2">
-              {filteredOrders.length} {filteredOrders.length === 1 ? "order" : "orders"}
-              {hasActiveFilters && ` (filtered from ${mockOrders.length} total)`}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Service Orders</h1>
+          <p className="text-muted-foreground mt-2">
+            Track and manage your service engagements with DQ
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Orders</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                  <FileText size={24} className="text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Active</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.active}</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+                  <Clock size={24} className="text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Pending Action</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.pendingAction}</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center">
+                  <AlertCircle size={24} className="text-orange-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Completed</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.completed}</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                  <CheckCircle2 size={24} className="text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Filters */}
@@ -155,9 +221,21 @@ const ServiceOrders = () => {
                 className="pl-9"
               />
             </div>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full sm:w-56">
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="Design">Design</SelectItem>
+                <SelectItem value="Deploy (SaaS)">Deploy (SaaS)</SelectItem>
+                <SelectItem value="Deploy (OnPrem)">Deploy (OnPrem)</SelectItem>
+                <SelectItem value="Drive">Drive</SelectItem>
+              </SelectContent>
+            </Select>
             <Select value={stageFilter} onValueChange={setStageFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Stage" />
+              <SelectTrigger className="w-full sm:w-56">
+                <SelectValue placeholder="Filter by stage" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Stages</SelectItem>
@@ -168,48 +246,9 @@ const ServiceOrders = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={clientFilter} onValueChange={setClientFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Client" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Clients</SelectItem>
-                {uniqueClients.map((client) => (
-                  <SelectItem key={client} value={client}>
-                    {client}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                {uniqueTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={deliveryLeadFilter} onValueChange={setDeliveryLeadFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Delivery Lead" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Delivery Leads</SelectItem>
-                {uniqueDeliveryLeads.map((lead) => (
-                  <SelectItem key={lead} value={lead}>
-                    {lead}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
-          {/* Active Filters & Clear Button */}
+          {/* Active Filters */}
           {hasActiveFilters && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Active filters:</span>
@@ -223,26 +262,6 @@ const ServiceOrders = () => {
                   />
                 </Badge>
               )}
-              {stageFilter !== "all" && (
-                <Badge variant="secondary" className="gap-1">
-                  Stage: {stageFilter}
-                  <X
-                    size={14}
-                    className="cursor-pointer hover:text-foreground"
-                    onClick={() => setStageFilter("all")}
-                  />
-                </Badge>
-              )}
-              {clientFilter !== "all" && (
-                <Badge variant="secondary" className="gap-1">
-                  Client: {clientFilter}
-                  <X
-                    size={14}
-                    className="cursor-pointer hover:text-foreground"
-                    onClick={() => setClientFilter("all")}
-                  />
-                </Badge>
-              )}
               {typeFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
                   Type: {typeFilter}
@@ -253,13 +272,13 @@ const ServiceOrders = () => {
                   />
                 </Badge>
               )}
-              {deliveryLeadFilter !== "all" && (
+              {stageFilter !== "all" && (
                 <Badge variant="secondary" className="gap-1">
-                  Lead: {deliveryLeadFilter}
+                  Stage: {stageFilter}
                   <X
                     size={14}
                     className="cursor-pointer hover:text-foreground"
-                    onClick={() => setDeliveryLeadFilter("all")}
+                    onClick={() => setStageFilter("all")}
                   />
                 </Badge>
               )}
@@ -297,7 +316,7 @@ const ServiceOrders = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
               >
-                <Link to={`/dashboard/orders/${order.id}`}>
+                <Link to={`/dashboard/customer/orders/${order.id}`}>
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
@@ -306,11 +325,11 @@ const ServiceOrders = () => {
                             <h3 className="text-lg font-semibold text-foreground">
                               {order.serviceName}
                             </h3>
-                            <Badge className={`text-xs border ${getTypeColor(order.serviceType)}`}>
-                              {order.serviceType}
-                            </Badge>
                             <Badge className={`text-xs border ${getStageColor(order.stage)}`}>
-                              {order.stage}
+                              <span className="flex items-center gap-1">
+                                {getStageIcon(order.stage)}
+                                {order.stage}
+                              </span>
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">{order.serviceOrderNumber}</p>
@@ -325,18 +344,24 @@ const ServiceOrders = () => {
 
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-border">
                         <div className="flex items-center gap-2 text-sm">
-                          <Building2 size={16} className="text-muted-foreground" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">Client</p>
-                            <p className="font-medium text-foreground">{order.clientOrganisation}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm">
                           <Calendar size={16} className="text-muted-foreground" />
                           <div>
                             <p className="text-xs text-muted-foreground">Start Date</p>
                             <p className="font-medium text-foreground">
                               {new Date(order.startDate).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Calendar size={16} className="text-muted-foreground" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">End Date</p>
+                            <p className="font-medium text-foreground">
+                              {new Date(order.endDate).toLocaleDateString("en-US", {
                                 month: "short",
                                 day: "numeric",
                                 year: "numeric",
@@ -381,4 +406,4 @@ const ServiceOrders = () => {
   );
 };
 
-export default ServiceOrders;
+export default CustomerServiceOrders;
