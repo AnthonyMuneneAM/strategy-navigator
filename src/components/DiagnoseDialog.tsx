@@ -4,6 +4,7 @@ import { X, ArrowRight, Sparkles, Send, ExternalLink, User } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { mockedRecommendations, mockedFAQs, mockedEscalation, teamHandoff } from "@/data/butlerAI";
+import { useNavigate } from "react-router-dom";
 
 interface DiagnoseDialogProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
   const [isHandedOff, setIsHandedOff] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -446,15 +448,33 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     
     // Handle "Explore [service name]" options
     if (option.startsWith("Explore ")) {
-      // Just close the dialog, don't navigate
       onClose();
+      // Navigate to service detail page after closing
+      setTimeout(() => {
+        const serviceName = option.replace("Explore ", "");
+        let serviceUrl = "/marketplace";
+        
+        if (serviceName.includes("Digital Experience")) {
+          serviceUrl = "/service/1";
+        } else if (serviceName.includes("DWS")) {
+          serviceUrl = "/service/2";
+        } else if (serviceName.includes("DI&A") || serviceName.includes("Intelligence")) {
+          serviceUrl = "/service/3";
+        } else if (serviceName.includes("SecDevOps")) {
+          serviceUrl = "/service/4";
+        }
+        
+        navigate(serviceUrl);
+      }, 100);
       return;
     }
     
     // Handle "Show me all services"
     if (option === "Show me all services" || option === "Show me the services" || option === "Explore the services") {
-      // Just close the dialog, don't navigate
       onClose();
+      setTimeout(() => {
+        navigate("/marketplace");
+      }, 100);
       return;
     }
     
@@ -508,7 +528,9 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     // Handle "Get Started" - only this one navigates
     if (option === "Get Started") {
       onClose();
-      window.location.href = "/sign-in";
+      setTimeout(() => {
+        navigate("/sign-in");
+      }, 100);
       return;
     }
     
@@ -528,8 +550,11 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
 
   const handleLinkClick = (url: string) => {
     if (url.startsWith("/")) {
-      // Don't navigate, just close dialog
+      // Close dialog and navigate using React Router
       onClose();
+      setTimeout(() => {
+        navigate(url);
+      }, 100);
     } else if (url.startsWith("mailto:")) {
       // Open email in new window/tab
       window.open(url, '_blank');
