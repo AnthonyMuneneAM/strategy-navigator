@@ -180,21 +180,18 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       if (contactFormStep === 1) {
         // Collecting name
         setContactFormData(prev => ({ ...prev, name: message }));
-        addUserMessage(message);
         setContactFormStep(2);
         addAIMessage("Great! What's your email address?");
         return;
       } else if (contactFormStep === 2) {
         // Collecting email
         setContactFormData(prev => ({ ...prev, email: message }));
-        addUserMessage(message);
         setContactFormStep(3);
         addAIMessage("Perfect! What would you like to discuss with our team?");
         return;
       } else if (contactFormStep === 3) {
         // Collecting reason
         setContactFormData(prev => ({ ...prev, reason: message }));
-        addUserMessage(message);
         setContactFormStep(4);
         setShowContactForm(false);
         
@@ -215,6 +212,20 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       }
     }
     
+    // Check for contact request phrases (typed as free text)
+    const lowerMessage = message.toLowerCase();
+    if (lowerMessage.includes("talk to the team") || 
+        lowerMessage.includes("contact the team") || 
+        lowerMessage.includes("speak to someone") ||
+        lowerMessage.includes("talk to someone") ||
+        lowerMessage.includes("contact support") ||
+        lowerMessage.includes("reach out to team")) {
+      setShowContactForm(true);
+      setContactFormStep(1);
+      addAIMessage("I'd be happy to connect you with our team. What's your name?");
+      return;
+    }
+    
     // Check if it's an FAQ
     if (handleFAQ(message)) {
       setUnresolvedCount(0);
@@ -224,14 +235,11 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     // Increment unresolved count
     setUnresolvedCount(prev => prev + 1);
     
-    // After 3 unresolved queries, show escalation
+    // After 3 unresolved queries, show escalation with contact form
     if (unresolvedCount >= 2) {
       addAIMessage(
-        mockedEscalation.message,
-        undefined,
-        [
-          { text: `Contact ${mockedEscalation.contact.name}`, url: `mailto:${mockedEscalation.contact.email}`, icon: ExternalLink }
-        ]
+        "I wasn't able to find a clear answer for that. Would you like me to connect you with the TMaaS team?",
+        ["Contact the team", "Try asking something else"]
       );
       setUnresolvedCount(0);
     } else {
