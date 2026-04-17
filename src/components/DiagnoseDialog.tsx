@@ -206,7 +206,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         });
         
         addAIMessage(
-          `Thank you, ${contactFormData.name}! Our team will review your request and get back to you at ${contactFormData.email} soon.`
+          `Thank you, ${contactFormData.name}! Our team will review your request and get back to you at ${contactFormData.email} within 24 hours.`
         );
         return;
       }
