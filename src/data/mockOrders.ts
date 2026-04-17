@@ -71,7 +71,7 @@ export interface ServiceOrder {
   price: number;
   currency: string;
   duration: string;
-  stage: "Payment Pending" | "Client Input Pending" | "Input in Review" | "In Delivery" | "Closed";
+  stage: "Payment Pending" | "Client Input Pending" | "Input in Review" | "In Delivery" | "Deliverables Pending Review" | "Closed";
   deliveryLead: string;
   inputs: ServiceInput[];
   deliverables: ServiceDeliverable[];
