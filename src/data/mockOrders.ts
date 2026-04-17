@@ -23,11 +23,40 @@ export interface ServiceDeliverable {
   id: string;
   name: string;
   description: string;
-  status: "In Progress" | "Submitted" | "Under Review" | "Accepted";
+  status: "Not Started" | "In Progress" | "Submitted" | "Under Review" | "Accepted";
   attachments?: DeliverableAttachment[];
   submissionDate?: string;
   reviewDeadline?: string; // 5 days from submission
   clientFeedback?: string;
+  acceptedBy?: string; // User who accepted
+  acceptedDate?: string;
+}
+
+export interface SessionAttendee {
+  name: string;
+  role: string;
+  organization: string;
+}
+
+export interface ServiceSession {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  duration: number; // in minutes
+  status: "Scheduled" | "Completed" | "Cancelled";
+  meetingLink?: string;
+  attendees?: SessionAttendee[];
+  notes?: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  timestamp: string;
+  user: string;
+  action: string;
+  details: string;
+  type: "input" | "deliverable" | "payment" | "session" | "message";
 }
 
 export interface ServiceOrder {
@@ -38,24 +67,34 @@ export interface ServiceOrder {
   serviceType: "Design" | "Deploy" | "Drive";
   clientOrganisation: string;
   startDate: string;
+  endDate: string;
   price: number;
   currency: string;
   duration: string;
-  stage: "Payment Pending" | "Client Input Pending" | "Input in Review" | "In Delivery" | "Deliverables Pending Review" | "Closed";
+  stage: "Payment Pending" | "Client Input Pending" | "Input in Review" | "In Delivery" | "Closed";
   deliveryLead: string;
   inputs: ServiceInput[];
   deliverables: ServiceDeliverable[];
+  sessions?: ServiceSession[];
+  auditLog?: AuditLogEntry[];
+  permissions?: {
+    canAcceptDeliverables: boolean;
+    canSubmitInputs: boolean;
+    canRequestSessions: boolean;
+    canViewCommercials: boolean;
+  };
 }
 
 export const mockOrders: ServiceOrder[] = [
   {
     id: "SO-001",
-    serviceOrderNumber: "SO-2026-001",
+    serviceOrderNumber: "DEWA-SO-001",
     serviceName: "Enterprise Architecture Strategy (Vision) - Design",
     serviceCode: "S01",
     serviceType: "Design",
     clientOrganisation: "Dubai Electricity & Water Authority",
     startDate: "2026-02-01",
+    endDate: "2026-03-15",
     price: 155100.0,
     currency: "AED",
     duration: "6 Weeks",
@@ -145,12 +184,13 @@ export const mockOrders: ServiceOrder[] = [
   },
   {
     id: "SO-002",
-    serviceOrderNumber: "SO-2026-002",
+    serviceOrderNumber: "DEWA-SO-002",
     serviceName: "Target Business Capabilities Canvas",
     serviceCode: "SO02",
     serviceType: "Design",
     clientOrganisation: "Dubai Electricity & Water Authority",
     startDate: "2026-03-01",
+    endDate: "2026-04-26",
     price: 281100.0,
     currency: "AED",
     duration: "8 Weeks",
@@ -203,6 +243,7 @@ export const mockOrders: ServiceOrder[] = [
           },
         ],
         submissionDate: "2026-03-15",
+        reviewDeadline: "2026-03-20",
       },
       {
         id: "DEL-004",
@@ -238,15 +279,97 @@ export const mockOrders: ServiceOrder[] = [
         status: "In Progress",
       },
     ],
+    sessions: [
+      {
+        id: "SES-001",
+        title: "Kickoff Meeting",
+        description: "Initial project kickoff and requirements review",
+        date: "2026-03-05T10:00:00",
+        duration: 45,
+        status: "Completed",
+        attendees: [
+          { name: "Ahmed Al Tayer", role: "Chief Digital & Innovation Officer", organization: "DEWA" },
+          { name: "Rayyan Basha", role: "Delivery Lead", organization: "DQ" },
+          { name: "Sarah Johnson", role: "Solution Architect", organization: "DQ" },
+        ],
+        notes: "Discussed project scope, timeline, and key deliverables. Client emphasized importance of integration with existing systems. Next steps: Client to provide access credentials and documentation.",
+      },
+      {
+        id: "SES-002",
+        title: "Mid-Engagement Review",
+        description: "Review progress and align on next steps",
+        date: "2026-04-17T14:00:00",
+        duration: 60,
+        status: "Scheduled",
+        meetingLink: "https://meet.google.com/abc-defg-hij",
+      },
+    ],
+    auditLog: [
+      {
+        id: "AUD-001",
+        timestamp: "2026-03-15T09:23:00",
+        user: "Rayyan Basha",
+        action: "Deliverable Submitted",
+        details: "Submitted 'Practice Strategy Summary Report' for review",
+        type: "deliverable",
+      },
+      {
+        id: "AUD-002",
+        timestamp: "2026-03-12T14:45:00",
+        user: "Rayyan Basha",
+        action: "Deliverable Updated",
+        details: "Updated 'Practice Playbook Report' with new content",
+        type: "deliverable",
+      },
+      {
+        id: "AUD-003",
+        timestamp: "2026-03-06T11:20:00",
+        user: "Ahmed Al Tayer",
+        action: "Input Submitted",
+        details: "Submitted 'Current State Assessment'",
+        type: "input",
+      },
+      {
+        id: "AUD-004",
+        timestamp: "2026-03-05T16:30:00",
+        user: "Ahmed Al Tayer",
+        action: "Input Submitted",
+        details: "Submitted 'Business Vision'",
+        type: "input",
+      },
+      {
+        id: "AUD-005",
+        timestamp: "2026-03-05T10:00:00",
+        user: "System",
+        action: "Session Completed",
+        details: "Kickoff Meeting completed",
+        type: "session",
+      },
+      {
+        id: "AUD-006",
+        timestamp: "2026-03-01T08:00:00",
+        user: "Ahmed Al Tayer",
+        action: "Payment Confirmed",
+        details: "Payment of AED 281,100 confirmed",
+        type: "payment",
+      },
+    ],
+    permissions: {
+      canAcceptDeliverables: true,
+      canSubmitInputs: true,
+      canRequestSessions: true,
+      canViewCommercials: true,
+    },
   },
   {
     id: "SO-003",
-    serviceOrderNumber: "SO-2026-003",
+    serviceOrderNumber: "DEWA-SO-003",
     serviceName: "Enterprise Architecture Operating Model",
     serviceCode: "SO03",
     serviceType: "Design",
     clientOrganisation: "Dubai Electricity & Water Authority",
     startDate: "2026-04-01",
+    endDate: "2026-05-27",
     price: 180000.0,
     currency: "AED",
     duration: "8 Weeks",
@@ -281,46 +404,47 @@ export const mockOrders: ServiceOrder[] = [
         id: "DEL-008",
         name: "Practice Strategy Summary Report",
         description: "Presentation Report",
-        status: "In Progress",
+        status: "Not Started",
       },
       {
         id: "DEL-009",
         name: "Practice Playbook Report",
         description: "Presentation Report",
-        status: "In Progress",
+        status: "Not Started",
       },
       {
         id: "DEL-010",
         name: "Practice Function Map",
         description: "Architecture Model",
-        status: "In Progress",
+        status: "Not Started",
       },
       {
         id: "DEL-011",
         name: "Practice Function Catalog",
         description: "Excel Workbook",
-        status: "In Progress",
+        status: "Not Started",
       },
       {
         id: "DEL-012",
         name: "Operating Model Templates",
         description: "Excel, Word or Powerpoint",
-        status: "In Progress",
+        status: "Not Started",
       },
     ],
   },
   {
     id: "SO-004",
-    serviceOrderNumber: "SO-2026-004",
+    serviceOrderNumber: "DEWA-SO-004",
     serviceName: "Current Assets Portfolio (Baseline)",
     serviceCode: "SO04",
     serviceType: "Design",
     clientOrganisation: "Dubai Electricity & Water Authority",
     startDate: "2026-01-15",
+    endDate: "2026-04-09",
     price: 333100.0,
     currency: "AED",
     duration: "12 Weeks",
-    stage: "Deliverables Pending Review",
+    stage: "In Delivery",
     deliveryLead: "David Kumar",
     inputs: [
       {
@@ -539,12 +663,13 @@ export const mockOrders: ServiceOrder[] = [
   },
   {
     id: "SO-005",
-    serviceOrderNumber: "SO-2026-005",
+    serviceOrderNumber: "DEWA-SO-005",
     serviceName: "Current Assets Portfolio (Assessment)",
     serviceCode: "SO05",
     serviceType: "Design",
     clientOrganisation: "Dubai Electricity & Water Authority",
     startDate: "2025-12-01",
+    endDate: "2026-02-23",
     price: 205500.0,
     currency: "AED",
     duration: "12 Weeks",
@@ -698,12 +823,13 @@ export const mockOrders: ServiceOrder[] = [
   },
   {
     id: "SO-006",
-    serviceOrderNumber: "SO-2026-006",
+    serviceOrderNumber: "DEWA-SO-006",
     serviceName: "Initiatives Backlog & Roadmap Design",
     serviceCode: "SO06",
     serviceType: "Design",
     clientOrganisation: "Dubai Electricity & Water Authority",
     startDate: "2026-05-01",
+    endDate: "2026-07-24",
     price: 227400.0,
     currency: "AED",
     duration: "12 Weeks",

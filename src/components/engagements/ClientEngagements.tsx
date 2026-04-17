@@ -8,11 +8,14 @@ import {
   Search,
   Filter,
   SearchX,
-  Activity
+  Activity,
+  Package
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
+// Active services are only for STC Bank (legacy projects)
 const activeServices = [
   {
     id: 1,
@@ -24,6 +27,7 @@ const activeServices = [
     status: "In Delivery",
     health: "On Track",
     requestedDate: "Jan 15, 2026",
+    organization: "STC Bank",
   },
   {
     id: 2,
@@ -35,6 +39,7 @@ const activeServices = [
     status: "Awaiting Payment",
     health: "Pending",
     requestedDate: "Jan 22, 2026",
+    organization: "STC Bank",
   },
   {
     id: 3,
@@ -46,15 +51,22 @@ const activeServices = [
     status: "In Delivery",
     health: "On Track",
     requestedDate: "Feb 1, 2026",
+    organization: "STC Bank",
   },
 ];
 
 const ClientEngagements = () => {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All Types");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
 
-  const filteredServices = activeServices.filter((service) => {
+  // Filter services by organization first
+  const organizationServices = activeServices.filter(
+    (service) => service.organization === user.organization
+  );
+
+  const filteredServices = organizationServices.filter((service) => {
     const matchesSearch = 
       service.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
       service.reference.toLowerCase().includes(searchQuery.toLowerCase());
@@ -63,6 +75,8 @@ const ClientEngagements = () => {
     
     return matchesSearch && matchesType && matchesStatus;
   });
+
+  const hasFilters = searchQuery !== "" || typeFilter !== "All Types" || statusFilter !== "All Statuses";
 
   const getStatusColor = (status: string) => {
     switch(status) {
@@ -142,7 +156,25 @@ const ClientEngagements = () => {
 
         {/* Engagements List */}
         <div className="space-y-4">
-          {filteredServices.length === 0 ? (
+          {organizationServices.length === 0 ? (
+            // Empty state for organizations with no active engagements (e.g., DEWA)
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16 text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-muted-foreground">
+                <Package size={24} />
+              </div>
+              <h3 className="mb-1 text-lg font-semibold text-foreground">No active engagements</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                You don't have any active engagements at the moment. Check Service Orders for your current projects.
+              </p>
+              <Link to="/dashboard/customer/orders">
+                <Button className="mt-6 gap-2">
+                  View Service Orders
+                  <ArrowRight size={16} />
+                </Button>
+              </Link>
+            </div>
+          ) : filteredServices.length === 0 ? (
+            // Empty state when filters don't match
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16 text-center">
               <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-muted-foreground">
                 <SearchX size={24} />

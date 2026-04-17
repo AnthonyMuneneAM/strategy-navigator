@@ -19,9 +19,14 @@ import {
   Clock,
   User,
   Mail,
+  ExternalLink,
+  Shield,
+  Lock,
+  MessageCircle,
+  Building2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 interface ServiceRequestDialogProps {
   open: boolean;
@@ -50,7 +55,7 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
   const [billingEmail, setBillingEmail] = useState("");
   const navigate = useNavigate();
 
-  const totalSteps = 5;
+  const totalSteps = 3;
   const basePrice = parseInt(service.price.replace(/[^0-9]/g, "")) * 1000;
   const tax = basePrice * 0.1; // 10% tax
   const total = basePrice + tax;
@@ -75,9 +80,8 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
   };
 
   const canProceed = () => {
-    if (step === 2) return inputsAcknowledged;
-    if (step === 4) return termsAccepted;
-    if (step === 5) {
+    if (step === 2) return inputsAcknowledged && termsAccepted;
+    if (step === 3) {
       if (paymentMethod === "card") {
         return cardNumber && cardExpiry && cardCVC && cardName && billingEmail;
       }
@@ -92,14 +96,14 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
         <DialogHeader>
           <DialogTitle className="text-2xl">Request Service</DialogTitle>
           <div className="mt-4 flex items-center justify-center gap-2">
-            {[1, 2, 3, 4, 5].map((s) => (
+            {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center">
                 <div
                   className={`h-2 w-2 rounded-full ${
                     s <= step ? "bg-primary" : "bg-border"
                   }`}
                 ></div>
-                {s < 5 && (
+                {s < 3 && (
                   <div
                     className={`h-0.5 w-8 ${
                       s < step ? "bg-primary" : "bg-border"
@@ -115,7 +119,7 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
         </DialogHeader>
 
         <AnimatePresence mode="wait">
-          {/* Step 1: Service Summary */}
+          {/* Step 1: Service Summary + Required Inputs */}
           {step === 1 && (
             <motion.div
               key="step1"
@@ -192,13 +196,70 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
                     </div>
                   </div>
                 </div>
+
+                {/* Required Inputs Section */}
+                <div className="mt-6">
+                  <h3 className="mb-4 text-lg font-semibold text-foreground">Required Inputs</h3>
+                  
+                  <div className="mb-4 rounded-lg bg-blue-500/10 p-4">
+                    <div className="flex gap-3">
+                      <FileText size={20} className="mt-0.5 shrink-0 text-blue-600" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          To initiate this service, you'll need to provide specific inputs as outlined below.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {[
+                      {
+                        title: "Business Vision",
+                        items: ["Corporate strategy", "Business model", "Value streams"],
+                      },
+                      {
+                        title: "Enterprise Assets",
+                        items: ["Business capabilities", "Data architecture", "Application portfolio"],
+                      },
+                      {
+                        title: "Experience Assets",
+                        items: ["Customer segments", "Journeys", "Touchpoints"],
+                      },
+                      {
+                        title: "Transformation Portfolio",
+                        items: ["Roadmaps", "Active initiatives", "Requirements"],
+                      },
+                    ].map((category) => (
+                      <div key={category.title} className="rounded-lg border border-border bg-card p-4">
+                        <h4 className="mb-2 font-semibold text-sm text-foreground">{category.title}</h4>
+                        <ul className="space-y-1">
+                          {category.items.map((item) => (
+                            <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <div className="h-1 w-1 rounded-full bg-primary"></div>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 rounded-lg border border-border bg-accent/30 p-4">
+                    <div className="flex gap-3">
+                      <Clock size={20} className="mt-0.5 shrink-0 text-muted-foreground" />
+                      <p className="text-sm text-foreground">
+                        <strong>Timeline:</strong> Delivery will commence within 3-5 business days following
+                        confirmation that required inputs meet minimum completeness standards.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}
 
-          {/* Additional steps will be added in the next part */}
-          
-          {/* Step 2: Required Inputs Disclosure */}
+          {/* Step 2: Terms, Quality Standards & Refund Policy */}
           {step === 2 && (
             <motion.div
               key="step2"
@@ -208,81 +269,118 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
               className="space-y-6 py-4"
             >
               <div>
-                <h3 className="mb-4 text-lg font-semibold text-foreground">Required Inputs</h3>
-                
-                <div className="mb-6 rounded-lg bg-blue-500/10 p-4">
-                  <div className="flex gap-3">
-                    <FileText size={20} className="mt-0.5 shrink-0 text-blue-600" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        To initiate this service, you will be required to provide specific inputs as outlined below.
-                      </p>
+                <h3 className="mb-4 text-lg font-semibold text-foreground">
+                  Service Agreement & Quality Standards
+                </h3>
+
+                {/* Input Quality & Evaluation - Always Visible */}
+                <div className="mb-6 rounded-xl border border-border bg-card p-6">
+                  <h4 className="mb-3 font-semibold text-foreground">Input Quality & Evaluation</h4>
+                  <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                    To ensure successful service delivery, DQ will evaluate the completeness and quality of
+                    submitted inputs against defined criteria.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 rounded-lg bg-accent/30 p-4">
+                      <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-green-600" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Minimum Threshold</p>
+                        <p className="text-sm text-muted-foreground">
+                          Service initiation requires at least 75% completeness against defined criteria.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 rounded-lg bg-accent/30 p-4">
+                      <AlertCircle size={20} className="mt-0.5 shrink-0 text-orange-600" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Evaluation Process</p>
+                        <p className="text-sm text-muted-foreground">
+                          Your assigned delivery lead will review submitted inputs within 2 business days and
+                          provide feedback if additional information is needed.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 rounded-lg bg-accent/30 p-4">
+                      <User size={20} className="mt-0.5 shrink-0 text-blue-600" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Collaborative Approach</p>
+                        <p className="text-sm text-muted-foreground">
+                          If completeness threshold is not met, your delivery lead will work with you to
+                          identify and gather the necessary information before engagement commences.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
+                {/* Refund Policy - Always Visible */}
+                <div className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-6">
+                  <h4 className="mb-2 font-semibold text-foreground">Refund Policy</h4>
+                  <p className="text-sm leading-relaxed text-foreground">
+                    If the engagement does not commence due to insufficient input completeness and you choose
+                    not to provide additional information, you may request a refund. The refund will be
+                    processed less a 5% administrative fee to cover evaluation and setup costs.
+                  </p>
+                </div>
+
+                {/* Combined Acknowledgment */}
                 <div className="space-y-4">
-                  {[
-                    {
-                      title: "Business Vision",
-                      items: ["Corporate strategy", "Business model", "Value streams"],
-                    },
-                    {
-                      title: "Enterprise Assets",
-                      items: ["Business capabilities", "Data architecture", "Application portfolio"],
-                    },
-                    {
-                      title: "Experience Assets",
-                      items: ["Customer segments", "Journeys", "Touchpoints"],
-                    },
-                    {
-                      title: "Transformation Portfolio",
-                      items: ["Roadmaps", "Active initiatives", "Requirements"],
-                    },
-                  ].map((category) => (
-                    <div key={category.title} className="rounded-lg border border-border bg-card p-4">
-                      <h4 className="mb-2 font-semibold text-foreground">{category.title}</h4>
-                      <ul className="space-y-1">
-                        {category.items.map((item) => (
-                          <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <div className="h-1 w-1 rounded-full bg-primary"></div>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6 rounded-lg border border-border bg-accent/30 p-4">
-                  <div className="flex gap-3">
-                    <Clock size={20} className="mt-0.5 shrink-0 text-muted-foreground" />
-                    <p className="text-sm text-foreground">
-                      <strong>Timeline:</strong> Delivery will commence within 3-5 business days following
-                      confirmation that required inputs meet minimum completeness standards.
-                    </p>
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      id="inputs-acknowledged"
+                      checked={inputsAcknowledged}
+                      onCheckedChange={(checked) => setInputsAcknowledged(checked as boolean)}
+                    />
+                    <label
+                      htmlFor="inputs-acknowledged"
+                      className="text-sm text-foreground cursor-pointer"
+                    >
+                      I understand the required inputs and quality evaluation process for service delivery.
+                    </label>
                   </div>
-                </div>
 
-                <div className="mt-6 flex items-start gap-3">
-                  <Checkbox
-                    id="inputs-acknowledged"
-                    checked={inputsAcknowledged}
-                    onCheckedChange={(checked) => setInputsAcknowledged(checked as boolean)}
-                  />
-                  <label
-                    htmlFor="inputs-acknowledged"
-                    className="text-sm text-foreground cursor-pointer"
-                  >
-                    I understand that I will need to provide the required inputs listed above to initiate
-                    service delivery.
-                  </label>
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      id="terms-accepted"
+                      checked={termsAccepted}
+                      onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                    />
+                    <label
+                      htmlFor="terms-accepted"
+                      className="text-sm text-foreground cursor-pointer"
+                    >
+                      I agree to the{" "}
+                      <Link 
+                        to="/legal/terms" 
+                        target="_blank"
+                        className="text-primary hover:underline inline-flex items-center gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Terms of Service
+                        <ExternalLink size={12} />
+                      </Link>
+                      {" "}and{" "}
+                      <Link 
+                        to="/legal/privacy" 
+                        target="_blank"
+                        className="text-primary hover:underline inline-flex items-center gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Privacy Policy
+                        <ExternalLink size={12} />
+                      </Link>
+                      .
+                    </label>
+                  </div>
                 </div>
               </div>
             </motion.div>
           )}
 
-          {/* Step 3: Input Quality & Evaluation */}
+          {/* Step 3: Payment */}
           {step === 3 && (
             <motion.div
               key="step3"
@@ -292,160 +390,32 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
               className="space-y-6 py-4"
             >
               <div>
-                <h3 className="mb-4 text-lg font-semibold text-foreground">
-                  Input Quality & Evaluation
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="rounded-xl border border-border bg-card p-6">
-                    <h4 className="mb-3 font-semibold text-foreground">Completeness Requirements</h4>
-                    <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-                      To ensure successful service delivery, DQ will evaluate the completeness and quality of
-                      submitted inputs against defined criteria.
-                    </p>
-
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3 rounded-lg bg-accent/30 p-4">
-                        <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-green-600" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Minimum Threshold</p>
-                          <p className="text-sm text-muted-foreground">
-                            Service initiation requires at least 75% completeness against defined criteria.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3 rounded-lg bg-accent/30 p-4">
-                        <AlertCircle size={20} className="mt-0.5 shrink-0 text-orange-600" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Evaluation Process</p>
-                          <p className="text-sm text-muted-foreground">
-                            Your assigned delivery lead will review submitted inputs within 2 business days and
-                            provide feedback if additional information is needed.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3 rounded-lg bg-accent/30 p-4">
-                        <User size={20} className="mt-0.5 shrink-0 text-blue-600" />
-                        <div>
-                          <p className="text-sm font-medium text-foreground">Collaborative Approach</p>
-                          <p className="text-sm text-muted-foreground">
-                            If completeness threshold is not met, your delivery lead will work with you to
-                            identify and gather the necessary information before engagement commences.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-primary/20 bg-primary/5 p-6">
-                    <h4 className="mb-2 font-semibold text-foreground">Refund Policy</h4>
-                    <p className="text-sm leading-relaxed text-foreground">
-                      If the engagement does not commence due to insufficient input completeness and you choose
-                      not to provide additional information, you may request a refund. The refund will be
-                      processed less a 5% administrative fee to cover evaluation and setup costs.
-                    </p>
+                <div className="mb-6 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-foreground">Payment</h3>
+                  
+                  {/* Trust Signals - Security Badge */}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Lock size={14} className="text-green-600" />
+                    <span>Secure checkout powered by</span>
+                    <span className="font-semibold text-foreground">Stripe</span>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
 
-          {/* Step 4: Terms & Conditions */}
-          {step === 4 && (
-            <motion.div
-              key="step4"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6 py-4"
-            >
-              <div>
-                <h3 className="mb-4 text-lg font-semibold text-foreground">Terms & Conditions</h3>
-
-                <div className="max-h-96 overflow-y-auto rounded-xl border border-border bg-accent/30 p-6">
-                  <div className="space-y-4 text-sm text-foreground">
+                {/* Social Proof Banner */}
+                <div className="mb-6 rounded-lg border border-border bg-gradient-to-r from-blue-500/5 to-purple-500/5 p-4">
+                  <div className="flex items-start gap-3">
+                    <Building2 size={20} className="mt-0.5 shrink-0 text-primary" />
                     <div>
-                      <h4 className="mb-2 font-semibold">1. Service Delivery</h4>
-                      <p className="leading-relaxed text-muted-foreground">
-                        DQ will deliver the requested service in accordance with the specifications outlined in
-                        the service description. Delivery timelines commence upon validation of required inputs.
+                      <p className="text-sm font-medium text-foreground">
+                        Join 50+ organizations transforming with DQ
                       </p>
-                    </div>
-
-                    <div>
-                      <h4 className="mb-2 font-semibold">2. Client Responsibilities</h4>
-                      <p className="leading-relaxed text-muted-foreground">
-                        The client agrees to provide required inputs, participate in scheduled workshops and
-                        reviews, and designate appropriate stakeholders for engagement activities.
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="mb-2 font-semibold">3. Intellectual Property</h4>
-                      <p className="leading-relaxed text-muted-foreground">
-                        All deliverables created specifically for the client become the property of the client
-                        upon full payment. DQ retains rights to methodologies, frameworks, and reusable
-                        components.
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="mb-2 font-semibold">4. Payment Terms</h4>
-                      <p className="leading-relaxed text-muted-foreground">
-                        Payment is due upon order confirmation. For invoice payments, net 30 terms apply.
-                        Services will not commence until payment is received or credit terms are established.
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="mb-2 font-semibold">5. Cancellation & Refunds</h4>
-                      <p className="leading-relaxed text-muted-foreground">
-                        Cancellations made before service commencement are eligible for refund less 5%
-                        administrative fee. Once delivery has commenced, refunds are prorated based on work
-                        completed.
-                      </p>
-                    </div>
-
-                    <div>
-                      <h4 className="mb-2 font-semibold">6. Confidentiality</h4>
-                      <p className="leading-relaxed text-muted-foreground">
-                        Both parties agree to maintain confidentiality of proprietary information shared during
-                        the engagement. Standard NDA terms apply.
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        "DQ's strategic guidance helped us accelerate our digital transformation by 6 months." 
+                        <span className="font-medium"> — CTO, Fortune 500 Energy Company</span>
                       </p>
                     </div>
                   </div>
                 </div>
-
-                <div className="mt-6 flex items-start gap-3">
-                  <Checkbox
-                    id="terms-accepted"
-                    checked={termsAccepted}
-                    onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                  />
-                  <label
-                    htmlFor="terms-accepted"
-                    className="text-sm text-foreground cursor-pointer"
-                  >
-                    I have read and agree to the Terms & Conditions outlined above.
-                  </label>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Step 5: Payment */}
-          {step === 5 && (
-            <motion.div
-              key="step5"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6 py-4"
-            >
-              <div>
-                <h3 className="mb-4 text-lg font-semibold text-foreground">Payment</h3>
 
                 {/* Payment Method Selection */}
                 <div className="mb-6">
@@ -490,7 +460,13 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
                 {/* Payment Forms */}
                 {paymentMethod === "card" && (
                   <div className="mb-6 space-y-4 rounded-xl border border-border bg-card p-6">
-                    <h4 className="mb-4 font-semibold text-foreground">Card Details</h4>
+                    <div className="mb-4 flex items-center justify-between">
+                      <h4 className="font-semibold text-foreground">Card Details</h4>
+                      <div className="flex items-center gap-2">
+                        <Shield size={14} className="text-green-600" />
+                        <span className="text-xs text-muted-foreground">256-bit SSL encrypted</span>
+                      </div>
+                    </div>
                     
                     <div>
                       <label className="mb-2 block text-sm font-medium text-foreground">
@@ -553,6 +529,15 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
                     <p className="mb-4 text-sm text-muted-foreground">
                       An invoice will be sent to your billing email. Payment is due within 30 days of invoice date.
                     </p>
+                    <div className="rounded-lg bg-accent/50 p-3">
+                      <div className="flex items-start gap-2">
+                        <Clock size={16} className="mt-0.5 shrink-0 text-primary" />
+                        <div className="text-xs text-muted-foreground">
+                          <p className="font-medium text-foreground">Typical approval: 1-2 business days</p>
+                          <p className="mt-1">We'll contact you if additional information is needed for credit approval.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -609,10 +594,44 @@ const ServiceRequestDialog = ({ open, onOpenChange, service }: ServiceRequestDia
                   </div>
                 </div>
 
+                {/* What Happens Next */}
+                <div className="mt-6 rounded-lg border border-border bg-accent/30 p-4">
+                  <h5 className="mb-3 text-sm font-semibold text-foreground">What happens next?</h5>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-green-600" />
+                      <span>You'll receive an order confirmation email immediately</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-green-600" />
+                      <span>Your delivery lead will contact you within 24 hours</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={14} className="mt-0.5 shrink-0 text-green-600" />
+                      <span>Service delivery begins within 3-5 days after input validation</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Help Section */}
+                <div className="mt-6 flex items-center justify-between rounded-lg border border-border bg-card p-4">
+                  <div className="flex items-center gap-3">
+                    <MessageCircle size={20} className="text-primary" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Questions about your order?</p>
+                      <p className="text-xs text-muted-foreground">Our team is here to help</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    Chat with us
+                  </Button>
+                </div>
+
+                {/* Legal Disclaimer */}
                 <div className="mt-6 rounded-lg bg-accent/50 p-4">
                   <p className="text-xs text-muted-foreground">
                     {paymentMethod === "card" 
-                      ? "By completing this order, you authorize DQ to charge the amount shown above to your card. Your payment is processed securely."
+                      ? "By completing this order, you authorize DQ to charge the amount shown above to your card. Your payment is processed securely through Stripe with bank-level encryption."
                       : "By completing this order, you agree to pay the invoice amount within 30 days. You will receive an invoice at the email address provided."}
                   </p>
                 </div>

@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Mock data
 const stats = [
@@ -207,6 +208,8 @@ const quickActions = [
 ];
 
 const Overview = () => {
+  const { user } = useAuth();
+  
   const handleQuickAction = (action: typeof quickActions[0]) => {
     if (action.onClick) {
       action.onClick();
@@ -218,7 +221,9 @@ const Overview = () => {
       <div className="space-y-6">
         {/* Welcome Banner */}
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Welcome back, Sarah</h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Welcome back, {user.name.split(' ')[0]}
+          </h1>
           <p className="mt-1 text-muted-foreground">
             Here's what's happening with your transformation initiatives
           </p>

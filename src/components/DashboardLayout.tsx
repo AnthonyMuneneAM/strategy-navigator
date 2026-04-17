@@ -57,7 +57,7 @@ const clientNavigationItems = [
     group: "WORKSPACE",
     items: [
       { name: "Active Engagements", icon: Package, path: "/dashboard/services", badge: 3 },
-      { name: "Service Orders", icon: ShoppingCart, path: "/dashboard/orders", badge: 6 },
+      { name: "Service Orders", icon: ShoppingCart, path: "/dashboard/customer/orders", badge: 6 },
       { name: "Calendar", icon: Calendar, path: "/dashboard/calendar", badge: null },
       { name: "Inbox", icon: MessageSquare, path: "/dashboard/inbox", badge: 5 },
     ],
@@ -120,7 +120,7 @@ const dqNavigationItems = [
 
 const mockOrganizations = [
   { id: "stc-bank", name: "STC Bank" },
-  { id: "stc-insurance", name: "STC Insurance" },
+  { id: "dewa", name: "Dubai Electricity & Water Authority" },
 ];
 
 interface DashboardLayoutProps {
@@ -128,10 +128,12 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const { user, setUserRole } = useAuth();
+  const { user, setUserRole, setUserOrganization } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedOrg, setSelectedOrg] = useState("stc-bank");
+  const [selectedOrg, setSelectedOrg] = useState(
+    user.organization === "Dubai Electricity & Water Authority" ? "dewa" : "stc-bank"
+  );
   const [transactAIOpen, setTransactAIOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
 
@@ -139,6 +141,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Handle organization change
+  const handleOrgChange = (orgId: string) => {
+    setSelectedOrg(orgId);
+    const orgName = orgId === "dewa" ? "Dubai Electricity & Water Authority" : "STC Bank";
+    setUserOrganization(orgName);
+  };
 
   // Listen for custom event to open Transact.AI
   useEffect(() => {
@@ -199,7 +208,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <label className="mb-2 block text-xs font-medium text-muted-foreground">
                     Organization
                   </label>
-                  <Select value={selectedOrg} onValueChange={setSelectedOrg}>
+                  <Select value={selectedOrg} onValueChange={handleOrgChange}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
