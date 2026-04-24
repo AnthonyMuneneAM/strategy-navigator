@@ -114,7 +114,7 @@ Query 3 (unresolved) → Counter = 3 → Trigger escalation
 
 **Butler Message**:
 ```
-"Thank you, [Name]! Our team will review your request and get back to you at [email] soon."
+"Thank you, [Name]! Our team will review your request and get back to you at [email] within 24 hours."
 ```
 
 **Variables**:

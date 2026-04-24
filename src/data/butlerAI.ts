@@ -26,6 +26,29 @@ export interface KnowledgeBaseEntry {
   }>;
 }
 
+// KNOWLEDGE-RICH CONVERSATION PATTERNS
+// Each response should: 1) Diagnose the problem, 2) Explain root cause, 3) Present modern solution, 4) Recommend TMaaS offering
+
+// Educational context for each transformation goal
+export const transformationContext = {
+  "data-value": {
+    context: "Data transformation is one of the highest-impact areas — but also where most organizations get stuck. The challenge isn't usually the analytics tools themselves. It's the underlying data architecture.\n\nMost legacy systems were built for transactions, not insights. That creates three core problems: siloed data across systems, inconsistent data quality, and no unified view of your business.",
+    commonPatterns: ["Data silos across systems", "Inconsistent data quality", "No unified business view", "All of the above"]
+  },
+  "customer-experience": {
+    context: "Customer experience transformation often stalls not because of poor design, but because of backend system disconnection. When your CRM, support platform, and transaction systems don't talk to each other, customers feel the friction at every touchpoint.\n\nThe issue isn't adding more channels — it's creating a unified experience layer that connects them all.",
+    commonPatterns: ["Disconnected customer touchpoints", "Slow response times", "Inconsistent experience across channels", "All of the above"]
+  },
+  "internal-operations": {
+    context: "Operational efficiency breaks down when core business systems operate in silos. Your ERP, HR, finance, and supply chain platforms each have their own data models and workflows — creating manual handoffs and reconciliation overhead.\n\nThe modern approach isn't replacing everything. It's building a digital core that orchestrates across your existing systems.",
+    commonPatterns: ["Manual processes and handoffs", "System silos and data duplication", "Slow approval workflows", "All of the above"]
+  },
+  "devops": {
+    context: "Delivery speed isn't just about tools — it's about the entire software supply chain. Most organizations have CI/CD pipelines, but they're still slow because security, compliance, and testing are bolted on at the end rather than built into the flow.\n\nThe shift to SecDevOps means security and compliance become automated guardrails, not manual gates.",
+    commonPatterns: ["Security slows down delivery", "Manual compliance checks", "Inconsistent deployment processes", "All of the above"]
+  }
+};
+
 // STATIC MOCKED RESPONSES - 16 recommendation paths (4 goals × 4 stages)
 export const mockedRecommendations = {
   // PATH 1: Customer Experience
