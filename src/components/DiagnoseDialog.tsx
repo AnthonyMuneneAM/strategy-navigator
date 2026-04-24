@@ -212,14 +212,60 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       }
     }
     
-    // Check for contact request phrases (typed as free text)
-    const lowerMessage = message.toLowerCase();
-    if (lowerMessage.includes("talk to the team") || 
-        lowerMessage.includes("contact the team") || 
-        lowerMessage.includes("speak to someone") ||
-        lowerMessage.includes("talk to someone") ||
-        lowerMessage.includes("contact support") ||
-        lowerMessage.includes("reach out to team")) {
+    // Keyword matching for common phrases (static prototype intelligence)
+    const lower = message.toLowerCase();
+    
+    // Data-related keywords
+    if (lower.match(/data|analytics|insight|reporting|dashboard|bi|warehouse|lake/)) {
+      addUserMessage(message);
+      handleOptionClick("Unlock value from data");
+      return;
+    }
+    
+    // Customer experience keywords
+    if (lower.match(/customer|experience|cx|onboarding|support|journey|touchpoint/)) {
+      addUserMessage(message);
+      handleOptionClick("Improve customer experience");
+      return;
+    }
+    
+    // Operations keywords
+    if (lower.match(/operation|process|workflow|efficiency|automation|erp|supply chain/)) {
+      addUserMessage(message);
+      handleOptionClick("Improve internal operations");
+      return;
+    }
+    
+    // DevOps keywords
+    if (lower.match(/devops|deployment|ci\/cd|pipeline|delivery|kubernetes|docker|security/)) {
+      addUserMessage(message);
+      handleOptionClick("Improve delivery speed / DevOps");
+      return;
+    }
+    
+    // Pricing keywords
+    if (lower.match(/cost|price|pricing|how much|investment|budget/)) {
+      addUserMessage(message);
+      const faq = mockedFAQs["what-does-it-cost"];
+      addAIMessage(faq.message, faq.options);
+      setUnresolvedCount(0);
+      return;
+    }
+    
+    // Timeline keywords
+    if (lower.match(/how long|timeline|duration|when|time frame/)) {
+      addUserMessage(message);
+      addAIMessage(
+        "Most of our Design services run 4-6 weeks, while Deploy services are 8-14 weeks depending on complexity. The exact timeline depends on which transformation area you're focusing on. What's your primary goal?",
+        ["Improve customer experience", "Improve internal operations", "Unlock value from data", "Improve delivery speed / DevOps"]
+      );
+      setUnresolvedCount(0);
+      return;
+    }
+    
+    // Contact request phrases
+    if (lower.match(/talk to|contact|speak to|reach out|connect with|call|email/)) {
+      addUserMessage(message);
       setShowContactForm(true);
       setContactFormStep(1);
       addAIMessage("I'd be happy to connect you with our team. What's your name?");
@@ -239,14 +285,15 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     if (unresolvedCount >= 2) {
       addAIMessage(
         "I wasn't able to find a clear answer for that. Would you like me to connect you with the TMaaS team?",
-        ["Contact the team", "Try asking something else"]
+        ["Connect me with the team", "Try asking something else"]
       );
       setUnresolvedCount(0);
     } else {
-      // Show fallback with FAQ options
+      // Better fallback - guide them to main topics
+      addUserMessage(message);
       addAIMessage(
-        "I'm not sure I understood that. Here are some things I can help with:",
-        ["What is TMaaS?", "How does it work?", "What does it cost?", "How do I get started?"]
+        "I can help you with digital transformation across four key areas. Which one resonates most with your current challenge?",
+        ["Improve customer experience", "Improve internal operations", "Unlock value from data", "Improve delivery speed / DevOps"]
       );
     }
   };
@@ -260,8 +307,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       setUnresolvedCount(0);
       
       addAIMessage(
-        "Customer experience — great focus. Where are you in that journey right now?",
-        ["Exploring / defining the problem", "Designing a solution", "Ready to implement", "Already running, need optimisation"]
+        "Customer experience transformation often stalls not because of poor design, but because of backend system disconnection. When your CRM, support platform, and transaction systems don't talk to each other, customers feel the friction at every touchpoint.\n\nThe issue isn't adding more channels — it's creating a unified experience layer that connects them all.\n\nTell me — which of these resonates most with your situation right now?",
+        ["Disconnected customer touchpoints", "Slow response times", "Inconsistent experience across channels", "All of the above"]
       );
       return;
     }
@@ -273,8 +320,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       setUnresolvedCount(0);
       
       addAIMessage(
-        "Internal operations — understood. Where are you in that journey right now?",
-        ["Exploring / defining the problem", "Designing a solution", "Ready to implement", "Already running, need optimisation"]
+        "Operational efficiency is where most digital transformation initiatives either accelerate or stall. The challenge isn't usually the individual systems — your ERP works, your HR platform works, your finance system works. The problem is they don't work together.\n\nWhen core business systems operate in silos, you get manual handoffs, data duplication, and reconciliation overhead. Every cross-functional process becomes a coordination nightmare.\n\nTell me — which of these resonates most with your situation right now?",
+        ["Manual processes and handoffs", "System silos and data duplication", "Slow approval workflows", "All of the above"]
       );
       return;
     }
@@ -299,8 +346,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       setUnresolvedCount(0);
       
       addAIMessage(
-        "Delivery speed and DevOps — critical area. Where are you in that journey right now?",
-        ["Exploring / defining the problem", "Designing a solution", "Ready to implement", "Already running, need optimisation"]
+        "Delivery speed isn't just about tools — it's about the entire software supply chain. Most organizations have CI/CD pipelines, but they're still slow because security, compliance, and testing are bolted on at the end rather than built into the flow.\n\nThe shift to SecDevOps means security and compliance become automated guardrails, not manual gates.\n\nTell me — which of these resonates most with your situation right now?",
+        ["Security slows down delivery", "Manual compliance checks", "Inconsistent deployment processes", "All of the above"]
       );
       return;
     }
@@ -315,14 +362,27 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       addUserMessage(option);
       setConversationStep(3);
       
-      addAIMessage(
-        "The Digital Intelligence & Analytics Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Unified data platform architecture\n• CDC streaming implementation guide\n• Analytics & BI integration patterns\n• Data governance framework\n• Security & compliance guidelines\n\nReady to take a look?",
-        ["Yes, show me the service", "What's the investment?", "How do I get started?"],
-        [
-          { text: "DI&A Strategy Service", url: "/service/3", icon: ArrowRight },
-          { text: "Browse All Services", url: "/marketplace", icon: ExternalLink }
-        ]
-      );
+      if (selectedGoal === "Unlock value from data") {
+        addAIMessage(
+          "The Digital Intelligence & Analytics Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Unified data platform architecture\n• CDC streaming implementation guide\n• Analytics & BI integration patterns\n• Data governance framework\n• Security & compliance guidelines\n\nShould I take you to the service page?",
+          ["Yes, take me there", "What's the investment?", "How do I get started?"]
+        );
+      } else if (selectedGoal === "Improve internal operations") {
+        addAIMessage(
+          "The Digital Workspace Strategy Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Digital core platform architecture\n• Process automation patterns\n• Master data management framework\n• Integration & API strategy\n• Workflow orchestration guide\n\nShould I take you to the service page?",
+          ["Yes, take me there", "What's the investment?", "How do I get started?"]
+        );
+      } else if (selectedGoal === "Improve customer experience") {
+        addAIMessage(
+          "The Digital Experience Strategy Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Customer data platform architecture\n• Omnichannel orchestration patterns\n• Experience personalization framework\n• API gateway & integration strategy\n• Analytics & journey tracking\n\nShould I take you to the service page?",
+          ["Yes, take me there", "What's the investment?", "How do I get started?"]
+        );
+      } else if (selectedGoal === "Improve delivery speed / DevOps") {
+        addAIMessage(
+          "The SecDevOps Strategy Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Policy-as-code framework\n• Automated security & compliance scanning\n• Infrastructure-as-code patterns\n• GitOps deployment workflows\n• Observability & monitoring strategy\n\nShould I take you to the service page?",
+          ["Yes, take me there", "What's the investment?", "How do I get started?"]
+        );
+      }
       return;
     }
     
@@ -331,30 +391,40 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         option === "How does CDC streaming work?" ||
         option === "What does the architecture include?" ||
         option === "How do you handle data governance?" ||
-        option === "What analytics capabilities are included?")) {
+        option === "How does the framework work?" ||
+        option === "What analytics capabilities are included?" ||
+        option === "How does process automation work?" ||
+        option === "How does master data management work?" ||
+        option === "How does intelligent automation work?")) {
       
       addUserMessage(option);
       setConversationStep(3);
       
       addAIMessage(
         "That's a great technical question. To ensure you get the most detailed and accurate answer, would you like me to connect you with one of our TMaaS Solutions Architects? They can walk you through the specific implementation details.",
-        ["Yes, connect me with an architect", "No, just show me the blueprint", "Contact the team"]
+        ["Yes, connect me with an architect", "No, just show me the blueprint"]
       );
       return;
     }
     
-    // STEP 3: Handle pricing questions
+    // STEP 3: Handle pricing questions (for both data and operations paths)
     if (conversationStep === 2 && (
         option === "What's the investment required?" ||
         option === "How much does it cost?" ||
-        option === "What's the investment?")) {
+        option === "What's the investment?" ||
+        option === "What's the cost?")) {
       
       addUserMessage(option);
       setConversationStep(3);
       
+      const serviceName = selectedGoal === "Unlock value from data" 
+        ? "Digital Intelligence & Analytics Strategy" 
+        : "Digital Workspace Strategy";
+      const serviceUrl = selectedGoal === "Unlock value from data" ? "/service/3" : "/service/2";
+      
       addAIMessage(
-        "The Digital Intelligence & Analytics Strategy service is typically scoped at $25-30k for a 4-6 week engagement. This includes the complete blueprint, architecture documentation, and implementation roadmap.\n\nWould you like to explore the service details or speak with our team about your specific requirements?",
-        ["Explore the service", "Contact the team", "What's included in the engagement?"]
+        `The ${serviceName} service is typically scoped at $25-30k for a 4-6 week engagement. This includes the complete blueprint, architecture documentation, and implementation roadmap.\n\nShould I take you to the service page to see the full details?`,
+        ["Yes, take me there", "What's included in the engagement?", "Connect me with the team"]
       );
       return;
     }
@@ -369,8 +439,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       setConversationStep(3);
       
       addAIMessage(
-        "The Design phase (blueprint creation) typically takes 4-6 weeks. Implementation timelines vary based on your current infrastructure, but most organizations see initial value within 8-12 weeks.\n\nWant to see the detailed service breakdown?",
-        ["Yes, show me the service", "Contact the team", "What happens after the blueprint?"]
+        "The Design phase (blueprint creation) typically takes 4-6 weeks. Implementation timelines vary based on your current infrastructure, but most organizations see initial value within 8-12 weeks.\n\nShould I take you to the service page?",
+        ["Yes, take me there", "What happens after the blueprint?", "Connect me with the team"]
       );
       return;
     }
@@ -397,18 +467,36 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       addUserMessage(option);
       
       addAIMessage(
-        "Great question! The engagement includes:\n\n• Discovery & assessment workshops\n• Current state architecture analysis\n• Future state blueprint design\n• Implementation roadmap\n• Technical documentation\n• Knowledge transfer sessions\n\nAfter the blueprint, you can either implement internally or engage our Deploy services (coming soon).",
-        ["Explore the service", "Contact the team"]
+        "Great question! The engagement includes:\n\n• Discovery & assessment workshops\n• Current state architecture analysis\n• Future state blueprint design\n• Implementation roadmap\n• Technical documentation\n• Knowledge transfer sessions\n\nAfter the blueprint, you can either implement internally or engage our Deploy services (coming soon).\n\nShould I take you to the service page?",
+        ["Yes, take me there", "Connect me with the team"]
       );
       return;
     }
     
-    // Handle "Explore the service" or "Yes, show me the service"
-    if (option === "Explore the service" || option === "Yes, show me the service") {
-      onClose();
+    // Handle "Explore the service" or "Yes, show me the service" or "Yes, take me there"
+    if (option === "Explore the service" || option === "Yes, show me the service" || option === "Yes, take me there") {
+      addUserMessage(option);
+      
+      // Agent behavior: Tell user what you're doing
+      let serviceUrl = "/marketplace"; // Default fallback
+      
+      if (selectedGoal === "Unlock value from data") {
+        serviceUrl = "/service/3"; // DI&A Strategy
+      } else if (selectedGoal === "Improve internal operations") {
+        serviceUrl = "/service/2"; // DWS Strategy
+      } else if (selectedGoal === "Improve customer experience") {
+        serviceUrl = "/service/1"; // Digital Experience Strategy
+      } else if (selectedGoal === "Improve delivery speed / DevOps") {
+        serviceUrl = "/service/4"; // SecDevOps Strategy
+      }
+      
+      addAIMessage("Taking you to the service page...");
+      
+      // Auto-navigate after brief delay
       setTimeout(() => {
-        navigate("/service/3");
-      }, 100);
+        onClose();
+        navigate(serviceUrl);
+      }, 2000);
       return;
     }
     
@@ -431,7 +519,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       if (recommendation) {
         addAIMessage(
           recommendation.message,
-          [`Explore ${recommendation.serviceName}`, "Show me all services"],
+          [`Take me to ${recommendation.serviceName}`, "Show me all services"],
           [
             { text: recommendation.serviceName, url: recommendation.serviceUrl, icon: ArrowRight },
             { text: "Browse Marketplace", url: "/marketplace", icon: ExternalLink }
@@ -460,7 +548,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       } else if (option === "Our data quality is inconsistent") {
         addAIMessage(
           "Inconsistent data quality is a symptom of decentralized data ownership. When every team manages their own data definitions, you end up with 'customer' meaning different things in different systems.\n\nThe fix isn't just data cleansing tools. You need data governance at the architecture level — standardized schemas, master data management, and automated quality checks built into your data pipelines.\n\nOur Digital Intelligence & Analytics Blueprint includes a complete data governance framework. It defines how to establish data ownership, create canonical data models, and implement quality gates that prevent bad data from entering your analytics layer.\n\nThis isn't a policy document. It's an implementation architecture with code patterns and infrastructure templates.",
-          ["Explore the blueprint", "Tell me about data governance", "What's the cost?"]
+          ["Explore the blueprint", "How does the framework work?", "What's the cost?"]
         );
       } else if (option === "We can't get a unified business view") {
         addAIMessage(
@@ -470,32 +558,142 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       } else {
         addAIMessage(
           "If you're facing all three challenges, you're not alone. Most organizations are. The root cause is the same: legacy architectures that weren't designed for analytics.\n\nThe good news? You don't need to rebuild everything. You need a modern data platform that sits alongside your existing systems and creates a unified analytics layer.\n\nHere's the architecture: CDC streaming pulls data from your operational systems in real-time → a data lake stores raw data → transformation pipelines create clean, governed datasets → a semantic layer defines business metrics → analytics tools consume standardized data.\n\nOur Digital Intelligence & Analytics Blueprint gives you the complete implementation guide for this architecture. It's not a consulting engagement where we tell you what to do. It's a blueprint you can execute with your own team or ours.",
-          ["Show me the blueprint", "What's included?", "How much does it cost?"]
+          ["Show me the blueprint", "What's included?", "What's the investment?"]
         );
       }
       return;
     }
     
-    // Handle "Explore [service name]" options
-    if (option.startsWith("Explore ")) {
-      onClose();
-      // Navigate to service detail page after closing
+    // STEP 2: Handle internal operations-specific challenges (for "Improve internal operations" path)
+    if (conversationStep === 1 && selectedGoal === "Improve internal operations" && (
+        option === "Manual processes and handoffs" ||
+        option === "System silos and data duplication" ||
+        option === "Slow approval workflows" ||
+        option === "All of the above")) {
+      
+      addUserMessage(option);
+      setConversationStep(2);
+      
+      // Knowledge-rich response - educate first, then recommend
+      if (option === "Manual processes and handoffs") {
+        addAIMessage(
+          "Manual handoffs happen because your systems don't share a common process orchestration layer. When an invoice needs approval, someone exports from the ERP, emails finance, they update their spreadsheet, then manually enter it back into the system.\n\nThe traditional fix is to train people on 'the process.' But that doesn't scale. Every exception becomes a special case. Every new hire needs weeks of training.\n\nThe modern approach? Process automation with a digital core platform. Instead of people moving data between systems, you define workflows once and let the platform orchestrate across your ERP, HR, finance, and supply chain systems automatically.\n\nOur Digital Workspace Strategy Blueprint maps out this exact architecture — from process discovery to automation to continuous optimization. It's not about replacing your systems. It's about connecting them intelligently.",
+          ["Show me the blueprint", "How does process automation work?", "What's the investment?"]
+        );
+      } else if (option === "System silos and data duplication") {
+        addAIMessage(
+          "System silos exist because each platform was bought to solve a specific problem. Your ERP handles operations, your CRM handles sales, your HR system handles people. But now you have the same customer data in three places, and they're never in sync.\n\nThe traditional approach is to build integrations. But that creates a web of dependencies. Every system update risks breaking something downstream.\n\nThe solution is an integration platform with master data management. Instead of point-to-point connections, you create a single source of truth for core business entities — customers, products, employees. Each system reads and writes to this central hub.\n\nOur Digital Workspace Strategy Blueprint includes the complete integration architecture. You get API patterns, data synchronization strategies, and conflict resolution logic. This isn't theory — it's production-ready patterns from organizations that have solved this problem.",
+          ["Explore the blueprint", "How does master data management work?", "What's the cost?"]
+        );
+      } else if (option === "Slow approval workflows") {
+        addAIMessage(
+          "Slow approvals aren't usually about people being slow. They're about visibility and context. When an approval request lands in someone's inbox, they don't have the full picture. They need to check three systems, ask two people, then make a decision.\n\nMost organizations try to fix this with escalation policies. But that just creates more noise. The real problem is that approval workflows are disconnected from the systems that have the context.\n\nThe modern approach is intelligent workflow automation. The system gathers all the context — budget status, compliance checks, historical data — and presents it alongside the approval request. For routine cases, it can even auto-approve based on predefined rules.\n\nOur Digital Workspace Strategy Blueprint shows you how to build these intelligent workflows. You get decision automation patterns, escalation logic, and audit trails that satisfy compliance requirements.",
+          ["View the blueprint", "How does intelligent automation work?", "What's the timeline?"]
+        );
+      } else {
+        addAIMessage(
+          "If you're facing all three challenges, you're dealing with what we call 'operational debt' — the accumulated cost of systems that were never designed to work together.\n\nThe good news? You don't need to rip and replace everything. You need a digital core platform that sits between your existing systems and orchestrates them intelligently.\n\nHere's the architecture: API gateway connects all your systems → master data management ensures consistency → workflow engine orchestrates cross-system processes → business rules engine handles approvals and exceptions → analytics layer tracks performance.\n\nOur Digital Workspace Strategy Blueprint gives you the complete implementation guide. It's not a consulting engagement where we tell you what to do. It's a blueprint you can execute with your own team or ours.",
+          ["Show me the blueprint", "What's included?", "What's the investment?"]
+        );
+      }
+      return;
+    }
+    
+    // STEP 2: Handle customer experience-specific challenges (for "Improve customer experience" path)
+    if (conversationStep === 1 && selectedGoal === "Improve customer experience" && (
+        option === "Disconnected customer touchpoints" ||
+        option === "Slow response times" ||
+        option === "Inconsistent experience across channels" ||
+        option === "All of the above")) {
+      
+      addUserMessage(option);
+      setConversationStep(2);
+      
+      // Knowledge-rich response - educate first, then recommend
+      if (option === "Disconnected customer touchpoints") {
+        addAIMessage(
+          "Disconnected touchpoints happen because each channel was built independently. Your website uses one platform, mobile app another, customer service a third, and in-store systems are completely separate. Each works fine in isolation, but they don't share context.\n\nThe traditional approach is to integrate them after the fact. But that creates a fragile web of connections that breaks whenever one system changes.\n\nThe modern approach? A unified customer data platform (CDP) with an experience orchestration layer. Every touchpoint reads from and writes to the same customer profile in real-time. When a customer starts a transaction on mobile, your service team sees it instantly.\n\nOur Digital Experience Strategy Blueprint maps out this exact architecture — from CDP implementation to omnichannel orchestration to personalization engines. It's not theory. It's a battle-tested pattern that reduces integration complexity by 60%.",
+          ["Show me the blueprint", "How does the CDP work?", "What's the investment?"]
+        );
+      } else if (option === "Slow response times") {
+        addAIMessage(
+          "Slow response times aren't usually about server speed. They're about data retrieval. When a customer service agent needs to help someone, they're switching between 5 different systems to piece together the customer's history.\n\nThe traditional fix is to train agents on 'where to find things.' But that doesn't solve the underlying problem — the data is scattered.\n\nThe solution is a unified customer view that aggregates data from all your systems in real-time. Instead of agents hunting for information, everything they need appears in one interface. For common queries, AI can even suggest responses based on the full context.\n\nOur Digital Experience Strategy Blueprint includes the complete architecture for building this unified view. You get integration patterns, caching strategies, and AI-assisted response systems.",
+          ["Explore the blueprint", "How does the unified view work?", "What's the cost?"]
+        );
+      } else if (option === "Inconsistent experience across channels") {
+        addAIMessage(
+          "Inconsistent experiences happen because each channel has its own business logic. Your website offers promotions that your mobile app doesn't know about. Your in-store system has different pricing than online. Customer service can't see what marketing promised.\n\nMost organizations try to fix this with better communication between teams. But that's treating the symptom, not the cause. The real problem is decentralized business rules.\n\nThe modern approach is a centralized experience orchestration layer. Business rules, promotions, pricing, and personalization logic live in one place. Every channel consumes the same rules, so customers get consistent experiences everywhere.\n\nOur Digital Experience Strategy Blueprint shows you how to build this orchestration layer. You get rule engine patterns, API gateway designs, and channel integration strategies.",
+          ["View the blueprint", "How does orchestration work?", "What's the timeline?"]
+        );
+      } else {
+        addAIMessage(
+          "If you're facing all three challenges, you're dealing with what we call 'experience debt' — the accumulated cost of building channels independently without a unified foundation.\n\nThe good news? You don't need to rebuild everything. You need a digital experience platform that sits between your channels and your backend systems, creating a consistent orchestration layer.\n\nHere's the architecture: Customer data platform unifies profiles → experience orchestration layer manages business rules → API gateway connects all channels → personalization engine delivers context → analytics tracks the complete journey.\n\nOur Digital Experience Strategy Blueprint gives you the complete implementation guide. It's not a consulting engagement where we tell you what to do. It's a blueprint you can execute with your own team or ours.",
+          ["Show me the blueprint", "What's included?", "What's the investment?"]
+        );
+      }
+      return;
+    }
+    
+    // STEP 2: Handle DevOps-specific challenges (for "Improve delivery speed / DevOps" path)
+    if (conversationStep === 1 && selectedGoal === "Improve delivery speed / DevOps" && (
+        option === "Security slows down delivery" ||
+        option === "Manual compliance checks" ||
+        option === "Inconsistent deployment processes" ||
+        option === "All of the above")) {
+      
+      addUserMessage(option);
+      setConversationStep(2);
+      
+      // Knowledge-rich response - educate first, then recommend
+      if (option === "Security slows down delivery") {
+        addAIMessage(
+          "Security slows down delivery when it's treated as a gate at the end of the pipeline. Developers build features, then security reviews them, finds issues, and sends them back. This creates a bottleneck and adversarial relationship.\n\nThe traditional approach is to hire more security people or add more review stages. But that just makes the bottleneck worse.\n\nThe modern approach? Shift security left with automated guardrails. Security policies become code that runs in your CI/CD pipeline. Vulnerabilities are caught during development, not after. Developers get immediate feedback, and security teams focus on policy, not manual reviews.\n\nOur SecDevOps Strategy Blueprint maps out this exact architecture — from policy-as-code to automated scanning to security observability. It's not theory. It's a proven pattern that reduces security review time by 70%.",
+          ["Show me the blueprint", "How does policy-as-code work?", "What's the investment?"]
+        );
+      } else if (option === "Manual compliance checks") {
+        addAIMessage(
+          "Manual compliance checks happen because compliance requirements are documented in PDFs and spreadsheets, not in code. Before each release, someone manually verifies that all the checkboxes are ticked.\n\nThe traditional fix is to create more detailed checklists. But that doesn't solve the underlying problem — compliance is disconnected from the delivery pipeline.\n\nThe solution is compliance-as-code. Regulatory requirements become automated tests that run on every commit. Your pipeline won't let non-compliant code deploy. Audit trails are generated automatically. Compliance becomes continuous, not periodic.\n\nOur SecDevOps Strategy Blueprint includes the complete framework for implementing compliance-as-code. You get policy templates, audit automation patterns, and evidence collection strategies.",
+          ["Explore the blueprint", "How does compliance-as-code work?", "What's the cost?"]
+        );
+      } else if (option === "Inconsistent deployment processes") {
+        addAIMessage(
+          "Inconsistent deployments happen because each team has their own scripts, tools, and processes. What works in dev doesn't work in staging. Production deployments require manual steps that only two people know how to do.\n\nMost organizations try to fix this with better documentation. But documentation gets outdated the moment it's written. The real problem is lack of standardization and automation.\n\nThe modern approach is infrastructure-as-code with GitOps. Your entire deployment process is defined in version-controlled code. Every environment is provisioned the same way. Deployments are triggered by Git commits, not manual commands. Rollbacks are just Git reverts.\n\nOur SecDevOps Strategy Blueprint shows you how to build this standardized pipeline. You get IaC patterns, GitOps workflows, and progressive delivery strategies.",
+          ["View the blueprint", "How does GitOps work?", "What's the timeline?"]
+        );
+      } else {
+        addAIMessage(
+          "If you're facing all three challenges, you're dealing with what we call 'delivery debt' — the accumulated cost of building pipelines without security, compliance, and standardization built in from the start.\n\nThe good news? You don't need to rebuild everything. You need a SecDevOps platform that wraps your existing tools with automated guardrails and standardized workflows.\n\nHere's the architecture: Policy-as-code defines security and compliance rules → automated scanning runs on every commit → infrastructure-as-code ensures consistent environments → GitOps manages deployments → observability tracks everything.\n\nOur SecDevOps Strategy Blueprint gives you the complete implementation guide. It's not a consulting engagement where we tell you what to do. It's a blueprint you can execute with your own team or ours.",
+          ["Show me the blueprint", "What's included?", "What's the investment?"]
+        );
+      }
+      return;
+    }
+    
+    // Handle "Explore [service name]" or "Take me to [service name]" options
+    if (option.startsWith("Explore ") || option.startsWith("Take me to ")) {
+      addUserMessage(option);
+      
+      const serviceName = option.replace("Explore ", "").replace("Take me to ", "");
+      let serviceUrl = "/marketplace";
+      
+      if (serviceName.includes("Digital Experience")) {
+        serviceUrl = "/service/1";
+      } else if (serviceName.includes("DWS")) {
+        serviceUrl = "/service/2";
+      } else if (serviceName.includes("DI&A") || serviceName.includes("Intelligence")) {
+        serviceUrl = "/service/3";
+      } else if (serviceName.includes("SecDevOps")) {
+        serviceUrl = "/service/4";
+      }
+      
+      // Agent behavior: Tell user what you're doing
+      addAIMessage("Taking you to the service page...");
+      
+      // Auto-navigate after brief delay
       setTimeout(() => {
-        const serviceName = option.replace("Explore ", "");
-        let serviceUrl = "/marketplace";
-        
-        if (serviceName.includes("Digital Experience")) {
-          serviceUrl = "/service/1";
-        } else if (serviceName.includes("DWS")) {
-          serviceUrl = "/service/2";
-        } else if (serviceName.includes("DI&A") || serviceName.includes("Intelligence")) {
-          serviceUrl = "/service/3";
-        } else if (serviceName.includes("SecDevOps")) {
-          serviceUrl = "/service/4";
-        }
-        
+        onClose();
         navigate(serviceUrl);
-      }, 100);
+      }, 2000);
       return;
     }
     
@@ -548,8 +746,9 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       return;
     }
     
-    // Handle "Contact the team"
-    if (option === "Contact the team" || option === "Talk to the team") {
+    // Handle "Connect me with the team" or "Connect me with an architect"
+    if (option === "Connect me with the team" || option === "Connect me with an architect" || 
+        option === "Yes, connect me with an architect" || option === "Talk to the team") {
       addUserMessage(option);
       setShowContactForm(true);
       setContactFormStep(1);
