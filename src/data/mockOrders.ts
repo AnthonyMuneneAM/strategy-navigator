@@ -83,6 +83,65 @@ export interface ServiceOrder {
     canRequestSessions: boolean;
     canViewCommercials: boolean;
   };
+  raid?: {
+    risks: RAIDRisk[];
+    issues: RAIDIssue[];
+    assumptions: RAIDAssumption[];
+    dependencies: RAIDDependency[];
+  };
+}
+
+export interface RAIDRisk {
+  id: string;
+  title: string;
+  description: string;
+  severity: "Critical" | "High" | "Medium" | "Low";
+  probability: "High" | "Medium" | "Low";
+  impact: "High" | "Medium" | "Low";
+  status: "Open" | "Mitigating" | "Monitoring" | "Closed";
+  owner: string;
+  identifiedDate: string;
+  dueDate: string;
+  mitigationPlan: string;
+  visibility: "Internal" | "External";
+}
+
+export interface RAIDIssue {
+  id: string;
+  title: string;
+  description: string;
+  severity: "Critical" | "High" | "Medium" | "Low";
+  status: "Open" | "In Progress" | "Blocked" | "Resolved";
+  owner: string;
+  identifiedDate: string;
+  dueDate: string;
+  resolution: string;
+  visibility: "Internal" | "External";
+}
+
+export interface RAIDAssumption {
+  id: string;
+  title: string;
+  description: string;
+  category: "Resources" | "Information" | "Technical" | "Business";
+  status: "Valid" | "Invalid" | "Pending Validation";
+  owner: string;
+  identifiedDate: string;
+  validatedDate: string | null;
+  visibility: "Internal" | "External";
+}
+
+export interface RAIDDependency {
+  id: string;
+  title: string;
+  description: string;
+  type: "Internal" | "External";
+  status: "Pending" | "In Progress" | "Received" | "Blocked";
+  owner: string;
+  dependentOn: string;
+  identifiedDate: string;
+  requiredDate: string;
+  visibility: "Internal" | "External";
 }
 
 export const mockOrders: ServiceOrder[] = [
@@ -359,6 +418,137 @@ export const mockOrders: ServiceOrder[] = [
       canSubmitInputs: true,
       canRequestSessions: true,
       canViewCommercials: true,
+    },
+    raid: {
+      risks: [
+        {
+          id: "R001",
+          title: "Delayed stakeholder approvals",
+          description: "Key stakeholders may not be available for timely review and approval of deliverables",
+          severity: "Critical",
+          probability: "High",
+          impact: "High",
+          status: "Open",
+          owner: "Rayyan Basha",
+          identifiedDate: "2026-03-08",
+          dueDate: "2026-03-20",
+          mitigationPlan: "Schedule approval sessions in advance, identify backup approvers",
+          visibility: "External",
+        },
+        {
+          id: "R002",
+          title: "Resource allocation conflict",
+          description: "Key technical resources may be pulled to other priority projects",
+          severity: "Medium",
+          probability: "Medium",
+          impact: "Medium",
+          status: "Monitoring",
+          owner: "Sarah Johnson",
+          identifiedDate: "2026-03-10",
+          dueDate: "2026-04-01",
+          mitigationPlan: "Secure resource commitment from management, identify backup resources",
+          visibility: "Internal",
+        },
+      ],
+      issues: [
+        {
+          id: "I001",
+          title: "Missing technical documentation from client",
+          description: "Client has not provided current state architecture documentation as promised",
+          severity: "Critical",
+          status: "Blocked",
+          owner: "Rayyan Basha",
+          identifiedDate: "2026-03-12",
+          dueDate: "2026-03-18",
+          resolution: "Escalated to client sponsor, scheduled follow-up meeting",
+          visibility: "External",
+        },
+        {
+          id: "I002",
+          title: "Internal tool license expiring",
+          description: "ABACUS tool license needs renewal before deliverable creation",
+          severity: "High",
+          status: "In Progress",
+          owner: "Sarah Johnson",
+          identifiedDate: "2026-03-14",
+          dueDate: "2026-03-25",
+          resolution: "Procurement team processing renewal",
+          visibility: "Internal",
+        },
+      ],
+      assumptions: [
+        {
+          id: "A001",
+          title: "Client team availability",
+          description: "Assuming client SMEs will be available for 4 hours per week for workshops and reviews",
+          category: "Resources",
+          status: "Valid",
+          owner: "Rayyan Basha",
+          identifiedDate: "2026-03-05",
+          validatedDate: "2026-03-08",
+          visibility: "External",
+        },
+        {
+          id: "A002",
+          title: "Current state documentation accuracy",
+          description: "Assuming provided documentation reflects actual current state as of Q4 2025",
+          category: "Information",
+          status: "Valid",
+          owner: "Rayyan Basha",
+          identifiedDate: "2026-03-05",
+          validatedDate: "2026-03-10",
+          visibility: "External",
+        },
+        {
+          id: "A003",
+          title: "Internal team capacity",
+          description: "Assuming no team members will take extended leave during delivery period",
+          category: "Resources",
+          status: "Valid",
+          owner: "Sarah Johnson",
+          identifiedDate: "2026-03-05",
+          validatedDate: "2026-03-05",
+          visibility: "Internal",
+        },
+      ],
+      dependencies: [
+        {
+          id: "D001",
+          title: "Enterprise architecture standards",
+          description: "Requires finalized enterprise architecture standards from client EA team",
+          type: "External",
+          status: "Pending",
+          owner: "Rayyan Basha",
+          dependentOn: "DEWA EA Team",
+          identifiedDate: "2026-03-06",
+          requiredDate: "2026-03-22",
+          visibility: "External",
+        },
+        {
+          id: "D002",
+          title: "ABACUS platform upgrade",
+          description: "Requires ABACUS platform upgrade to support new diagram types",
+          type: "Internal",
+          status: "In Progress",
+          owner: "Sarah Johnson",
+          dependentOn: "DQ Platform Team",
+          identifiedDate: "2026-03-08",
+          requiredDate: "2026-03-28",
+          visibility: "Internal",
+        },
+        {
+          id: "D003",
+          title: "Security compliance approval",
+          description: "Architecture must be approved by client security compliance team",
+          type: "External",
+          status: "In Progress",
+          owner: "Rayyan Basha",
+          dependentOn: "DEWA Security Team",
+          identifiedDate: "2026-03-10",
+          requiredDate: "2026-03-30",
+          visibility: "External",
+        },
+      ],
     },
   },
   {

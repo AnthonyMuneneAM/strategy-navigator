@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Mail,
   Percent,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,26 +84,120 @@ const upcomingSessions = [
   {
     id: 1,
     title: "Architecture Review Workshop",
-    date: "Feb 20, 2026",
+    date: "2026-02-20",
     time: "10:00 AM - 12:00 PM",
-    attendees: 8,
+    attendees: ["Mohammed Al-Rashid", "Sarah Al-Mansour", "Ahmed Hassan", "Rayyan Basha", "James Chen", "Maria Santos", "David Kumar", "Alex Johnson"],
     type: "Workshop",
+    status: "Confirmed",
+    meetingLink: "https://meet.google.com/abc-defg-hij",
+    description: "Review current architecture design and gather feedback from stakeholders",
+    location: "Virtual",
   },
   {
     id: 2,
     title: "Stakeholder Alignment",
-    date: "Feb 22, 2026",
+    date: "2026-02-22",
     time: "2:00 PM - 3:30 PM",
-    attendees: 5,
+    attendees: ["Mohammed Al-Rashid", "Sarah Al-Mansour", "Rayyan Basha", "James Chen", "Maria Santos"],
     type: "Meeting",
+    status: "Confirmed",
+    meetingLink: "https://meet.google.com/xyz-abcd-efg",
+    description: "Align on project priorities and next steps",
+    location: "Virtual",
   },
   {
     id: 3,
     title: "Technical Deep Dive",
-    date: "Feb 25, 2026",
+    date: "2026-02-25",
     time: "9:00 AM - 11:00 AM",
-    attendees: 6,
+    attendees: ["Ahmed Hassan", "Rayyan Basha", "James Chen", "Maria Santos", "David Kumar", "Alex Johnson"],
     type: "Workshop",
+    status: "Confirmed",
+    meetingLink: "https://meet.google.com/tech-dive-123",
+    description: "Deep dive into technical implementation details",
+    location: "Virtual",
+  },
+];
+
+const requestedSessions = [
+  {
+    id: 4,
+    title: "GRC Framework Review",
+    requestedBy: "Mohammed Al-Rashid",
+    requestedDate: "2026-02-15",
+    preferredDate: "2026-02-28",
+    preferredTime: "10:00 AM - 11:30 AM",
+    type: "Workshop",
+    status: "Pending Approval",
+    description: "Review the proposed GRC framework with compliance team",
+    attendees: ["Mohammed Al-Rashid", "Sarah Al-Mansour", "Ahmed Hassan"],
+  },
+  {
+    id: 5,
+    title: "Security Assessment Discussion",
+    requestedBy: "Ahmed Hassan",
+    requestedDate: "2026-02-16",
+    preferredDate: "2026-03-01",
+    preferredTime: "2:00 PM - 3:00 PM",
+    type: "Meeting",
+    status: "Pending Approval",
+    description: "Discuss security assessment findings and remediation plan",
+    attendees: ["Ahmed Hassan", "Rayyan Basha", "James Chen"],
+  },
+];
+
+const pastSessions = [
+  {
+    id: 6,
+    title: "Project Kickoff Meeting",
+    date: "2026-01-15",
+    time: "10:00 AM - 11:30 AM",
+    attendees: ["Mohammed Al-Rashid", "Sarah Al-Mansour", "Ahmed Hassan", "Fatima Al-Zahrani", "Rayyan Basha", "James Chen"],
+    type: "Meeting",
+    status: "Completed",
+    recordingLink: "https://drive.google.com/file/d/kickoff-recording",
+    notes: "Discussed project scope, timeline, and key deliverables. Client emphasized importance of integration with existing systems. Next steps: Client to provide access credentials and documentation.",
+    location: "Virtual",
+    duration: "90 minutes",
+  },
+  {
+    id: 7,
+    title: "Current State Assessment Workshop",
+    date: "2026-01-22",
+    time: "9:00 AM - 12:00 PM",
+    attendees: ["Sarah Al-Mansour", "Ahmed Hassan", "Fatima Al-Zahrani", "Omar Abdullah", "Rayyan Basha", "James Chen", "Maria Santos"],
+    type: "Workshop",
+    status: "Completed",
+    recordingLink: "https://drive.google.com/file/d/assessment-recording",
+    notes: "Conducted comprehensive assessment of current GRC processes. Identified key gaps in compliance monitoring and risk management. Action items: Document findings and prepare gap analysis report.",
+    location: "STC Bank HQ, Riyadh",
+    duration: "180 minutes",
+  },
+  {
+    id: 8,
+    title: "Architecture Design Review",
+    date: "2026-02-05",
+    time: "2:00 PM - 4:00 PM",
+    attendees: ["Mohammed Al-Rashid", "Ahmed Hassan", "Rayyan Basha", "James Chen", "Maria Santos", "David Kumar"],
+    type: "Workshop",
+    status: "Completed",
+    recordingLink: "https://drive.google.com/file/d/architecture-recording",
+    notes: "Presented proposed architecture design. Client requested modifications to integration approach. Agreed on revised timeline for architecture finalization. Follow-up: Share updated architecture diagrams by Feb 10.",
+    location: "Virtual",
+    duration: "120 minutes",
+  },
+  {
+    id: 9,
+    title: "Weekly Status Update",
+    date: "2026-02-12",
+    time: "11:00 AM - 11:30 AM",
+    attendees: ["Mohammed Al-Rashid", "Rayyan Basha"],
+    type: "Meeting",
+    status: "Completed",
+    recordingLink: null,
+    notes: "Reviewed progress on Milestone 2. Discussed payment discrepancy issue. Client committed to resolving by end of week.",
+    location: "Virtual",
+    duration: "30 minutes",
   },
 ];
 
@@ -1144,6 +1239,9 @@ const EngagementDetail = () => {
                 }>
                   {mockEngagement.status}
                 </Badge>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  {mockEngagement.type}
+                </Badge>
                 <div className="flex items-center gap-2">
                   <div className={`h-3 w-3 rounded-full ${getHealthColor(mockEngagement.healthStatus)}`} />
                   <span className="text-sm font-medium text-muted-foreground">
@@ -1215,376 +1313,341 @@ const EngagementDetail = () => {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 lg:grid-cols-3">
-              {/* Main Content - 2 columns */}
-              <div className="lg:col-span-2 space-y-4">
-                {/* Project Health */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity size={20} />
-                      Project Health
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-12 w-12 rounded-full ${getHealthColor(mockEngagement.healthStatus)} flex items-center justify-center`}>
-                            <CheckCircle2 size={24} className="text-white" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-foreground">
-                              {getHealthLabel(mockEngagement.healthStatus)}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Overall engagement health
-                            </p>
-                          </div>
-                        </div>
+            {/* Project Vision - Collapsible */}
+            <Collapsible defaultOpen>
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        <FileText size={20} className="text-purple-600" />
                       </div>
-
-                      <div className="pt-4 border-t border-border">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-sm font-medium text-foreground">Progress Tracking</span>
-                          {!isEditingProgress ? (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setIsEditingProgress(true)}
-                            >
-                              Edit
-                            </Button>
-                          ) : (
-                            <div className="flex gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleCancelProgress}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                size="sm"
-                                onClick={handleSaveProgress}
-                              >
-                                Save
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-
-                        {isEditingProgress ? (
-                          <div className="space-y-4">
-                            <div>
-                              <label className="text-xs text-muted-foreground mb-2 block">
-                                Planned Progress (%)
-                              </label>
-                              <input
-                                type="number"
-                                min="0"
-                                max="100"
-                                value={plannedProgress}
-                                onChange={(e) => setPlannedProgress(Number(e.target.value))}
-                                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-muted-foreground mb-2 block">
-                                Actual Progress (%)
-                              </label>
-                              <input
-                                type="number"
-                                min="0"
-                                max="100"
-                                value={actualProgress}
-                                onChange={(e) => setActualProgress(Number(e.target.value))}
-                                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="flex items-center justify-between mb-2 text-sm">
-                              <span className="text-muted-foreground">Planned</span>
-                              <span className="font-medium text-foreground">{plannedProgress}%</span>
-                            </div>
-                            <div className="flex items-center justify-between mb-2 text-sm">
-                              <span className="text-muted-foreground">Actual</span>
-                              <span className="font-medium text-foreground">{actualProgress}%</span>
-                            </div>
-                            <Progress value={actualProgress} className="h-3" />
-                            {actualProgress < plannedProgress && (
-                              <p className="mt-2 text-xs text-yellow-600 flex items-center gap-1">
-                                <AlertCircle size={12} />
-                                Behind schedule by {plannedProgress - actualProgress}%
-                              </p>
-                            )}
-                          </>
-                        )}
+                      <div>
+                        <CardTitle className="text-base">Project Vision</CardTitle>
                       </div>
                     </div>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <ChevronDown size={16} />
+                      </Button>
+                    </CollapsibleTrigger>
+                  </div>
+                </CardHeader>
+                <CollapsibleContent>
+                  <CardContent className="pt-0">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Enable the design and implementation of a comprehensive GRC capability for STC Bank, ensuring alignment with SAMA ITGF and attainment of Level 3...
+                    </p>
                   </CardContent>
-                </Card>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
 
-                {/* Upcoming Sessions */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <Calendar size={20} />
-                        Upcoming Client Sessions
-                      </CardTitle>
-                      <Button variant="outline" size="sm">View All</Button>
+            {/* Key Metrics - 4 Cards */}
+            <div className="grid gap-4 md:grid-cols-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <CheckCircle2 size={20} className="text-green-600" />
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {upcomingSessions.map((session) => (
-                        <div
-                          key={session.id}
-                          className="flex items-center justify-between p-3 rounded-lg border border-border bg-accent/30 hover:bg-accent/50 transition-colors"
-                        >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-medium text-foreground">{session.title}</p>
-                              <Badge variant="outline" className="text-xs">
-                                {session.type}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Calendar size={12} />
-                                {session.date}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Clock size={12} />
-                                {session.time}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Users size={12} />
-                                {session.attendees} attendees
-                              </span>
-                            </div>
-                          </div>
-                          <Button variant="ghost" size="sm">Details</Button>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Top Risks & Issues */}
-                <div className="grid gap-6 md:grid-cols-2">
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-base">
-                          <AlertCircle size={18} className="text-orange-500" />
-                          Critical Risks
-                        </CardTitle>
-                        <Button variant="ghost" size="sm">View All</Button>
-                      </div>
-                      <CardDescription className="text-xs">
-                        Critical items or due within 7 days
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {topRisks.map((risk) => (
-                          <div key={risk.id} className="p-3 rounded-lg border border-border">
-                            <div className="flex items-start justify-between mb-2">
-                              <p className="text-sm font-medium text-foreground">{risk.title}</p>
-                              <Badge
-                                variant={risk.severity === "Critical" ? "destructive" : "secondary"}
-                                className="text-xs"
-                              >
-                                {risk.severity}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>{risk.status}</span>
-                              <span className="flex items-center gap-1">
-                                <Calendar size={12} />
-                                Due {risk.dueDate}
-                              </span>
-                            </div>
-                            <p className="mt-1 text-xs text-muted-foreground">Owner: {risk.owner}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-base">
-                          <AlertCircle size={18} className="text-red-500" />
-                          Critical Issues
-                        </CardTitle>
-                        <Button variant="ghost" size="sm">View All</Button>
-                      </div>
-                      <CardDescription className="text-xs">
-                        Critical items or due within 7 days
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {topIssues.map((issue) => (
-                          <div key={issue.id} className="p-3 rounded-lg border border-border">
-                            <div className="flex items-start justify-between mb-2">
-                              <p className="text-sm font-medium text-foreground">{issue.title}</p>
-                              <Badge
-                                variant={issue.severity === "Critical" ? "destructive" : "secondary"}
-                                className="text-xs"
-                              >
-                                {issue.severity}
-                              </Badge>
-                            </div>
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>{issue.status}</span>
-                              <span className="flex items-center gap-1">
-                                <Calendar size={12} />
-                                Due {issue.dueDate}
-                              </span>
-                            </div>
-                            <p className="mt-1 text-xs text-muted-foreground">Owner: {issue.owner}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Recent Activity */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity size={20} />
-                      Recent Activity
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recentActivity.map((activity) => (
-                        <div key={activity.id} className="flex gap-3">
-                          <div className="mt-1">
-                            <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center">
-                              {activity.type === "deliverable" && <FileText size={14} className="text-primary" />}
-                              {activity.type === "session" && <Calendar size={14} className="text-blue-500" />}
-                              {activity.type === "update" && <TrendingUp size={14} className="text-green-500" />}
-                              {activity.type === "risk" && <AlertCircle size={14} className="text-orange-500" />}
-                            </div>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-foreground">{activity.title}</p>
-                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                              <span>{activity.user}</span>
-                              <span>•</span>
-                              <span>{activity.timestamp}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Right Context Panel */}
-              <div className="space-y-4">
-                {/* Financial Snapshot */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <DollarSign size={18} />
-                      Financial Snapshot
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-muted-foreground">Invoiced</span>
-                        <span className="text-sm font-medium text-foreground">
-                          SAR {mockEngagement.invoiced.toLocaleString()}
-                        </span>
+                      <p className="text-2xl font-bold text-foreground">0/4</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Milestones Completed</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
+                      <Package size={20} className="text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground">4</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Total Deliverables</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                      <AlertCircle size={20} className="text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground">11</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Open RAID Items</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                      <Calendar size={20} className="text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground">10</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Upcoming Sessions</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="grid gap-4 lg:grid-cols-2">
+              {/* Project Progress */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">Project Progress</CardTitle>
+                    <Badge variant="destructive" className="gap-1">
+                      <AlertCircle size={12} />
+                      At Risk
+                    </Badge>
+                  </div>
+                  <CardDescription className="text-xs">Actual vs. planned progress tracking</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-foreground mb-3">Progress Overview</p>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground">Planned</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-foreground">70%</span>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <Edit size={12} />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-gray-400" style={{ width: "70%" }}></div>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-muted-foreground">Paid</span>
-                        <span className="text-sm font-medium text-foreground">
-                          SAR {mockEngagement.paid.toLocaleString()}
-                        </span>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-muted-foreground">Actual</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-foreground">60%</span>
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                              <Edit size={12} />
+                            </Button>
+                            <Badge variant="destructive" className="text-xs">-10%</Badge>
+                          </div>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-orange-500" style={{ width: "60%" }}></div>
+                        </div>
                       </div>
-                      <Progress
-                        value={(mockEngagement.paid / mockEngagement.invoiced) * 100}
-                        className="h-2"
-                      />
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {Math.round((mockEngagement.paid / mockEngagement.invoiced) * 100)}% collected
+                    </div>
+
+                    <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200">
+                      <p className="text-xs text-red-900 flex items-center gap-2">
+                        <AlertCircle size={14} />
+                        <span className="font-medium">Project is 10% behind planned schedule</span>
                       </p>
                     </div>
+                  </div>
 
-                    <div className="pt-4 border-t border-border">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Outstanding</span>
-                        <span className="text-sm font-semibold text-orange-600">
-                          SAR {(mockEngagement.invoiced - mockEngagement.paid).toLocaleString()}
-                        </span>
+                  <div className="pt-4 border-t border-border grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Contract Value</p>
+                      <p className="font-semibold text-foreground">SAR 1,272,861</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Service Order</p>
+                      <p className="font-semibold text-foreground">SO-2024-STC-GRC-001</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Financial Snapshot */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Financial Snapshot</CardTitle>
+                  <CardDescription className="text-xs">Payment status and collection overview</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText size={16} className="text-blue-600" />
+                        <span className="text-xs text-blue-900 font-medium">Invoiced</span>
                       </div>
+                      <p className="text-xl font-bold text-blue-900">SAR 318,215.25</p>
                     </div>
-                  </CardContent>
-                </Card>
 
-                {/* Quick Actions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Quick Actions</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <Button variant="outline" className="w-full justify-start">
-                      <FileText size={16} className="mr-2" />
-                      Add Deliverable
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Calendar size={16} className="mr-2" />
-                      Schedule Session
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <AlertCircle size={16} className="mr-2" />
-                      Log Risk/Issue
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Users size={16} className="mr-2" />
-                      Manage Team
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Key Dates */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Key Dates</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Start Date</span>
-                      <span className="font-medium text-foreground">{mockEngagement.startDate}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Forecast End</span>
-                      <span className="font-medium text-foreground">{mockEngagement.forecastEndDate}</span>
-                    </div>
-                    <div className="pt-3 border-t border-border">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock size={14} className="text-muted-foreground" />
-                        <span className="text-muted-foreground">34 days remaining</span>
+                    <div className="p-4 rounded-lg bg-green-50 border border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp size={16} className="text-green-600" />
+                        <span className="text-xs text-green-900 font-medium">Paid</span>
                       </div>
+                      <p className="text-xl font-bold text-green-900">SAR 302,304.49</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-muted-foreground">Collection Progress</span>
+                      <span className="text-sm font-semibold text-foreground">95%</span>
+                    </div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-green-500" style={{ width: "95%" }}></div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-orange-50 border border-orange-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle size={16} className="text-orange-600" />
+                        <span className="text-xs text-orange-900 font-medium">Outstanding</span>
+                      </div>
+                      <p className="text-lg font-bold text-orange-900">SAR 15,910.76</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
+
+            {/* High Impact Risks & Issues */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base">High Impact Risks & Issues</CardTitle>
+                    <CardDescription className="text-xs">Items with significant potential or actual impact on delivery</CardDescription>
+                  </div>
+                  <Button variant="link" className="text-orange-600 gap-1">
+                    View All
+                    <ArrowLeft size={14} className="rotate-180" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {/* Risk Item */}
+                <div className="p-4 rounded-lg border-l-4 border-l-yellow-500 bg-yellow-50/50 border border-yellow-200">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                      <AlertCircle size={16} className="text-yellow-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs">Risk</Badge>
+                        <Badge variant="destructive" className="text-xs">High Impact</Badge>
+                        <Badge variant="secondary" className="text-xs">Medium Probability</Badge>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">MS03/MS04 Contract Change Impact (CCN)</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        <strong>Action:</strong> DQ to share CCN DQ - STC to align on CCN Capture sign-off on CCN
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground pl-11">
+                    <span className="flex items-center gap-1">
+                      <User size={12} />
+                      Rayyan Basha
+                    </span>
+                    <Badge variant="outline" className="text-xs">Scope Unmanaged</Badge>
+                  </div>
+                </div>
+
+                {/* Issue Item 1 */}
+                <div className="p-4 rounded-lg border-l-4 border-l-red-500 bg-red-50/50 border border-red-200">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                      <AlertCircle size={16} className="text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300 text-xs">Issue</Badge>
+                        <Badge variant="destructive" className="text-xs">High Severity</Badge>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">Delays in MS02 Acceptance</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        <strong>Action:</strong> Ensure escalation thrugh SteerCo if reviews are not completed on time
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground pl-11">
+                    <span className="flex items-center gap-1">
+                      <User size={12} />
+                      Rayyan Basha
+                    </span>
+                    <Badge variant="outline" className="text-xs">Schedule Slippage</Badge>
+                  </div>
+                </div>
+
+                {/* Issue Item 2 */}
+                <div className="p-4 rounded-lg border-l-4 border-l-red-500 bg-red-50/50 border border-red-200">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                      <AlertCircle size={16} className="text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300 text-xs">Issue</Badge>
+                        <Badge variant="destructive" className="text-xs">High Severity</Badge>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">Milestone 01 Payment Discrepancy (WHT-related)</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        <strong>Action:</strong> Escalation issued through weekly status and email shared
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground pl-11">
+                    <span className="flex items-center gap-1">
+                      <User size={12} />
+                      Rayyan Basha
+                    </span>
+                    <Badge variant="outline" className="text-xs">Unresolved Contractual Obligations</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Next Working Session */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">Next Working Session</CardTitle>
+                  <Badge variant="secondary" className="bg-orange-100 text-orange-800 border-orange-300">Coming Soon</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="p-4 rounded-lg bg-accent/30 border border-border">
+                  <p className="text-base font-semibold text-foreground mb-4">Weekly test</p>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <Calendar size={16} className="text-orange-600 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Date & Time</p>
+                        <p className="text-sm font-medium text-foreground">Friday, April 17, 2026 at 12:21:00</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Clock size={16} className="text-orange-600 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Session Type</p>
+                        <p className="text-sm font-medium text-foreground">Weekly Status</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Plan Tab */}
@@ -2177,14 +2240,305 @@ const EngagementDetail = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="sessions">
+          <TabsContent value="sessions" className="space-y-4">
+            {/* Header with CTA */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-foreground">Working Sessions</h2>
+                <p className="text-sm text-muted-foreground">
+                  Manage workshops, meetings, and client sessions
+                </p>
+              </div>
+              <Button className="gap-2">
+                <Plus size={16} />
+                Schedule Session
+              </Button>
+            </div>
+
+            {/* Upcoming Sessions */}
             <Card>
               <CardHeader>
-                <CardTitle>Working Sessions</CardTitle>
-                <CardDescription>Manage workshops and client meetings</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base">Upcoming Sessions</CardTitle>
+                    <CardDescription className="text-xs">Confirmed sessions scheduled with the client</CardDescription>
+                  </div>
+                  <Badge variant="secondary">{upcomingSessions.length} sessions</Badge>
+                </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Sessions view coming soon...</p>
+              <CardContent className="space-y-3">
+                {upcomingSessions.map((session) => (
+                  <div key={session.id} className="p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="text-sm font-semibold text-foreground">{session.title}</h4>
+                          <Badge variant="outline" className="text-xs">
+                            {session.type}
+                          </Badge>
+                          <Badge variant="default" className="text-xs bg-green-100 text-green-800 border-green-300">
+                            {session.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">{session.description}</p>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                          <div className="flex items-center gap-2">
+                            <Calendar size={14} className="text-muted-foreground" />
+                            <span className="text-foreground">
+                              {new Date(session.date).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock size={14} className="text-muted-foreground" />
+                            <span className="text-foreground">{session.time}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Users size={14} className="text-muted-foreground" />
+                            <span className="text-foreground">{session.attendees.length} attendees</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Building2 size={14} className="text-muted-foreground" />
+                            <span className="text-foreground">{session.location}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Attendees */}
+                    <Collapsible>
+                      <div className="flex items-center justify-between pt-3 border-t border-border">
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="sm" className="gap-2">
+                            <Users size={14} />
+                            View Attendees ({session.attendees.length})
+                            <ChevronDown size={14} />
+                          </Button>
+                        </CollapsibleTrigger>
+                        {session.meetingLink && (
+                          <Button variant="outline" size="sm" className="gap-2" asChild>
+                            <a href={session.meetingLink} target="_blank" rel="noopener noreferrer">
+                              <Mail size={14} />
+                              Join Meeting
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                      <CollapsibleContent className="pt-3">
+                        <div className="flex flex-wrap gap-2">
+                          {session.attendees.map((attendee, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {attendee}
+                            </Badge>
+                          ))}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Requested Sessions */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base">Requested Sessions</CardTitle>
+                    <CardDescription className="text-xs">Sessions requested by client pending approval</CardDescription>
+                  </div>
+                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                    {requestedSessions.length} pending
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {requestedSessions.map((session) => (
+                  <div key={session.id} className="p-4 rounded-lg border-2 border-yellow-200 bg-yellow-50/50">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="text-sm font-semibold text-foreground">{session.title}</h4>
+                          <Badge variant="outline" className="text-xs">
+                            {session.type}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-300">
+                            {session.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-3">{session.description}</p>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                          <div>
+                            <p className="text-muted-foreground mb-1">Requested By</p>
+                            <p className="text-foreground font-medium">{session.requestedBy}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground mb-1">Preferred Date</p>
+                            <p className="text-foreground font-medium">
+                              {new Date(session.preferredDate).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground mb-1">Preferred Time</p>
+                            <p className="text-foreground font-medium">{session.preferredTime}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 pt-3 border-t border-yellow-200">
+                      <Button size="sm" className="gap-2">
+                        <CheckCircle2 size={14} />
+                        Approve & Schedule
+                      </Button>
+                      <Button size="sm" variant="outline" className="gap-2">
+                        <Edit size={14} />
+                        Suggest Alternative
+                      </Button>
+                      <Button size="sm" variant="ghost" className="gap-2 text-red-600 hover:text-red-700">
+                        <Trash2 size={14} />
+                        Decline
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Past Sessions */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base">Past Sessions</CardTitle>
+                    <CardDescription className="text-xs">Completed sessions with notes and recordings</CardDescription>
+                  </div>
+                  <Badge variant="secondary">{pastSessions.length} completed</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {pastSessions.map((session) => (
+                  <Collapsible key={session.id}>
+                    <div className="p-4 rounded-lg border border-border bg-accent/30">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="text-sm font-semibold text-foreground">{session.title}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {session.type}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs bg-gray-100 text-gray-800 border-gray-300">
+                              {session.status}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3">
+                            <div className="flex items-center gap-2">
+                              <Calendar size={14} className="text-muted-foreground" />
+                              <span className="text-foreground">
+                                {new Date(session.date).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Clock size={14} className="text-muted-foreground" />
+                              <span className="text-foreground">{session.time}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Users size={14} className="text-muted-foreground" />
+                              <span className="text-foreground">{session.attendees.length} attendees</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Building2 size={14} className="text-muted-foreground" />
+                              <span className="text-foreground">{session.location}</span>
+                            </div>
+                          </div>
+
+                          {/* Session Notes Preview */}
+                          {session.notes && (
+                            <div className="p-3 rounded bg-white border border-border">
+                              <p className="text-xs text-muted-foreground mb-1 font-medium">Session Notes:</p>
+                              <p className="text-xs text-foreground line-clamp-2">{session.notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 pt-3 border-t border-border">
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="sm" className="gap-2">
+                            <ChevronDown size={14} />
+                            View Details
+                          </Button>
+                        </CollapsibleTrigger>
+                        {session.recordingLink && (
+                          <Button variant="outline" size="sm" className="gap-2" asChild>
+                            <a href={session.recordingLink} target="_blank" rel="noopener noreferrer">
+                              <Activity size={14} />
+                              View Recording
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Expanded Details */}
+                      <CollapsibleContent className="pt-4 space-y-4">
+                        {/* Full Notes */}
+                        {session.notes && (
+                          <div>
+                            <p className="text-xs font-semibold text-foreground mb-2">Full Session Notes</p>
+                            <div className="p-3 rounded bg-white border border-border">
+                              <p className="text-xs text-foreground whitespace-pre-wrap">{session.notes}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Attendees */}
+                        <div>
+                          <p className="text-xs font-semibold text-foreground mb-2">Attendees ({session.attendees.length})</p>
+                          <div className="flex flex-wrap gap-2">
+                            {session.attendees.map((attendee, idx) => (
+                              <div key={idx} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-border">
+                                <Avatar className="h-5 w-5">
+                                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                                    {attendee.split(" ").map((n) => n[0]).join("")}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-xs text-foreground">{attendee}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Session Metadata */}
+                        <div className="grid grid-cols-2 gap-4 text-xs">
+                          <div>
+                            <p className="text-muted-foreground mb-1">Duration</p>
+                            <p className="text-foreground font-medium">{session.duration}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground mb-1">Location</p>
+                            <p className="text-foreground font-medium">{session.location}</p>
+                          </div>
+                        </div>
+                      </CollapsibleContent>
+                    </div>
+                  </Collapsible>
+                ))}
               </CardContent>
             </Card>
           </TabsContent>

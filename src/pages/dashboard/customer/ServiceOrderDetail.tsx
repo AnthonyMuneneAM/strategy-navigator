@@ -22,12 +22,21 @@ import {
   Send,
   Video,
   DollarSign,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,6 +60,7 @@ const CustomerServiceOrderDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [raidView, setRaidView] = useState<"risks" | "assumptions" | "issues" | "dependencies">("risks");
   
   // Confirmation dialog states
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
@@ -152,6 +162,9 @@ const CustomerServiceOrderDetail = () => {
                 <Badge variant="secondary" className="text-xs">
                   {order.stage}
                 </Badge>
+                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                  {order.serviceType}
+                </Badge>
               </div>
               <p className="text-sm text-muted-foreground mb-4">{order.serviceOrderNumber}</p>
               
@@ -238,6 +251,7 @@ const CustomerServiceOrderDetail = () => {
                   <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">3</Badge>
                 </TabsTrigger>
                 <TabsTrigger value="sessions">Sessions</TabsTrigger>
+                <TabsTrigger value="raid">RAID</TabsTrigger>
                 <TabsTrigger value="activity">Activity</TabsTrigger>
               </>
             )}
@@ -1972,6 +1986,359 @@ const CustomerServiceOrderDetail = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* RAID Tab */}
+          <TabsContent value="raid" className="space-y-4">
+            {order.stage === "Payment Pending" ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <div className="w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center mb-4">
+                    <AlertCircle size={32} className="text-yellow-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">RAID Log Unavailable</h3>
+                  <p className="text-sm text-muted-foreground text-center max-w-md mb-4">
+                    RAID tracking will be available once payment is confirmed and delivery begins.
+                  </p>
+                  <div className="text-xs text-muted-foreground text-center max-w-md">
+                    You'll be able to view Risks, Assumptions, Issues, and Dependencies during active delivery.
+                  </div>
+                </CardContent>
+              </Card>
+            ) : !order.raid ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <AlertCircle size={48} className="text-muted-foreground/20 mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No RAID Items</h3>
+                  <p className="text-sm text-muted-foreground text-center max-w-md">
+                    Your delivery lead will share relevant risks, assumptions, issues, and dependencies as they arise.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {/* Info Banner */}
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <Info size={20} className="text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-900">
+                        Showing items relevant to your engagement
+                      </p>
+                      <p className="text-xs text-blue-800 mt-1">
+                        Your delivery lead manages additional internal tracking to ensure smooth delivery.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* RAID Type Selector */}
+                <div className="flex gap-2">
+                  <Button
+                    variant={raidView === "risks" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setRaidView("risks")}
+                    className="gap-2"
+                  >
+                    <AlertCircle size={14} />
+                    Risks ({order.raid.risks.filter(r => r.visibility === "External").length})
+                  </Button>
+                  <Button
+                    variant={raidView === "issues" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setRaidView("issues")}
+                    className="gap-2"
+                  >
+                    <AlertCircle size={14} />
+                    Issues ({order.raid.issues.filter(i => i.visibility === "External").length})
+                  </Button>
+                  <Button
+                    variant={raidView === "assumptions" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setRaidView("assumptions")}
+                    className="gap-2"
+                  >
+                    <CheckCircle2 size={14} />
+                    Assumptions ({order.raid.assumptions.filter(a => a.visibility === "External").length})
+                  </Button>
+                  <Button
+                    variant={raidView === "dependencies" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setRaidView("dependencies")}
+                    className="gap-2"
+                  >
+                    <Activity size={14} />
+                    Dependencies ({order.raid.dependencies.filter(d => d.visibility === "External").length})
+                  </Button>
+                </div>
+
+                {/* RAID Content */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base capitalize">{raidView}</CardTitle>
+                    <CardDescription>
+                      {raidView === "risks" && "Potential issues that may impact delivery timeline or scope"}
+                      {raidView === "issues" && "Current blockers or problems requiring attention"}
+                      {raidView === "assumptions" && "Key assumptions about resources, timelines, or requirements"}
+                      {raidView === "dependencies" && "External dependencies that may affect delivery"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Risks Table */}
+                    {raidView === "risks" && (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Risk</TableHead>
+                            <TableHead className="w-24">Severity</TableHead>
+                            <TableHead className="w-24">Status</TableHead>
+                            <TableHead className="w-32">Owner</TableHead>
+                            <TableHead className="w-32">Due Date</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {order.raid.risks
+                            .filter(risk => risk.visibility === "External")
+                            .map((risk) => (
+                              <TableRow key={risk.id} className="cursor-pointer hover:bg-muted/50">
+                                <TableCell>
+                                  <div>
+                                    <p className="font-medium text-foreground">{risk.title}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{risk.description}</p>
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                      <span className="font-medium">Mitigation:</span> {risk.mitigationPlan}
+                                    </p>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={
+                                    risk.severity === "Critical" ? "destructive" :
+                                    risk.severity === "High" ? "default" :
+                                    "secondary"
+                                  } className="text-xs">
+                                    {risk.severity}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="text-xs">
+                                    {risk.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-sm">{risk.owner}</TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {new Date(risk.dueDate).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          {order.raid.risks.filter(risk => risk.visibility === "External").length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                                <CheckCircle2 size={32} className="mx-auto mb-2 text-green-500" />
+                                <p>No risks identified at this time</p>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    )}
+
+                    {/* Issues Table */}
+                    {raidView === "issues" && (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Issue</TableHead>
+                            <TableHead className="w-24">Severity</TableHead>
+                            <TableHead className="w-32">Status</TableHead>
+                            <TableHead className="w-32">Owner</TableHead>
+                            <TableHead className="w-32">Due Date</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {order.raid.issues
+                            .filter(issue => issue.visibility === "External")
+                            .map((issue) => (
+                              <TableRow key={issue.id} className="cursor-pointer hover:bg-muted/50">
+                                <TableCell>
+                                  <div>
+                                    <p className="font-medium text-foreground">{issue.title}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{issue.description}</p>
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                      <span className="font-medium">Resolution:</span> {issue.resolution}
+                                    </p>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={
+                                    issue.severity === "Critical" ? "destructive" :
+                                    issue.severity === "High" ? "default" :
+                                    "secondary"
+                                  } className="text-xs">
+                                    {issue.severity}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={
+                                    issue.status === "Blocked" ? "destructive" :
+                                    issue.status === "In Progress" ? "default" :
+                                    "outline"
+                                  } className="text-xs">
+                                    {issue.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-sm">{issue.owner}</TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {new Date(issue.dueDate).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          {order.raid.issues.filter(issue => issue.visibility === "External").length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                                <CheckCircle2 size={32} className="mx-auto mb-2 text-green-500" />
+                                <p>No issues at this time</p>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    )}
+
+                    {/* Assumptions Table */}
+                    {raidView === "assumptions" && (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Assumption</TableHead>
+                            <TableHead className="w-32">Category</TableHead>
+                            <TableHead className="w-32">Status</TableHead>
+                            <TableHead className="w-32">Owner</TableHead>
+                            <TableHead className="w-32">Validated</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {order.raid.assumptions
+                            .filter(assumption => assumption.visibility === "External")
+                            .map((assumption) => (
+                              <TableRow key={assumption.id} className="cursor-pointer hover:bg-muted/50">
+                                <TableCell>
+                                  <div>
+                                    <p className="font-medium text-foreground">{assumption.title}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{assumption.description}</p>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="text-xs">
+                                    {assumption.category}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={
+                                    assumption.status === "Valid" ? "default" :
+                                    assumption.status === "Invalid" ? "destructive" :
+                                    "secondary"
+                                  } className="text-xs">
+                                    {assumption.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-sm">{assumption.owner}</TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {assumption.validatedDate 
+                                    ? new Date(assumption.validatedDate).toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                      })
+                                    : "Pending"
+                                  }
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          {order.raid.assumptions.filter(assumption => assumption.visibility === "External").length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                                <CheckCircle2 size={32} className="mx-auto mb-2 text-green-500" />
+                                <p>No assumptions documented</p>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    )}
+
+                    {/* Dependencies Table */}
+                    {raidView === "dependencies" && (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Dependency</TableHead>
+                            <TableHead className="w-32">Type</TableHead>
+                            <TableHead className="w-32">Status</TableHead>
+                            <TableHead className="w-32">Owner</TableHead>
+                            <TableHead className="w-32">Required By</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {order.raid.dependencies
+                            .filter(dependency => dependency.visibility === "External")
+                            .map((dependency) => (
+                              <TableRow key={dependency.id} className="cursor-pointer hover:bg-muted/50">
+                                <TableCell>
+                                  <div>
+                                    <p className="font-medium text-foreground">{dependency.title}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{dependency.description}</p>
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                      <span className="font-medium">Dependent on:</span> {dependency.dependentOn}
+                                    </p>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="text-xs">
+                                    {dependency.type}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={
+                                    dependency.status === "Received" ? "default" :
+                                    dependency.status === "Blocked" ? "destructive" :
+                                    "secondary"
+                                  } className="text-xs">
+                                    {dependency.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="text-sm">{dependency.owner}</TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {new Date(dependency.requiredDate).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          {order.raid.dependencies.filter(dependency => dependency.visibility === "External").length === 0 && (
+                            <TableRow>
+                              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                                <CheckCircle2 size={32} className="mx-auto mb-2 text-green-500" />
+                                <p>No external dependencies</p>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </TabsContent>
 
           {/* Activity Tab */}
