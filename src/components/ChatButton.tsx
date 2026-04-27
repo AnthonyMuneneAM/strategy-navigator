@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Sparkles, Brain, Search, ShoppingCart } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import DiagnoseDialog from "./DiagnoseDialog";
+import { useConversation } from "@/contexts/ConversationContext";
 
 const ChatButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
   const [currentStage, setCurrentStage] = useState<"concierge" | "advisory">("concierge");
   const location = useLocation();
+  const { hasActiveConversation, messages } = useConversation();
 
   // Determine stage based on current route
   useEffect(() => {
@@ -24,6 +26,16 @@ const ChatButton = () => {
 
   // Stage-specific tooltip content
   const getTooltipContent = () => {
+    // If there's an active conversation, show "Continue conversation"
+    if (hasActiveConversation) {
+      return {
+        icon: Sparkles,
+        title: "Continue your conversation",
+        description: `You have ${messages.length} message${messages.length !== 1 ? 's' : ''} with Butler`,
+        cta: "Resume Chat"
+      };
+    }
+    
     if (currentStage === "concierge") {
       return {
         icon: Brain,
@@ -127,7 +139,9 @@ const ChatButton = () => {
           className="group relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-brand shadow-brand transition-shadow hover:shadow-elevated"
           title={`TMaaS AI ${currentStage === "concierge" ? "Concierge" : "Advisor"}`}
         >
-          {currentStage === "concierge" ? (
+          {hasActiveConversation ? (
+            <Sparkles size={24} className="text-primary-foreground" />
+          ) : currentStage === "concierge" ? (
             <Brain size={24} className="text-primary-foreground" />
           ) : (
             <Search size={24} className="text-primary-foreground" />
@@ -135,13 +149,19 @@ const ChatButton = () => {
           
           {/* Pulse animation - more subtle for advisory stage */}
           <span className={`absolute inset-0 rounded-full bg-gradient-brand opacity-75 ${
-            currentStage === "concierge" ? "animate-ping" : "animate-pulse"
+            hasActiveConversation ? "animate-pulse" : currentStage === "concierge" ? "animate-ping" : "animate-pulse"
           }`}></span>
           
-          {/* Stage indicator */}
-          <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-navy text-xs font-bold text-white">
-            {currentStage === "concierge" ? "0" : "1"}
-          </div>
+          {/* Conversation indicator or Stage indicator */}
+          {hasActiveConversation ? (
+            <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">
+              {messages.length}
+            </div>
+          ) : (
+            <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-navy text-xs font-bold text-white">
+              {currentStage === "concierge" ? "0" : "1"}
+            </div>
+          )}
         </motion.button>
       </div>
 

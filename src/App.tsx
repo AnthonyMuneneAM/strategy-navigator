@@ -29,6 +29,7 @@ import Privacy from "./pages/legal/Privacy";
 import FAQ from "./pages/legal/FAQ";
 
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ConversationProvider } from "@/contexts/ConversationContext";
 
 const queryClient = new QueryClient();
 
@@ -46,10 +47,11 @@ const ConditionalChatButton = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <ConversationProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/explore" element={<Explore />} />
@@ -90,6 +92,7 @@ const App = () => (
         <ConditionalChatButton />
       </BrowserRouter>
       </TooltipProvider>
+      </ConversationProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

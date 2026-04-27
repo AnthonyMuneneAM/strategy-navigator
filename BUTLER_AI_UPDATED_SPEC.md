@@ -7,6 +7,29 @@ Butler.AI is a conversational AI agent embedded in the TMaaS platform. It serves
 
 ---
 
+## Stephane's Complete Flow Requirements (April 22, 2026)
+
+### The Three-Part Flow:
+
+**Stephane's Exact Words:**
+> "On any landing page, on any chat thread, when you have the chat bot, it follows these basic free, if I'm not ready to buy, why are you, or I want to understand more, tell me more. So there is the **knowledge exchange**, but at the same time, you're trying to actually lock the person in, find a way to ask him about, okay, which organization are you talking about? Can I have your email just in case there is an interruption?"
+
+### The Flow Breakdown:
+
+1. **Knowledge Exchange** - Provide value, explain root causes, educate
+2. **Commercial Lock-In** - Collect email, organization name (for lead capture)
+3. **Smart Navigation** - Guide to appropriate service or resource
+
+### Implementation Status:
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Knowledge Exchange | ✅ Complete | 16 paths with root cause analysis |
+| Commercial Lock-In | ⚠️ Partial | Contact form exists, needs proactive trigger |
+| Smart Navigation | ✅ Complete | Agent auto-navigation implemented |
+
+---
+
 ## Core Functionality
 
 ### 1. Platform Orientation (Audience-Specific Targeting)
@@ -15,15 +38,16 @@ Butler.AI is a conversational AI agent embedded in the TMaaS platform. It serves
     - **Butler**: "Hi, I'm Butler, your guide to achieving seamless digital transformation. Whether you're exploring, designing, or deploying your strategy, I'm here to make it easier. How can I assist you today?"
   - **Future Enhancement**: Explicit audience detection ("Are you browsing, evaluating, or ready to engage?") to tailor entire conversation paths.
 
-### 2. Knowledge Exchange & Educational Guidance
-- Butler does not just answer questions; it educates. The chatbot provides deep, root-cause explanations before making recommendations, following the pattern: **Problem → Root Cause → Traditional Fix (Why It Fails) → Modern Solution → TMaaS Blueprint**.
+### 2. Knowledge Exchange (Stephane's Exact Term)
+- Butler does not just answer questions; it provides **knowledge exchange**. The chatbot gives deep, root-cause explanations before making recommendations, following the pattern: **Problem → Root Cause → Traditional Fix (Why It Fails) → Modern Solution → TMaaS Blueprint**.
+- **Stephane's Words**: "So there is the knowledge exchange, but at the same time, you're trying to actually lock the person in"
   - **Action**: Use context-aware, knowledge-rich responses that explain WHY problems occur:
     - **User**: "We have data silos across systems."
     - **Butler**: "Data silos happen because each system was optimized for its own function — CRM for sales, ERP for operations, marketing automation for campaigns. They weren't designed to talk to each other. The traditional approach is to build point-to-point integrations. But that creates a maintenance nightmare. Every new system means N new integrations. The modern approach? A unified data fabric using Change Data Capture (CDC) streaming..."
 
 ### 3. Realistic and Comprehensive Conversation Flow
-- Butler's conversations are engaging, realistic, and highly contextual, avoiding generic questions like "Which transformation are you in?" Instead, the chatbot provides educational context BEFORE asking specific questions.
-  - **Action**: A user's interaction evolves into a personalized flow with educational depth:
+- Butler's conversations are engaging, realistic, and highly contextual, avoiding generic questions like "Which transformation are you in?" Instead, the chatbot provides **knowledge exchange** context BEFORE asking specific questions.
+  - **Action**: A user's interaction evolves into a personalized flow with knowledge exchange depth:
     - **Butler**: "Data transformation is one of the highest-impact areas — but also where most organizations get stuck. The challenge isn't usually the analytics tools themselves. It's the underlying data architecture. Most legacy systems were built for transactions, not insights. Tell me — which of these resonates most with your situation right now?"
   - **Options**: [We have data silos across systems] [Our data quality is inconsistent] [We can't get a unified business view] [All of the above]
 
@@ -200,11 +224,12 @@ Butler.AI is a conversational AI agent embedded in the TMaaS platform. It serves
 
 ## Features Implemented
 
-### ✅ Knowledge-Rich Conversations
-- **16 educational challenge paths** (4 goals × 4 challenges each)
+### ✅ Knowledge-Rich Conversations (Knowledge Exchange)
+- **16 knowledge exchange paths** (4 goals × 4 challenges each)
 - Each path follows: Problem → Root Cause → Traditional Fix → Modern Solution → TMaaS Blueprint
 - Concrete examples (ERP, CRM, finance systems) instead of abstract concepts
 - Natural, warm tone (Claude Opus 4.7 patterns)
+- **Stephane's Requirement**: "So there is the knowledge exchange, but at the same time, you're trying to actually lock the person in"
 
 ### ✅ Agent-Like Navigation
 - Auto-navigation to service pages after user confirmation
@@ -240,11 +265,12 @@ Butler.AI is a conversational AI agent embedded in the TMaaS platform. It serves
 
 ## Conversation Quality Metrics
 
-### Educational Depth: 9.5/10
+### Knowledge Exchange Depth: 9.5/10
 - Root cause explanations for every challenge
 - Concrete examples throughout
 - Modern solutions vs traditional fixes
 - Architecture overviews with clear benefits
+- **Follows Stephane's "knowledge exchange" requirement**
 
 ### Agent Behavior: 9/10
 - Auto-navigation implemented
