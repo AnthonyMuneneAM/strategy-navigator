@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { mockedRecommendations, mockedFAQs, mockedEscalation, teamHandoff } from "@/data/butlerAI";
 import { useNavigate } from "react-router-dom";
+import { useConversation } from "@/contexts/ConversationContext";
 
 interface DiagnoseDialogProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ interface Message {
 }
 
 const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialogProps) => {
+  const conversation = useConversation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -39,8 +41,35 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactFormStep, setContactFormStep] = useState(0); // 0: not started, 1: asking name, 2: asking email, 3: asking reason, 4: complete
   const [contactFormData, setContactFormData] = useState({ name: "", email: "", reason: "" });
+  
+  // Stephane's Flow: Knowledge Exchange → Lead Capture → Navigation
+  const [collectingLead, setCollectingLead] = useState(false);
+  const [leadStep, setLeadStep] = useState(0); // 0: not started, 1: email, 2: org, 3: complete
+  const [leadData, setLeadData] = useState({ email: "", organization: "" });
+  const [leadCaptured, setLeadCaptured] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  
+  // Sync with conversation context when dialog opens
+  useEffect(() => {
+    if (isOpen && conversation.hasActiveConversation && messages.length === 0) {
+      // Only sync if local messages are empty to avoid duplicates
+      setMessages(conversation.messages);
+      setConversationStep(conversation.conversationStep);
+      setSelectedGoal(conversation.selectedGoal);
+    }
+  }, [isOpen]);
+  
+  // Wrapper functions to update both local state and context
+  const updateConversationStep = (step: number) => {
+    setConversationStep(step);
+    conversation.setConversationStep(step);
+  };
+  
+  const updateSelectedGoal = (goal: string) => {
+    setSelectedGoal(goal);
+    conversation.setSelectedGoal(goal);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -51,11 +80,11 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
   }, [messages, isTyping]);
 
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      // Initial greeting - no chips inside dialog
+    if (isOpen && messages.length === 0 && !conversation.hasActiveConversation) {
+      // Initial greeting - only show if no active conversation
       setTimeout(() => {
         addAIMessage(
-          "Hi, I'm Butler, your guide to achieving seamless digital transformation. Whether you're exploring, designing, or deploying your strategy, I'm here to make it easier. How can I assist you today?"
+          "Hi, I'm Butler, your guide to achieving seamless digital transformation. Whether you're exploring, designing, or deploying your strategy, I'm here to make it easier. How can I help you today?"
         );
       }, 500);
     }
@@ -78,28 +107,38 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     
     setTimeout(() => {
       setIsTyping(false);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          type: "ai",
-          content,
-          options,
-          links,
-        },
-      ]);
+      const newMessage = {
+        id: Date.now().toString(),
+        type: "ai" as const,
+        content,
+        options,
+        links,
+      };
+      setMessages((prev) => {
+        // Check if message already exists to prevent duplicates
+        if (prev.some(m => m.content === content && m.type === "ai")) {
+          return prev;
+        }
+        return [...prev, newMessage];
+      });
+      conversation.addMessage(newMessage);
     }, responseTime);
   };
 
   const addUserMessage = (content: string) => {
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        type: "user",
-        content,
-      },
-    ]);
+    const newMessage = {
+      id: Date.now().toString(),
+      type: "user" as const,
+      content,
+    };
+    setMessages((prev) => {
+      // Check if message already exists to prevent duplicates
+      if (prev.some(m => m.content === content && m.type === "user")) {
+        return prev;
+      }
+      return [...prev, newMessage];
+    });
+    conversation.addMessage(newMessage);
   };
 
   const addTeamMessage = (content: string, options?: string[]) => {
@@ -140,6 +179,17 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     if (stage.includes("implement")) return "implementing";
     if (stage.includes("optimisation") || stage.includes("running")) return "optimizing";
     return "";
+  };
+
+  // Stephane's Flow: Trigger lead capture after knowledge exchange
+  const triggerLeadCapture = () => {
+    setTimeout(() => {
+      setCollectingLead(true);
+      setLeadStep(1);
+      addAIMessage(
+        "I can send you a detailed architecture diagram for this solution. What's your email address?"
+      );
+    }, 1500);
   };
 
   const handleFAQ = (message: string) => {
@@ -207,6 +257,39 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         
         addAIMessage(
           `Thank you, ${contactFormData.name}! Our team will review your request and get back to you at ${contactFormData.email} within 24 hours.`
+        );
+        return;
+      }
+    }
+    
+    // Stephane's Flow: Handle lead capture (Knowledge Exchange → Lock-In → Navigation)
+    if (collectingLead) {
+      if (leadStep === 1) {
+        // Collecting email
+        setLeadData(prev => ({ ...prev, email: message }));
+        setLeadStep(2);
+        addAIMessage("Great! Which organization are you with?");
+        return;
+      } else if (leadStep === 2) {
+        // Collecting organization
+        setLeadData(prev => ({ ...prev, organization: message }));
+        setLeadStep(3);
+        setCollectingLead(false);
+        setLeadCaptured(true);
+        
+        // Log lead capture for production integration
+        console.log("🎯 LEAD CAPTURED:", {
+          timestamp: new Date().toISOString(),
+          email: leadData.email,
+          organization: message,
+          transformationGoal: selectedGoal,
+          conversationContext: messages
+        });
+        
+        // NOW offer navigation (after lead is captured)
+        addAIMessage(
+          `Perfect, ${message}! I've noted your details. Should I also take you to the service page where you can explore the full offering?`,
+          ["Yes, take me there", "Tell me more first", "Connect me with an architect"]
         );
         return;
       }
@@ -302,8 +385,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     // STEP 1: Handle initial goal selection - EXACT STRING MATCHES FIRST
     if (option === "Improve customer experience") {
       addUserMessage(option);
-      setSelectedGoal(option);
-      setConversationStep(1);
+      updateSelectedGoal(option);
+      updateConversationStep(1);
       setUnresolvedCount(0);
       
       addAIMessage(
@@ -315,8 +398,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     
     if (option === "Improve internal operations") {
       addUserMessage(option);
-      setSelectedGoal(option);
-      setConversationStep(1);
+      updateSelectedGoal(option);
+      updateConversationStep(1);
       setUnresolvedCount(0);
       
       addAIMessage(
@@ -328,8 +411,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     
     if (option === "Unlock value from data") {
       addUserMessage(option);
-      setSelectedGoal(option);
-      setConversationStep(1);
+      updateSelectedGoal(option);
+      updateConversationStep(1);
       setUnresolvedCount(0);
       
       addAIMessage(
@@ -341,8 +424,8 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
     
     if (option === "Improve delivery speed / DevOps") {
       addUserMessage(option);
-      setSelectedGoal(option);
-      setConversationStep(1);
+      updateSelectedGoal(option);
+      updateConversationStep(1);
       setUnresolvedCount(0);
       
       addAIMessage(
@@ -395,10 +478,16 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         option === "What analytics capabilities are included?" ||
         option === "How does process automation work?" ||
         option === "How does master data management work?" ||
-        option === "How does intelligent automation work?")) {
+        option === "How does intelligent automation work?" ||
+        option === "How does the unified view work?" ||
+        option === "How does orchestration work?" ||
+        option === "How does the CDP work?" ||
+        option === "How does policy-as-code work?" ||
+        option === "How does compliance-as-code work?" ||
+        option === "How does GitOps work?")) {
       
       addUserMessage(option);
-      setConversationStep(3);
+      updateConversationStep(3);
       
       addAIMessage(
         "That's a great technical question. To ensure you get the most detailed and accurate answer, would you like me to connect you with one of our TMaaS Solutions Architects? They can walk you through the specific implementation details.",
@@ -542,24 +631,28 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       // Knowledge-rich response - educate first, then recommend
       if (option === "We have data silos across systems") {
         addAIMessage(
-          "Data silos happen because each system was optimized for its own function — CRM for sales, ERP for operations, marketing automation for campaigns. They weren't designed to talk to each other.\n\nThe traditional approach is to build point-to-point integrations. But that creates a maintenance nightmare. Every new system means N new integrations.\n\nThe modern approach? A unified data fabric using Change Data Capture (CDC) streaming. Instead of querying systems directly, you stream changes to a central data platform in real-time. This gives you a single source of truth without disrupting your operational systems.\n\nOur Digital Intelligence & Analytics Blueprint maps out this exact architecture — from data ingestion to governance to analytics. It's not theory. It's a battle-tested implementation guide that cuts deployment time by 35%.",
-          ["Show me the blueprint", "How does CDC streaming work?", "What's the investment?"]
+          "Data silos happen because each system was optimized for its own function — CRM for sales, ERP for operations, marketing automation for campaigns. They weren't designed to talk to each other.\n\nThe traditional approach is to build point-to-point integrations. But that creates a maintenance nightmare. Every new system means N new integrations.\n\nThe modern approach? A unified data fabric using Change Data Capture (CDC) streaming. Instead of querying systems directly, you stream changes to a central data platform in real-time. This gives you a single source of truth without disrupting your operational systems.\n\nOur Digital Intelligence & Analytics Blueprint maps out this exact architecture — from data ingestion to governance to analytics. It's not theory. It's a battle-tested implementation guide that cuts deployment time by 35%."
         );
+        // Stephane's Flow: Trigger lead capture BEFORE offering navigation
+        triggerLeadCapture();
       } else if (option === "Our data quality is inconsistent") {
         addAIMessage(
-          "Inconsistent data quality is a symptom of decentralized data ownership. When every team manages their own data definitions, you end up with 'customer' meaning different things in different systems.\n\nThe fix isn't just data cleansing tools. You need data governance at the architecture level — standardized schemas, master data management, and automated quality checks built into your data pipelines.\n\nOur Digital Intelligence & Analytics Blueprint includes a complete data governance framework. It defines how to establish data ownership, create canonical data models, and implement quality gates that prevent bad data from entering your analytics layer.\n\nThis isn't a policy document. It's an implementation architecture with code patterns and infrastructure templates.",
-          ["Explore the blueprint", "How does the framework work?", "What's the cost?"]
+          "Inconsistent data quality is a symptom of decentralized data ownership. When every team manages their own data definitions, you end up with 'customer' meaning different things in different systems.\n\nThe fix isn't just data cleansing tools. You need data governance at the architecture level — standardized schemas, master data management, and automated quality checks built into your data pipelines.\n\nOur Digital Intelligence & Analytics Blueprint includes a complete data governance framework. It defines how to establish data ownership, create canonical data models, and implement quality gates that prevent bad data from entering your analytics layer.\n\nThis isn't a policy document. It's an implementation architecture with code patterns and infrastructure templates."
         );
+        // Stephane's Flow: Trigger lead capture BEFORE offering navigation
+        triggerLeadCapture();
       } else if (option === "We can't get a unified business view") {
         addAIMessage(
-          "A unified business view requires more than dashboards. It requires a semantic layer that translates technical data into business concepts.\n\nMost organizations try to solve this at the BI tool level. But that creates 'dashboard sprawl' — hundreds of reports with conflicting metrics because everyone defines 'revenue' differently.\n\nThe solution is a metrics layer that sits between your data platform and your analytics tools. It defines business metrics once, centrally, so every dashboard, report, and API uses the same calculation.\n\nOur Digital Intelligence & Analytics Blueprint shows you how to build this semantic layer using modern data stack patterns. You get consistent metrics across your entire organization, not just better dashboards.",
-          ["View the blueprint", "How does the metrics layer work?", "What's the timeline?"]
+          "A unified business view requires more than dashboards. It requires a semantic layer that translates technical data into business concepts.\n\nMost organizations try to solve this at the BI tool level. But that creates 'dashboard sprawl' — hundreds of reports with conflicting metrics because everyone defines 'revenue' differently.\n\nThe solution is a metrics layer that sits between your data platform and your analytics tools. It defines business metrics once, centrally, so every dashboard, report, and API uses the same calculation.\n\nOur Digital Intelligence & Analytics Blueprint shows you how to build this semantic layer using modern data stack patterns. You get consistent metrics across your entire organization, not just better dashboards."
         );
+        // Stephane's Flow: Trigger lead capture BEFORE offering navigation
+        triggerLeadCapture();
       } else {
         addAIMessage(
-          "If you're facing all three challenges, you're not alone. Most organizations are. The root cause is the same: legacy architectures that weren't designed for analytics.\n\nThe good news? You don't need to rebuild everything. You need a modern data platform that sits alongside your existing systems and creates a unified analytics layer.\n\nHere's the architecture: CDC streaming pulls data from your operational systems in real-time → a data lake stores raw data → transformation pipelines create clean, governed datasets → a semantic layer defines business metrics → analytics tools consume standardized data.\n\nOur Digital Intelligence & Analytics Blueprint gives you the complete implementation guide for this architecture. It's not a consulting engagement where we tell you what to do. It's a blueprint you can execute with your own team or ours.",
-          ["Show me the blueprint", "What's included?", "What's the investment?"]
+          "If you're facing all three challenges, you're not alone. Most organizations are. The root cause is the same: legacy architectures that weren't designed for analytics.\n\nThe good news? You don't need to rebuild everything. You need a modern data platform that sits alongside your existing systems and creates a unified analytics layer.\n\nHere's the architecture: CDC streaming pulls data from your operational systems in real-time → a data lake stores raw data → transformation pipelines create clean, governed datasets → a semantic layer defines business metrics → analytics tools consume standardized data.\n\nOur Digital Intelligence & Analytics Blueprint gives you the complete implementation guide for this architecture. It's not a consulting engagement where we tell you what to do. It's a blueprint you can execute with your own team or ours."
         );
+        // Stephane's Flow: Trigger lead capture BEFORE offering navigation
+        triggerLeadCapture();
       }
       return;
     }
@@ -577,14 +670,16 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
       // Knowledge-rich response - educate first, then recommend
       if (option === "Manual processes and handoffs") {
         addAIMessage(
-          "Manual handoffs happen because your systems don't share a common process orchestration layer. When an invoice needs approval, someone exports from the ERP, emails finance, they update their spreadsheet, then manually enter it back into the system.\n\nThe traditional fix is to train people on 'the process.' But that doesn't scale. Every exception becomes a special case. Every new hire needs weeks of training.\n\nThe modern approach? Process automation with a digital core platform. Instead of people moving data between systems, you define workflows once and let the platform orchestrate across your ERP, HR, finance, and supply chain systems automatically.\n\nOur Digital Workspace Strategy Blueprint maps out this exact architecture — from process discovery to automation to continuous optimization. It's not about replacing your systems. It's about connecting them intelligently.",
-          ["Show me the blueprint", "How does process automation work?", "What's the investment?"]
+          "Manual handoffs happen because your systems don't share a common process orchestration layer. When an invoice needs approval, someone exports from the ERP, emails finance, they update their spreadsheet, then manually enter it back into the system.\n\nThe traditional fix is to train people on 'the process.' But that doesn't scale. Every exception becomes a special case. Every new hire needs weeks of training.\n\nThe modern approach? Process automation with a digital core platform. Instead of people moving data between systems, you define workflows once and let the platform orchestrate across your ERP, HR, finance, and supply chain systems automatically.\n\nOur Digital Workspace Strategy Blueprint maps out this exact architecture — from process discovery to automation to continuous optimization. It's not about replacing your systems. It's about connecting them intelligently."
         );
+        // Stephane's Flow: Trigger lead capture BEFORE offering navigation
+        triggerLeadCapture();
       } else if (option === "System silos and data duplication") {
         addAIMessage(
-          "System silos exist because each platform was bought to solve a specific problem. Your ERP handles operations, your CRM handles sales, your HR system handles people. But now you have the same customer data in three places, and they're never in sync.\n\nThe traditional approach is to build integrations. But that creates a web of dependencies. Every system update risks breaking something downstream.\n\nThe solution is an integration platform with master data management. Instead of point-to-point connections, you create a single source of truth for core business entities — customers, products, employees. Each system reads and writes to this central hub.\n\nOur Digital Workspace Strategy Blueprint includes the complete integration architecture. You get API patterns, data synchronization strategies, and conflict resolution logic. This isn't theory — it's production-ready patterns from organizations that have solved this problem.",
-          ["Explore the blueprint", "How does master data management work?", "What's the cost?"]
+          "System silos exist because each platform was bought to solve a specific problem. Your ERP handles operations, your CRM handles sales, your HR system handles people. But now you have the same customer data in three places, and they're never in sync.\n\nThe traditional approach is to build integrations. But that creates a web of dependencies. Every system update risks breaking something downstream.\n\nThe solution is an integration platform with master data management. Instead of point-to-point connections, you create a single source of truth for core business entities — customers, products, employees. Each system reads and writes to this central hub.\n\nOur Digital Workspace Strategy Blueprint includes the complete integration architecture. You get API patterns, data synchronization strategies, and conflict resolution logic. This isn't theory — it's production-ready patterns from organizations that have solved this problem."
         );
+        // Stephane's Flow: Trigger lead capture BEFORE offering navigation
+        triggerLeadCapture();
       } else if (option === "Slow approval workflows") {
         addAIMessage(
           "Slow approvals aren't usually about people being slow. They're about visibility and context. When an approval request lands in someone's inbox, they don't have the full picture. They need to check three systems, ask two people, then make a decision.\n\nMost organizations try to fix this with escalation policies. But that just creates more noise. The real problem is that approval workflows are disconnected from the systems that have the context.\n\nThe modern approach is intelligent workflow automation. The system gathers all the context — budget status, compliance checks, historical data — and presents it alongside the approval request. For routine cases, it can even auto-approve based on predefined rules.\n\nOur Digital Workspace Strategy Blueprint shows you how to build these intelligent workflows. You get decision automation patterns, escalation logic, and audit trails that satisfy compliance requirements.",
@@ -931,7 +1026,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="How can I assist you today?"
+              placeholder="How can I help you today?"
               className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary"
               disabled={isTyping}
             />

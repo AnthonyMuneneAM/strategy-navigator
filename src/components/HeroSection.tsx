@@ -3,10 +3,12 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DiagnoseDialog from "./DiagnoseDialog";
+import { useConversation } from "@/contexts/ConversationContext";
 
 const HeroSection = () => {
   const [problem, setProblem] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { hasActiveConversation } = useConversation();
 
   const handleSubmit = () => {
     if (problem.trim()) {
@@ -77,7 +79,7 @@ const HeroSection = () => {
                 value={problem}
                 onChange={(e) => setProblem(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="How can I assist you today?"
+                placeholder="How can I help you today?"
                 rows={1}
                 className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
               />
