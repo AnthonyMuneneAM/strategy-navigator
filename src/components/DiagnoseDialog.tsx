@@ -288,7 +288,7 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         
         // NOW offer navigation (after lead is captured)
         addAIMessage(
-          `Perfect, ${message}! I've noted your details. Should I also take you to the service page where you can explore the full offering?`,
+          `Perfect, ${message}! I've sent you the architecture diagram to ${leadData.email}. Should I also take you to the service page where you can explore the full offering?`,
           ["Yes, take me there", "Tell me more first", "Connect me with an architect"]
         );
         return;
