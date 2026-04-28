@@ -443,29 +443,25 @@ const DiagnoseDialog = ({ isOpen, onClose, initialProblem = "" }: DiagnoseDialog
         option === "View the blueprint")) {
       
       addUserMessage(option);
-      setConversationStep(3);
       
+      // Determine service URL based on selected goal
+      let serviceUrl = "/marketplace";
       if (selectedGoal === "Unlock value from data") {
-        addAIMessage(
-          "The Digital Intelligence & Analytics Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Unified data platform architecture\n• CDC streaming implementation guide\n• Analytics & BI integration patterns\n• Data governance framework\n• Security & compliance guidelines\n\nShould I take you to the service page?",
-          ["Yes, take me there", "What's the investment?", "How do I get started?"]
-        );
+        serviceUrl = "/service/3";
       } else if (selectedGoal === "Improve internal operations") {
-        addAIMessage(
-          "The Digital Workspace Strategy Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Digital core platform architecture\n• Process automation patterns\n• Master data management framework\n• Integration & API strategy\n• Workflow orchestration guide\n\nShould I take you to the service page?",
-          ["Yes, take me there", "What's the investment?", "How do I get started?"]
-        );
+        serviceUrl = "/service/2";
       } else if (selectedGoal === "Improve customer experience") {
-        addAIMessage(
-          "The Digital Experience Strategy Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Customer data platform architecture\n• Omnichannel orchestration patterns\n• Experience personalization framework\n• API gateway & integration strategy\n• Analytics & journey tracking\n\nShould I take you to the service page?",
-          ["Yes, take me there", "What's the investment?", "How do I get started?"]
-        );
+        serviceUrl = "/service/1";
       } else if (selectedGoal === "Improve delivery speed / DevOps") {
-        addAIMessage(
-          "The SecDevOps Strategy Blueprint is a comprehensive, architecture-backed transformation package. It includes:\n\n• Policy-as-code framework\n• Automated security & compliance scanning\n• Infrastructure-as-code patterns\n• GitOps deployment workflows\n• Observability & monitoring strategy\n\nShould I take you to the service page?",
-          ["Yes, take me there", "What's the investment?", "How do I get started?"]
-        );
+        serviceUrl = "/service/4";
       }
+      
+      // Navigate directly to the service page
+      addAIMessage("Taking you to the service page...");
+      setTimeout(() => {
+        onClose();
+        navigate(serviceUrl);
+      }, 1500);
       return;
     }
     
